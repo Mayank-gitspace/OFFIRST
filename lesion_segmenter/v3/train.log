@@ -1,0 +1,137 @@
+[{"stream_name":"stdout","time":0.915629344,"data":"Wrote code: ['README.md', 'common.py', 'config.yaml', 'inference.py', 'model.py', 'train.py']\n"}
+,{"stream_name":"stdout","time":0.952132189,"data":"Sat Oct 31 16:48:20 2026       \n"}
+,{"stream_name":"stdout","time":0.952160925,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.952164742,"data":"| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n"}
+,{"stream_name":"stdout","time":0.952167228,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.95216967,"data":"| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n"}
+,{"stream_name":"stdout","time":0.952173032,"data":"| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n"}
+,{"stream_name":"stdout","time":0.95218829,"data":"|                                         |                        |               MIG M. |\n"}
+,{"stream_name":"stdout","time":0.95219212,"data":"|=========================================+========================+======================|\n"}
+,{"stream_name":"stdout","time":1.007018991,"data":"|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":1.007035737,"data":"| N/A   52C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":1.007041975,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":1.007049408,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":1.007051833,"data":"|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":1.007054282,"data":"| N/A   55C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":1.007056747,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":1.007059176,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":1.007715243,"data":"\n"}
+,{"stream_name":"stdout","time":1.007726858,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.007730546,"data":"| Processes:                                                                              |\n"}
+,{"stream_name":"stdout","time":1.00773417,"data":"|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n"}
+,{"stream_name":"stdout","time":1.007743193,"data":"|        ID   ID                                                               Usage      |\n"}
+,{"stream_name":"stdout","time":1.007746219,"data":"|=========================================================================================|\n"}
+,{"stream_name":"stdout","time":1.009149864,"data":"|  No running processes found                                                             |\n"}
+,{"stream_name":"stdout","time":1.009161855,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.339665626,"data":"=== /kaggle/input layout (depth\u003c=4) ===\n"}
+,{"stream_name":"stdout","time":1.442359684,"data":"datasets/\n"}
+,{"stream_name":"stdout","time":1.442460317,"data":"  kanchandalal123/\n"}
+,{"stream_name":"stdout","time":1.442492707,"data":"    idrid-dataset-lesion-segmentation/\n"}
+,{"stream_name":"stdout","time":1.442636716,"data":"      A. Segmentation/\n"}
+,{"stream_name":"stdout","time":1.474262697,"data":"idrid_root -\u003e /kaggle/input/datasets/kanchandalal123/idrid-dataset-lesion-segmentation/A. Segmentation  (train jpgs=54, test jpgs=27)\n"}
+,{"stream_name":"stdout","time":32.837264011,"data":"torch 2.11.0+cu128 cuda True timm 1.0.29 smp 0.6.0 albu 2.0.8\n"}
+,{"stream_name":"stdout","time":36.847685291,"data":"Running: /usr/bin/python3 train.py --config config.yaml --set data.idrid_root=/kaggle/input/datasets/kanchandalal123/idrid-dataset-lesion-segmentation/A. Segmentation data.long_side=1440 training.batch_size=2 training.grad_accum_steps=4 training.epochs=40 output.checkpoint_dir=/kaggle/working/ckpt\n"}
+,{"stream_name":"stdout","time":42.500553826,"data":"Using device: cuda  (AMP: True)\n"}
+,{"stream_name":"stdout","time":42.692835615,"data":"Train imgs: 48  Val imgs: 6 (holdout)  Official test imgs: 27\n"}
+,{"stream_name":"stdout","time":42.692945289,"data":"Missing lesion masks in train (treated as zeros): 26\n"}
+,{"stream_name":"stderr","time":79.717792545,"data":"\rCaching PatchTrainDataset:   0%|          | 0/48 [00:00\u003c?, ?it/s]\rCaching PatchTrainDataset: 100%|██████████| 48/48 [00:37\u003c00:00,  1.30it/s]\n"}
+,{"stream_name":"stderr","time":86.319529893,"data":"\rCaching FullImageValDataset:   0%|          | 0/6 [00:00\u003c?, ?it/s]\rCaching FullImageValDataset: 100%|██████████| 6/6 [00:04\u003c00:00,  1.30it/s]\n"}
+,{"stream_name":"stderr","time":87.486324571,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":90.809386377,"data":"Encoder: tu-convnext_tiny.fb_in22k_ft_in1k\n"}
+,{"stream_name":"stdout","time":90.8123787,"data":"Params: total 31.93M  (encoder 27.82M, decoder+head 4.11M)\n"}
+,{"stream_name":"stdout","time":90.812420998,"data":"LR: encoder 0.0001  decoder 0.0003  |  batch 2 x accum 4 = effective 8\n"}
+,{"stream_name":"stderr","time":114.583214611,"data":"\rEpoch 1 [enc frozen]:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 1 [enc frozen]: 100%|██████████| 384/384 [00:23\u003c00:00, 16.16it/s]\n"}
+,{"stream_name":"stdout","time":118.768734951,"data":"Epoch 1: train_loss=1.4798  mAUPR=0.2006  lr(enc/dec)=1.00e-04/3.00e-04\n"}
+,{"stream_name":"stdout","time":118.768774335,"data":"  AUPR: MA=0.002  HE=0.016  EX=0.773  SE=0.012\n"}
+,{"stream_name":"stdout","time":118.768779001,"data":"  Dice: MA=0.000  HE=0.003  EX=0.673  SE=0.000\n"}
+,{"stream_name":"stdout","time":119.007313623,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":137.866935617,"data":"\rEpoch 2 [enc frozen]:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 2 [enc frozen]: 100%|██████████| 384/384 [00:18\u003c00:00, 20.36it/s]\n"}
+,{"stream_name":"stdout","time":139.969478085,"data":"Epoch 2: train_loss=1.0756  mAUPR=0.4677  lr(enc/dec)=9.98e-05/3.00e-04\n"}
+,{"stream_name":"stdout","time":139.969550267,"data":"  AUPR: MA=0.017  HE=0.610  EX=0.853  SE=0.390\n"}
+,{"stream_name":"stdout","time":139.969558369,"data":"  Dice: MA=0.000  HE=0.514  EX=0.773  SE=0.000\n"}
+,{"stream_name":"stdout","time":140.278959404,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":159.431184007,"data":"\rEpoch 3 [enc frozen]:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 3 [enc frozen]: 100%|██████████| 384/384 [00:19\u003c00:00, 20.05it/s]\n"}
+,{"stream_name":"stdout","time":161.539336214,"data":"Epoch 3: train_loss=0.9303  mAUPR=0.5269  lr(enc/dec)=9.94e-05/2.98e-04\n"}
+,{"stream_name":"stdout","time":161.539414165,"data":"  AUPR: MA=0.145  HE=0.557  EX=0.860  SE=0.546\n"}
+,{"stream_name":"stdout","time":161.539420844,"data":"  Dice: MA=0.174  HE=0.537  EX=0.790  SE=0.000\n"}
+,{"stream_name":"stdout","time":161.843811628,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":181.360065799,"data":"\rEpoch 4 [enc frozen]:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 4 [enc frozen]: 100%|██████████| 384/384 [00:19\u003c00:00, 19.68it/s]\n"}
+,{"stream_name":"stdout","time":183.489805976,"data":"Epoch 4: train_loss=0.8304  mAUPR=0.5679  lr(enc/dec)=9.86e-05/2.96e-04\n"}
+,{"stream_name":"stdout","time":183.489843019,"data":"  AUPR: MA=0.178  HE=0.618  EX=0.876  SE=0.600\n"}
+,{"stream_name":"stdout","time":183.489846705,"data":"  Dice: MA=0.291  HE=0.597  EX=0.799  SE=0.569\n"}
+,{"stream_name":"stdout","time":183.802807455,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":203.663109913,"data":"\rEpoch 5 [enc frozen]:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 5 [enc frozen]: 100%|██████████| 384/384 [00:19\u003c00:00, 19.34it/s]\n"}
+,{"stream_name":"stdout","time":205.76119345,"data":"Epoch 5: train_loss=0.7452  mAUPR=0.6321  lr(enc/dec)=9.76e-05/2.93e-04\n"}
+,{"stream_name":"stdout","time":205.761231134,"data":"  AUPR: MA=0.456  HE=0.666  EX=0.876  SE=0.530\n"}
+,{"stream_name":"stdout","time":205.761237745,"data":"  Dice: MA=0.416  HE=0.592  EX=0.802  SE=0.503\n"}
+,{"stream_name":"stdout","time":206.067412892,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":245.991462645,"data":"\rEpoch 6:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 6: 100%|██████████| 384/384 [00:39\u003c00:00,  9.62it/s]\n"}
+,{"stream_name":"stdout","time":248.117430625,"data":"Epoch 6: train_loss=0.6746  mAUPR=0.6976  lr(enc/dec)=9.62e-05/2.89e-04\n"}
+,{"stream_name":"stdout","time":248.117469079,"data":"  AUPR: MA=0.493  HE=0.778  EX=0.873  SE=0.646\n"}
+,{"stream_name":"stdout","time":248.117474899,"data":"  Dice: MA=0.489  HE=0.718  EX=0.805  SE=0.658\n"}
+,{"stream_name":"stdout","time":248.420943099,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":282.121954558,"data":"\rEpoch 7:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 7: 100%|██████████| 384/384 [00:33\u003c00:00, 11.40it/s]\n"}
+,{"stream_name":"stdout","time":284.290603675,"data":"Epoch 7: train_loss=0.6208  mAUPR=0.6826  lr(enc/dec)=9.46e-05/2.84e-04\n"}
+,{"stream_name":"stdout","time":284.290653258,"data":"  AUPR: MA=0.508  HE=0.769  EX=0.878  SE=0.575\n"}
+,{"stream_name":"stdout","time":284.290658438,"data":"  Dice: MA=0.494  HE=0.701  EX=0.808  SE=0.539\n"}
+,{"stream_name":"stderr","time":318.129478889,"data":"\rEpoch 8:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 8: 100%|██████████| 384/384 [00:33\u003c00:00, 11.40it/s]\n"}
+,{"stream_name":"stdout","time":320.256056311,"data":"Epoch 8: train_loss=0.5830  mAUPR=0.6426  lr(enc/dec)=9.26e-05/2.78e-04\n"}
+,{"stream_name":"stdout","time":320.256096938,"data":"  AUPR: MA=0.422  HE=0.769  EX=0.875  SE=0.504\n"}
+,{"stream_name":"stdout","time":320.256101394,"data":"  Dice: MA=0.495  HE=0.698  EX=0.801  SE=0.532\n"}
+,{"stream_name":"stderr","time":354.149627316,"data":"\rEpoch 9:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 9: 100%|██████████| 384/384 [00:33\u003c00:00, 11.38it/s]\n"}
+,{"stream_name":"stdout","time":356.282601432,"data":"Epoch 9: train_loss=0.5649  mAUPR=0.7093  lr(enc/dec)=9.05e-05/2.71e-04\n"}
+,{"stream_name":"stdout","time":356.282645049,"data":"  AUPR: MA=0.499  HE=0.804  EX=0.892  SE=0.642\n"}
+,{"stream_name":"stdout","time":356.28266606,"data":"  Dice: MA=0.550  HE=0.721  EX=0.816  SE=0.644\n"}
+,{"stream_name":"stdout","time":356.579805291,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":390.300549824,"data":"\rEpoch 10:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 10: 100%|██████████| 384/384 [00:33\u003c00:00, 11.39it/s]\n"}
+,{"stream_name":"stdout","time":392.459102696,"data":"Epoch 10: train_loss=0.5665  mAUPR=0.6723  lr(enc/dec)=8.80e-05/2.64e-04\n"}
+,{"stream_name":"stdout","time":392.459140493,"data":"  AUPR: MA=0.529  HE=0.736  EX=0.852  SE=0.572\n"}
+,{"stream_name":"stdout","time":392.459151109,"data":"  Dice: MA=0.532  HE=0.695  EX=0.779  SE=0.584\n"}
+,{"stream_name":"stderr","time":426.312866709,"data":"\rEpoch 11:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 11: 100%|██████████| 384/384 [00:33\u003c00:00, 11.40it/s]\n"}
+,{"stream_name":"stdout","time":428.425493479,"data":"Epoch 11: train_loss=0.5446  mAUPR=0.7241  lr(enc/dec)=8.54e-05/2.56e-04\n"}
+,{"stream_name":"stdout","time":428.425529092,"data":"  AUPR: MA=0.545  HE=0.802  EX=0.897  SE=0.652\n"}
+,{"stream_name":"stdout","time":428.425554144,"data":"  Dice: MA=0.527  HE=0.742  EX=0.824  SE=0.691\n"}
+,{"stream_name":"stdout","time":428.720230732,"data":"  -\u003e saved best\n"}
+,{"stream_name":"stderr","time":462.343911167,"data":"\rEpoch 12:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 12: 100%|██████████| 384/384 [00:33\u003c00:00, 11.42it/s]\n"}
+,{"stream_name":"stdout","time":464.491788087,"data":"Epoch 12: train_loss=0.5224  mAUPR=0.7151  lr(enc/dec)=8.25e-05/2.47e-04\n"}
+,{"stream_name":"stdout","time":464.491824658,"data":"  AUPR: MA=0.525  HE=0.809  EX=0.891  SE=0.636\n"}
+,{"stream_name":"stdout","time":464.491830607,"data":"  Dice: MA=0.563  HE=0.740  EX=0.816  SE=0.668\n"}
+,{"stream_name":"stderr","time":498.270370868,"data":"\rEpoch 13:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 13: 100%|██████████| 384/384 [00:33\u003c00:00, 11.42it/s]\n"}
+,{"stream_name":"stdout","time":500.443697668,"data":"Epoch 13: train_loss=0.4934  mAUPR=0.6628  lr(enc/dec)=7.94e-05/2.38e-04\n"}
+,{"stream_name":"stdout","time":500.443736839,"data":"  AUPR: MA=0.546  HE=0.750  EX=0.875  SE=0.481\n"}
+,{"stream_name":"stdout","time":500.443755727,"data":"  Dice: MA=0.553  HE=0.629  EX=0.803  SE=0.544\n"}
+,{"stream_name":"stderr","time":534.194869131,"data":"\rEpoch 14:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 14: 100%|██████████| 384/384 [00:33\u003c00:00, 11.43it/s]\n"}
+,{"stream_name":"stdout","time":536.327684715,"data":"Epoch 14: train_loss=0.4648  mAUPR=0.6264  lr(enc/dec)=7.61e-05/2.28e-04\n"}
+,{"stream_name":"stdout","time":536.327724349,"data":"  AUPR: MA=0.527  HE=0.737  EX=0.874  SE=0.368\n"}
+,{"stream_name":"stdout","time":536.327730572,"data":"  Dice: MA=0.548  HE=0.683  EX=0.792  SE=0.319\n"}
+,{"stream_name":"stderr","time":570.096442457,"data":"\rEpoch 15:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 15: 100%|██████████| 384/384 [00:33\u003c00:00, 11.42it/s]\n"}
+,{"stream_name":"stdout","time":572.234497978,"data":"Epoch 15: train_loss=0.4790  mAUPR=0.6034  lr(enc/dec)=7.27e-05/2.18e-04\n"}
+,{"stream_name":"stdout","time":572.234559403,"data":"  AUPR: MA=0.538  HE=0.764  EX=0.889  SE=0.222\n"}
+,{"stream_name":"stdout","time":572.234567824,"data":"  Dice: MA=0.554  HE=0.699  EX=0.810  SE=0.139\n"}
+,{"stream_name":"stderr","time":605.976177015,"data":"\rEpoch 16:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 16: 100%|██████████| 384/384 [00:33\u003c00:00, 11.43it/s]\n"}
+,{"stream_name":"stdout","time":608.102930805,"data":"Epoch 16: train_loss=0.4813  mAUPR=0.5569  lr(enc/dec)=6.91e-05/2.07e-04\n"}
+,{"stream_name":"stdout","time":608.10297312,"data":"  AUPR: MA=0.534  HE=0.787  EX=0.894  SE=0.013\n"}
+,{"stream_name":"stdout","time":608.102978197,"data":"  Dice: MA=0.546  HE=0.713  EX=0.814  SE=0.000\n"}
+,{"stream_name":"stderr","time":641.815689933,"data":"\rEpoch 17:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 17: 100%|██████████| 384/384 [00:33\u003c00:00, 11.44it/s]\n"}
+,{"stream_name":"stdout","time":643.973426547,"data":"Epoch 17: train_loss=0.4583  mAUPR=0.7026  lr(enc/dec)=6.55e-05/1.96e-04\n"}
+,{"stream_name":"stdout","time":643.973473539,"data":"  AUPR: MA=0.532  HE=0.797  EX=0.899  SE=0.583\n"}
+,{"stream_name":"stdout","time":643.973478236,"data":"  Dice: MA=0.564  HE=0.729  EX=0.824  SE=0.550\n"}
+,{"stream_name":"stderr","time":677.703275657,"data":"\rEpoch 18:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 18: 100%|██████████| 384/384 [00:33\u003c00:00, 11.44it/s]\n"}
+,{"stream_name":"stdout","time":679.843008826,"data":"Epoch 18: train_loss=0.4596  mAUPR=0.5572  lr(enc/dec)=6.17e-05/1.85e-04\n"}
+,{"stream_name":"stdout","time":679.84304838,"data":"  AUPR: MA=0.517  HE=0.789  EX=0.896  SE=0.027\n"}
+,{"stream_name":"stdout","time":679.84305259,"data":"  Dice: MA=0.570  HE=0.719  EX=0.808  SE=0.000\n"}
+,{"stream_name":"stderr","time":713.50581832,"data":"\rEpoch 19:   0%|          | 0/384 [00:00\u003c?, ?it/s]\rEpoch 19: 100%|██████████| 384/384 [00:33\u003c00:00, 11.46it/s]\n"}
+,{"stream_name":"stdout","time":715.662888034,"data":"Epoch 19: train_loss=0.4611  mAUPR=0.5801  lr(enc/dec)=5.78e-05/1.73e-04\n"}
+,{"stream_name":"stdout","time":715.662926098,"data":"  AUPR: MA=0.523  HE=0.779  EX=0.902  SE=0.115\n"}
+,{"stream_name":"stdout","time":715.662932147,"data":"  Dice: MA=0.565  HE=0.723  EX=0.823  SE=0.000\n"}
+,{"stream_name":"stdout","time":715.82113398,"data":"Early stopping\n"}
+,{"stream_name":"stdout","time":715.822498508,"data":"Training complete. Best mAUPR=0.7241  -\u003e  /kaggle/working/ckpt/best.pth\n"}
+,{"stream_name":"stdout","time":717.906228957,"data":"train.py exit code 0\n"}
+,{"stream_name":"stdout","time":717.906497632,"data":"Outputs: ['best.pth', 'last.pth', 'history.json']\n"}
+,{"stream_name":"stderr","time":721.077574852,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":721.077603955,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":721.362232458,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":721.362262561,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":722.209430974,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":723.264515228,"data":"[NbConvertApp] Writing 346168 bytes to __results__.html\n"}
+]

@@ -1,0 +1,34 @@
+{
+  "ckpt": "/workspace/team_offirst/ckpt_v6/ckpt/best.pth",
+  "n_healthy": 341,
+  "n_dr": 27,
+  "max_healthy_rate": 0.1,
+  "min_score": {
+    "MA": 0.95,
+    "HE": 0.885,
+    "EX": 0.92,
+    "SE": 0.5
+  },
+  "report": {
+    "MA": {
+      "healthy_pick_rate": 0.073,
+      "dr_pick_rate": 0.926,
+      "dr_hit_rate": 0.8
+    },
+    "HE": {
+      "healthy_pick_rate": 0.094,
+      "dr_pick_rate": 1.0,
+      "dr_hit_rate": 1.0
+    },
+    "EX": {
+      "healthy_pick_rate": 0.1,
+      "dr_pick_rate": 1.0,
+      "dr_hit_rate": 1.0
+    },
+    "SE": {
+      "healthy_pick_rate": 0.0,
+      "dr_pick_rate": 0.0,
+      "dr_hit_rate": null
+    }
+  }
+}

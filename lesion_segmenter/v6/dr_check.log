@@ -1,0 +1,100 @@
+Preprocessing taken from checkpoint (config -> ckpt): {'preprocess': (None, 'circle'), 'long_side': (1024, 1440), 'fov_diameter': (None, 1440), 'fov_red_threshold': (None, 12), 'clahe': (None, False), 'clahe_clip': (None, 2.0)}
+0
+20
+40
+60
+80
+100
+120
+140
+160
+180
+200
+220
+240
+260
+280
+300
+320
+340
+360
+{
+ "thresholds": {
+  "MA": 0.95,
+  "HE": 0.885,
+  "EX": 0.92,
+  "SE": 0.5
+ },
+ "healthy_all": {
+  "n": 341,
+  "any_crop_rate": 0.22,
+  "MA": 0.073,
+  "HE": 0.094,
+  "EX": 0.1,
+  "SE": 0.0
+ },
+ "dr_all": {
+  "n": 376,
+  "any_crop_rate": 0.992,
+  "MA": 0.707,
+  "HE": 0.939,
+  "EX": 0.907,
+  "SE": 0.0
+ },
+ "per_camera": {
+  "2048x1536": {
+   "healthy": {
+    "n": 93,
+    "any_crop_rate": 0.022,
+    "MA": 0.0,
+    "HE": 0.022,
+    "EX": 0.0,
+    "SE": 0.0
+   },
+   "dr": {
+    "n": 0,
+    "any_crop_rate": 0.0,
+    "MA": 0.0,
+    "HE": 0.0,
+    "EX": 0.0,
+    "SE": 0.0
+   }
+  },
+  "2144x1424": {
+   "healthy": {
+    "n": 190,
+    "any_crop_rate": 0.205,
+    "MA": 0.042,
+    "HE": 0.084,
+    "EX": 0.1,
+    "SE": 0.0
+   },
+   "dr": {
+    "n": 302,
+    "any_crop_rate": 0.99,
+    "MA": 0.656,
+    "HE": 0.934,
+    "EX": 0.894,
+    "SE": 0.0
+   }
+  },
+  "4288x2848": {
+   "healthy": {
+    "n": 58,
+    "any_crop_rate": 0.586,
+    "MA": 0.293,
+    "HE": 0.241,
+    "EX": 0.259,
+    "SE": 0.0
+   },
+   "dr": {
+    "n": 74,
+    "any_crop_rate": 1.0,
+    "MA": 0.919,
+    "HE": 0.959,
+    "EX": 0.959,
+    "SE": 0.0
+   }
+  }
+ }
+}

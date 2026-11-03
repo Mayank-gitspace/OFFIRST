@@ -1,0 +1,53 @@
+{
+ "2": {
+  "size": "2144x1424",
+  "crops": [
+   [
+    "EX",
+    0.964
+   ],
+   [
+    "HE",
+    0.961
+   ],
+   [
+    "MA",
+    0.959
+   ]
+  ],
+  "png": "/workspace/team_offirst/v6_dr_check/RFMiD_2_DR_v6_overlay.png"
+ },
+ "1496": {
+  "size": "4288x2848",
+  "crops": [
+   [
+    "MA",
+    0.951
+   ],
+   [
+    "HE",
+    0.946
+   ],
+   [
+    "EX",
+    0.942
+   ]
+  ],
+  "png": "/workspace/team_offirst/v6_dr_check/RFMiD_1496_DR_v6_overlay.png"
+ },
+ "285": {
+  "size": "2144x1424",
+  "crops": [
+   [
+    "EX",
+    0.952
+   ]
+  ],
+  "png": "/workspace/team_offirst/v6_dr_check/RFMiD_285_DR_v6_overlay.png"
+ },
+ "828": {
+  "size": "2144x1424",
+  "crops": [],
+  "png": "/workspace/team_offirst/v6_dr_check/RFMiD_828_DR_v6_overlay.png"
+ }
+}

@@ -1,0 +1,122 @@
+# RETRAIN v6 (SE fix): identical to config_v5.yaml except
+#   data.negative_patches_per_image 8 -> 2  (v5's 400 all-negative patches/epoch vs 768 IDRiD patches
+#     suppressed the rare SE class: v5 SE test AUPR 0.105, Dice 0)
+#   training.class_weights {SE: 3.0}: SE term x3 in BOTH BCE (per-class mean) and soft Dice;
+#     MA/HE/EX keep weight 1 (their loss terms are numerically unchanged). 3x ~ SE is the rarest class
+#     (SE masks on only 26/54 train + 14/27 test imgs) without letting it dominate the total loss.
+#   Same 50 RFMiD-train normals (data_splits/rfmid_neg_train.txt), same preprocessing/augs/selection.
+# (v5 header follows)
+# RETRAIN v5: 1440 Dice+BCE, select on MA/HE/EX, patience 12.
+# Lesion supervision: IDRiD SEGMENTATION subset only (same 6-image holdout val as before).
+# Negatives: RFMiD TRAINING-split normals (Disease_Risk=0). IDRiD grading set and RFMiD test set: NEVER used.
+# Camera robustness: retina-circle preprocessing (fixed diameter) + camera_robust augmentation.
+# Lightweight DR Lesion Segmenter config (Kaggle-ready)
+# 4-class MULTI-LABEL segmentation (MA, HE, EX, SE) — one sigmoid channel per lesion.
+
+seed: 42
+
+# Data — official IDRiD "A. Segmentation" layout
+data:
+  # Either the "A. Segmentation" folder itself, or any parent of it
+  # (the loader searches for "1. Original Images" / "2. All Segmentation Groundtruths").
+  idrid_root: "/kaggle/input/idrid-dataset-lesion-segmentation"
+  lesion_classes: ["MA", "HE", "EX", "SE"]     # order = output channel order
+  long_side: 1440          # used only by preprocess: bbox
+  preprocess: "circle"     # v5: retina circle (FOV mask) -> square -> diameter fov_diameter; same fn in inference
+  fov_diameter: 1440       # retina circle diameter in px after preprocessing (camera independent)
+  fov_red_threshold: 12
+  clahe: false             # optional CLAHE on LAB-L in preprocessing (off: CLAHE is used as on/off augmentation)
+  clahe_clip: 2.0
+  background_patches_in_fov: true   # non-lesion patches centred inside the retina
+  fundus_threshold: 15     # intensity threshold used to find the fundus circle
+  patch_size: 512          # random training patches
+  lesion_patch_prob: 0.7   # fraction of patches centred on a lesion pixel
+  patches_per_image: 16    # patches drawn per training image per epoch
+  # Validation source:
+  #   "test"    -> official IDRiD test set (27 imgs). Simple, but then you select the
+  #                checkpoint on the test set (optimistic numbers).
+  #   "holdout" -> hold out `holdout_n` official TRAINING images for validation and keep
+  #                the official test set untouched for a final report.
+  val_source: "holdout"
+  holdout_n: 6
+  # Healthy (DR grade-0) images as all-negative samples (empty masks). Empty lists = old behaviour.
+  negatives_root: null           # RFMiD Training image folder (set by the Kaggle kernel)
+  allow_idrid_grading_negatives: false
+  negative_train_ids: ["21", "126", "153", "154", "218", "255", "257", "406", "420", "452", "666", "684", "813", "815", "822", "833", "839", "852", "883", "900", "904", "974", "1014", "1045", "1137", "1194", "1225", "1245", "1314", "1381", "1558", "1644", "1701", "1709", "1714", "1717", "1727", "1732", "1775", "1790", "1802", "1807", "1809", "1820", "1822", "1860", "1869", "1895", "1901", "1905"]   # data_splits/rfmid_neg_train.txt (50)
+  negative_val_ids: ["17", "274", "531", "690", "693", "802", "1535", "1745", "1856", "1865"]   # data_splits/rfmid_neg_valfp.txt (10), FP monitor only (not used for selection)
+  negative_patches_per_image: 2      # v6: was 8
+  negative_exclude_ids: ["10", "16", "28", "68", "81", "83", "90", "91", "92", "93", "94", "115", "116", "117", "118", "138", "148", "159", "160", "167", "175", "179", "206", "209", "230", "238", "239", "248", "256", "258", "266", "270", "271", "292", "293", "313", "314", "320", "325", "336", "339", "344", "374", "375", "378", "410", "414", "421", "430", "431", "435", "442", "443", "449", "454", "458", "462", "466", "470", "482", "489", "498", "529", "530", "536", "537", "553", "569", "578", "579", "582", "593", "594", "598", "601", "605", "617", "641", "642", "649", "651", "680", "692", "701", "708", "715", "728", "730", "735", "743", "757", "758", "769", "793", "794", "795", "797", "798", "801", "803", "805", "812", "834", "840", "850", "859", "863", "868", "872", "885", "889", "893", "895", "896", "898", "899", "901", "905", "908", "910", "928", "931", "936", "940", "942", "944", "947", "956", "965", "969", "997", "999", "1010", "1015", "1018", "1024", "1032", "1035", "1041", "1046", "1052", "1063", "1064", "1071", "1072", "1077", "1082", "1085", "1086", "1101", "1102", "1109", "1112", "1113", "1124", "1134", "1135", "1145", "1147", "1153", "1176", "1185", "1188", "1189", "1193", "1209", "1214", "1224", "1231", "1244", "1250", "1255", "1264", "1265", "1284", "1295", "1303", "1311", "1312", "1318", "1319", "1321", "1374", "1382", "1388", "1392", "1404", "1410", "1411", "1419", "1508", "1510", "1525", "1526", "1543", "1544", "1553", "1554", "1555", "1562", "1586", "1587", "1588", "1601", "1614", "1647", "1657", "1659", "1663", "1675", "1684", "1691", "1696", "1699", "1703", "1704", "1705", "1706", "1707", "1715", "1716", "1718", "1719", "1728", "1729", "1730", "1731", "1733", "1734", "1735", "1736", "1737", "1738", "1740", "1742", "1743", "1744", "1746", "1748", "1751", "1752", "1754", "1756", "1757", "1759", "1760", "1764", "1765", "1766", "1767", "1768", "1771", "1773", "1777", "1780", "1781", "1782", "1785", "1786", "1787", "1788", "1791", "1792", "1794", "1795", "1796", "1797", "1800", "1801", "1805", "1808", "1810", "1811", "1812", "1813", "1814", "1815", "1816", "1817", "1819", "1821", "1823", "1824", "1827", "1828", "1829", "1830", "1832", "1833", "1837", "1838", "1839", "1840", "1841", "1844", "1848", "1849", "1850", "1852", "1853", "1855", "1858", "1859", "1861", "1862", "1863", "1864", "1868", "1871", "1872", "1873", "1874", "1875", "1876", "1877", "1878", "1879", "1880", "1881", "1882", "1883", "1884", "1885", "1886", "1888", "1889", "1890", "1893", "1894", "1896", "1897", "1898", "1899", "1900", "1904", "1911", "1912", "1913", "1918", "1919", "1920"]   # data_splits/rfmid_thresh_tune.txt (341) reserved for thresholds; asserted disjoint
+  cache_in_ram: true       # preprocessed images (~54 x 1024px) fit easily in Kaggle RAM
+
+# Model
+model:
+  # ConvNeXt-Tiny (~27.8M encoder params, ~31.9M total U-Net) with ImageNet-22k -> 1k fine-tuned
+  # weights (timm pretrained tag). Validated against installed smp/timm at runtime.
+  # Plain "tu-convnext_tiny" also works (timm default tag = in12k_ft_in1k in timm 1.0).
+  encoder: "tu-convnext_tiny.fb_in22k_ft_in1k"
+  encoder_fallbacks: ["tu-convnext_tiny", "tu-efficientnet_b3", "tu-mobilenetv3_large_100"]
+  pretrained: true
+  freeze_encoder_epochs: 5                # encoder frozen (and BN in eval) for first N epochs
+
+# Training
+training:
+  epochs: 40
+  batch_size: 2            # ConvNeXt-Tiny @ 512 px on a T4
+  grad_accum_steps: 4      # effective batch = batch_size x grad_accum_steps = 8
+  lr: 3.0e-4               # decoder + segmentation head. Write floats with a dot: YAML reads "1e-4" as a string
+  encoder_lr: 1.0e-4       # lower lr for the pretrained encoder (used once it is unfrozen)
+  weight_decay: 1.0e-4
+  loss: "dice_bce"         # or "focal_dice"
+  class_weights: {MA: 1.0, HE: 1.0, EX: 1.0, SE: 3.0}   # v6: SE x3 in BCE+Dice (dice_bce only)
+  mixed_precision: true    # only used on CUDA
+  early_stopping_patience: 12
+  select_classes: ["MA", "HE", "EX"]     # checkpoint selection/early stopping on mean AUPR of these; null = all classes
+  num_workers: 2           # Kaggle-friendly
+
+# Validation / metrics
+validation:
+  tile: 512
+  overlap: 128
+  pixels_per_image: 100000 # uniformly sampled pixels per image for AUPR
+  dice_threshold: 0.5
+
+# Augmentations (training only)
+augment:
+  camera_robust: true      # v5 pipeline (train.get_camera_robust_transform); false = old aug below
+  color: {brightness: 0.25, contrast: 0.25, saturation: 0.2, hue: 0.03, p: 0.8}
+  gamma: [70, 150]
+  gamma_p: 0.4
+  clahe_p: 0.25            # CLAHE on/off
+  quality_p: 0.5           # one of: gaussian blur 3-7 / gauss noise / JPEG q30-90 / downscale 0.5-0.9
+  jpeg_quality: [30, 90]
+  rrc_p: 0.3               # random resized crop (scale 0.5-1.0) of the 512 patch
+  rrc_scale: [0.5, 1.0]
+  scale: [0.8, 1.25]       # affine zoom
+  rotate: 180              # affine rotation +-deg; plus h/v flips
+  # old keys (used only if camera_robust: false)
+  color_jitter: 0.3
+  quality_degrade: true
+  geometry: true
+
+# Inference & crop extraction
+inference:
+  tile: 512
+  overlap: 128
+  conf_threshold: 0.4
+  min_area: 10                 # px, in the resized (long_side) space
+  max_lesions_per_image: 4     # top-k lesion centres after global ranking + NMS
+  crops_per_lesion: 3          # views per lesion -> up to 4 x 3 = 12 crops per image
+  crop_size: 128               # px in the resized (long_side) space; mapped back to original
+  scale_factors: [0.8, 1.0, 1.2]
+  jitter: 8                    # px in the resized space
+  nms_iou: 0.3
+  use_fov_mask: true           # fix #4: zero probs outside eroded retina disc, drop rim blobs
+  edge_margin_frac: 0.025      # erosion = this x FOV radius (~17 px at 1440)
+  fov_red_threshold: 12        # red channel > this = retina
+  save_crop_images: true
+  save_prob_maps: false
+
+# Output — Kaggle working directory
+output:
+  checkpoint_dir: "/kaggle/working/checkpoints"
+  crops_dir: "/kaggle/working/crops"

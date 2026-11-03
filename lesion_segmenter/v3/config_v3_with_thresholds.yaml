@@ -1,0 +1,93 @@
+# Lightweight DR Lesion Segmenter config (Kaggle-ready)
+# 4-class MULTI-LABEL segmentation (MA, HE, EX, SE) — one sigmoid channel per lesion.
+
+seed: 42
+
+# Data — official IDRiD "A. Segmentation" layout
+data:
+  # Either the "A. Segmentation" folder itself, or any parent of it
+  # (the loader searches for "1. Original Images" / "2. All Segmentation Groundtruths").
+  idrid_root: "/kaggle/input/idrid-dataset-lesion-segmentation"
+  lesion_classes: ["MA", "HE", "EX", "SE"]     # order = output channel order
+  long_side: 1024          # fundus is cropped to its circle, then long side resized to this
+  fundus_threshold: 15     # intensity threshold used to find the fundus circle
+  patch_size: 512          # random training patches
+  lesion_patch_prob: 0.7   # fraction of patches centred on a lesion pixel
+  patches_per_image: 16    # patches drawn per training image per epoch
+  # Validation source:
+  #   "test"    -> official IDRiD test set (27 imgs). Simple, but then you select the
+  #                checkpoint on the test set (optimistic numbers).
+  #   "holdout" -> hold out `holdout_n` official TRAINING images for validation and keep
+  #                the official test set untouched for a final report.
+  val_source: "holdout"
+  holdout_n: 6
+  # Healthy (DR grade-0) images as all-negative samples (empty masks). Empty lists = old behaviour.
+  negatives_root: null           # folder searched recursively for <id>.jpg (IDRiD grading set)
+  negative_train_ids: []
+  negative_val_ids: []           # held out; only used for a false-positive check each epoch
+  negative_patches_per_image: 16
+  cache_in_ram: true       # preprocessed images (~54 x 1024px) fit easily in Kaggle RAM
+
+# Model
+model:
+  # ConvNeXt-Tiny (~27.8M encoder params, ~31.9M total U-Net) with ImageNet-22k -> 1k fine-tuned
+  # weights (timm pretrained tag). Validated against installed smp/timm at runtime.
+  # Plain "tu-convnext_tiny" also works (timm default tag = in12k_ft_in1k in timm 1.0).
+  encoder: "tu-convnext_tiny.fb_in22k_ft_in1k"
+  encoder_fallbacks: ["tu-convnext_tiny", "tu-efficientnet_b3", "tu-mobilenetv3_large_100"]
+  pretrained: true
+  freeze_encoder_epochs: 5                # encoder frozen (and BN in eval) for first N epochs
+
+# Training
+training:
+  epochs: 40
+  batch_size: 4            # ConvNeXt-Tiny @ 512 px on a T4
+  grad_accum_steps: 2      # effective batch = batch_size x grad_accum_steps = 8
+  lr: 3.0e-4               # decoder + segmentation head. Write floats with a dot: YAML reads "1e-4" as a string
+  encoder_lr: 1.0e-4       # lower lr for the pretrained encoder (used once it is unfrozen)
+  weight_decay: 1.0e-4
+  loss: "dice_bce"         # or "focal_dice"
+  mixed_precision: true    # only used on CUDA
+  early_stopping_patience: 8
+  select_classes: null     # checkpoint selection/early stopping on mean AUPR of these; null = all classes
+  num_workers: 2           # Kaggle-friendly
+
+# Validation / metrics
+validation:
+  tile: 512
+  overlap: 128
+  pixels_per_image: 100000 # uniformly sampled pixels per image for AUPR
+  dice_threshold: 0.5
+
+# Augmentations (training only)
+augment:
+  color_jitter: 0.3
+  quality_degrade: true
+  geometry: true
+
+# Inference & crop extraction
+inference:
+  tile: 512
+  overlap: 128
+  conf_threshold: 0.4
+  min_area: 10                 # px, in the resized (long_side) space
+  max_lesions_per_image: 4     # top-k lesion centres after global ranking + NMS
+  crops_per_lesion: 3          # views per lesion -> up to 4 x 3 = 12 crops per image
+  crop_size: 128               # px in the resized (long_side) space; mapped back to original
+  scale_factors: [0.8, 1.0, 1.2]
+  jitter: 8                    # px in the resized space
+  nms_iou: 0.3
+  use_fov_mask: true           # fix #4: zero probs outside eroded retina disc, drop rim blobs
+  edge_margin_frac: 0.025      # erosion = this x FOV radius (~17 px at 1440)
+  fov_red_threshold: 12        # red channel > this = retina
+  # fixes #1-#3 (set blob_score: max, min_score: null, selection: global_topk for the old picker)
+  blob_score: mean             # "mean" = mean prob over blob (fix #1) | "max" = peak (old)
+  min_score: {MA: 0.965, HE: 0.95, EX: 0.94, SE: 0.965}   # fix #2, tuned for hires1440 best.pth only
+  selection: per_class_top1    # fix #3: <=1 blob per class above min_score, zero allowed | "global_topk" (old, uses max_lesions_per_image)
+  save_crop_images: true
+  save_prob_maps: false
+
+# Output — Kaggle working directory
+output:
+  checkpoint_dir: "/kaggle/working/checkpoints"
+  crops_dir: "/kaggle/working/crops"
