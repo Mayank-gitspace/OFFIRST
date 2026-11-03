@@ -1,0 +1,338 @@
+Wrote code: ['README.md', 'common.py', 'config.yaml', 'config_v5.yaml', 'fov_mask.py', 'inference.py', 'model.py', 'train.py']
+Mon Nov  2 06:53:12 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   44C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |
+| N/A   43C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+=== /kaggle/input layout (depth<=4) ===
+datasets/
+  kanchandalal123/
+    idrid-dataset-lesion-segmentation/
+      A. Segmentation/
+rfmid-train-dataset/
+  Training_Set/
+    Training/
+idrid_root -> /kaggle/input/datasets/kanchandalal123/idrid-dataset-lesion-segmentation/A. Segmentation  (train jpgs=54, test jpgs=27)
+torch 2.11.0+cu128 cuda True timm 1.0.29 smp 0.6.0 albu 2.0.8
+negatives_root -> /kaggle/input/rfmid-train-dataset/Training_Set/Training  (1920 pngs)
+Running: /usr/bin/python3 train.py --config config_v5.yaml --set data.idrid_root=/kaggle/input/datasets/kanchandalal123/idrid-dataset-lesion-segmentation/A. Segmentation data.negatives_root=/kaggle/input/rfmid-train-dataset/Training_Set/Training data.fov_diameter=1440 training.batch_size=2 training.grad_accum_steps=4 training.epochs=40 training.loss=dice_bce output.checkpoint_dir=/kaggle/working/ckpt
+Using device: cuda  (AMP: True)
+Train imgs: 48  Val imgs: 6 (holdout)  Official test imgs: 27
+Missing lesion masks in train (treated as zeros): 26
+Healthy negatives: train 50  val(FP check) 10
+Preprocessing: {'preprocess': 'circle', 'long_side': 1440, 'fundus_threshold': 15, 'fov_diameter': 1440, 'fov_red_threshold': 12, 'clahe': False, 'clahe_clip': 2.0}  |  augment: {'camera_robust': True, 'color': {'brightness': 0.25, 'contrast': 0.25, 'saturation': 0.2, 'hue': 0.03, 'p': 0.8}, 'gamma': [70, 150], 'gamma_p': 0.4, 'clahe_p': 0.25, 'quality_p': 0.5, 'jpeg_quality': [30, 90], 'rrc_p': 0.3, 'rrc_scale': [0.5, 1.0], 'scale': [0.8, 1.25], 'rotate': 180, 'color_jitter': 0.3, 'quality_degrade': True, 'geometry': True}
+Caching PatchTrainDataset:   0%|          | 0/98 [00:00<?, ?it/s]Caching PatchTrainDataset:  82%|████████▏ | 80/98 [01:00<00:13,  1.33it/s]Caching PatchTrainDataset: 100%|██████████| 98/98 [01:12<00:00,  1.36it/s]
+Caching FullImageValDataset:   0%|          | 0/6 [00:00<?, ?it/s]Caching FullImageValDataset: 100%|██████████| 6/6 [00:06<00:00,  1.06s/it]
+Checkpoint selection: mean AUPR over ['MA', 'HE', 'EX']
+Caching FullImageValDataset:   0%|          | 0/10 [00:00<?, ?it/s]Caching FullImageValDataset: 100%|██████████| 10/10 [00:04<00:00,  2.38it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Encoder: tu-convnext_tiny.fb_in22k_ft_in1k
+Params: total 31.93M  (encoder 27.82M, decoder+head 4.11M)
+LR: encoder 0.0001  decoder 0.0003  |  batch 2 x accum 4 = effective 8
+Epoch 1 [enc frozen]:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 1 [enc frozen]: 100%|██████████| 584/584 [00:33<00:00, 17.36it/s]
+Epoch 1: train_loss=1.3780  mAUPR=0.1997  lr(enc/dec)=1.00e-04/3.00e-04
+  AUPR: MA=0.001  HE=0.014  EX=0.779  SE=0.005
+  Dice: MA=0.000  HE=0.000  EX=0.658  SE=0.000
+  select(MA/HE/EX)=0.2647
+  Healthy FP px/img (>0.5): MA=169.400  HE=2649.200  EX=382.800  SE=0.000
+  Healthy mean max-prob: MA=0.733  HE=1.000  EX=0.790  SE=0.363
+  -> saved best
+Epoch 2 [enc frozen]:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 2 [enc frozen]: 100%|██████████| 584/584 [00:29<00:00, 19.65it/s]
+Epoch 2: train_loss=1.0222  mAUPR=0.2505  lr(enc/dec)=9.98e-05/3.00e-04
+  AUPR: MA=0.005  HE=0.128  EX=0.829  SE=0.039
+  Dice: MA=0.000  HE=0.000  EX=0.772  SE=0.000
+  select(MA/HE/EX)=0.3208
+  Healthy FP px/img (>0.5): MA=0.000  HE=2.300  EX=293.100  SE=0.000
+  Healthy mean max-prob: MA=0.336  HE=0.557  EX=0.844  SE=0.258
+  -> saved best
+Epoch 3 [enc frozen]:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 3 [enc frozen]: 100%|██████████| 584/584 [00:31<00:00, 18.43it/s]
+Epoch 3: train_loss=0.9322  mAUPR=0.3674  lr(enc/dec)=9.94e-05/2.98e-04
+  AUPR: MA=0.067  HE=0.420  EX=0.862  SE=0.121
+  Dice: MA=0.122  HE=0.452  EX=0.789  SE=0.262
+  select(MA/HE/EX)=0.4497
+  Healthy FP px/img (>0.5): MA=218.300  HE=850.200  EX=348.900  SE=329.300
+  Healthy mean max-prob: MA=0.630  HE=0.853  EX=0.901  SE=0.641
+  -> saved best
+Epoch 4 [enc frozen]:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 4 [enc frozen]: 100%|██████████| 584/584 [00:32<00:00, 18.08it/s]
+Epoch 4: train_loss=0.8612  mAUPR=0.4774  lr(enc/dec)=9.86e-05/2.96e-04
+  AUPR: MA=0.268  HE=0.454  EX=0.858  SE=0.330
+  Dice: MA=0.315  HE=0.527  EX=0.783  SE=0.358
+  select(MA/HE/EX)=0.5265
+  Healthy FP px/img (>0.5): MA=206.200  HE=978.800  EX=510.000  SE=405.400
+  Healthy mean max-prob: MA=0.826  HE=0.973  EX=0.975  SE=0.687
+  -> saved best
+Epoch 5 [enc frozen]:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 5 [enc frozen]: 100%|██████████| 584/584 [00:31<00:00, 18.40it/s]
+Epoch 5: train_loss=0.7951  mAUPR=0.6004  lr(enc/dec)=9.76e-05/2.93e-04
+  AUPR: MA=0.432  HE=0.554  EX=0.873  SE=0.542
+  Dice: MA=0.473  HE=0.566  EX=0.799  SE=0.539
+  select(MA/HE/EX)=0.6197
+  Healthy FP px/img (>0.5): MA=171.000  HE=525.300  EX=394.500  SE=1056.700
+  Healthy mean max-prob: MA=0.910  HE=0.902  EX=0.909  SE=0.841
+  -> saved best
+Epoch 6:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 6:  97%|█████████▋| 569/584 [01:00<00:01,  9.47it/s]Epoch 6: 100%|██████████| 584/584 [01:01<00:00,  9.50it/s]
+Epoch 6: train_loss=0.7530  mAUPR=0.5848  lr(enc/dec)=9.62e-05/2.89e-04
+  AUPR: MA=0.388  HE=0.665  EX=0.854  SE=0.433
+  Dice: MA=0.421  HE=0.589  EX=0.763  SE=0.458
+  select(MA/HE/EX)=0.6355
+  Healthy FP px/img (>0.5): MA=284.500  HE=972.000  EX=855.300  SE=1456.700
+  Healthy mean max-prob: MA=0.903  HE=0.798  EX=1.000  SE=0.848
+  -> saved best
+Epoch 7:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 7: 100%|██████████| 584/584 [00:54<00:00, 10.72it/s]
+Epoch 7: train_loss=0.7076  mAUPR=0.6334  lr(enc/dec)=9.46e-05/2.84e-04
+  AUPR: MA=0.455  HE=0.692  EX=0.833  SE=0.554
+  Dice: MA=0.524  HE=0.634  EX=0.781  SE=0.557
+  select(MA/HE/EX)=0.6600
+  Healthy FP px/img (>0.5): MA=102.800  HE=161.600  EX=88.200  SE=1552.700
+  Healthy mean max-prob: MA=0.816  HE=0.402  EX=0.917  SE=0.745
+  -> saved best
+Epoch 8:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 8: 100%|██████████| 584/584 [00:54<00:00, 10.76it/s]
+Epoch 8: train_loss=0.6946  mAUPR=0.6896  lr(enc/dec)=9.26e-05/2.78e-04
+  AUPR: MA=0.435  HE=0.729  EX=0.867  SE=0.727
+  Dice: MA=0.407  HE=0.655  EX=0.780  SE=0.607
+  select(MA/HE/EX)=0.6772
+  Healthy FP px/img (>0.5): MA=434.500  HE=1602.300  EX=340.000  SE=2690.400
+  Healthy mean max-prob: MA=0.999  HE=0.707  EX=0.949  SE=0.865
+  -> saved best
+Epoch 9:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 9: 100%|██████████| 584/584 [00:54<00:00, 10.72it/s]
+Epoch 9: train_loss=0.6771  mAUPR=0.6916  lr(enc/dec)=9.05e-05/2.71e-04
+  AUPR: MA=0.442  HE=0.785  EX=0.859  SE=0.681
+  Dice: MA=0.500  HE=0.727  EX=0.783  SE=0.636
+  select(MA/HE/EX)=0.6953
+  Healthy FP px/img (>0.5): MA=149.800  HE=275.700  EX=18.800  SE=1440.500
+  Healthy mean max-prob: MA=0.914  HE=0.500  EX=0.481  SE=0.693
+  -> saved best
+Epoch 10:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 10: 100%|██████████| 584/584 [00:54<00:00, 10.74it/s]
+Epoch 10: train_loss=0.6053  mAUPR=0.5350  lr(enc/dec)=8.80e-05/2.64e-04
+  AUPR: MA=0.514  HE=0.757  EX=0.861  SE=0.008
+  Dice: MA=0.533  HE=0.669  EX=0.787  SE=0.000
+  select(MA/HE/EX)=0.7108
+  Healthy FP px/img (>0.5): MA=60.700  HE=709.000  EX=5.600  SE=0.000
+  Healthy mean max-prob: MA=0.653  HE=0.665  EX=0.224  SE=0.000
+  -> saved best
+Epoch 11:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 11: 100%|██████████| 584/584 [00:54<00:00, 10.73it/s]
+Epoch 11: train_loss=0.5522  mAUPR=0.5064  lr(enc/dec)=8.54e-05/2.56e-04
+  AUPR: MA=0.417  HE=0.774  EX=0.816  SE=0.018
+  Dice: MA=0.475  HE=0.720  EX=0.707  SE=0.000
+  select(MA/HE/EX)=0.6693
+  Healthy FP px/img (>0.5): MA=44.000  HE=82.000  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.472  HE=0.519  EX=0.100  SE=0.000
+Epoch 12:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 12: 100%|██████████| 584/584 [00:54<00:00, 10.79it/s]
+Epoch 12: train_loss=0.5470  mAUPR=0.4516  lr(enc/dec)=8.25e-05/2.47e-04
+  AUPR: MA=0.472  HE=0.737  EX=0.580  SE=0.018
+  Dice: MA=0.496  HE=0.688  EX=0.529  SE=0.000
+  select(MA/HE/EX)=0.5963
+  Healthy FP px/img (>0.5): MA=80.300  HE=459.000  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.445  HE=0.630  EX=0.000  SE=0.000
+Epoch 13:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 13: 100%|██████████| 584/584 [00:54<00:00, 10.73it/s]
+Epoch 13: train_loss=0.5378  mAUPR=0.5261  lr(enc/dec)=7.94e-05/2.38e-04
+  AUPR: MA=0.479  HE=0.727  EX=0.866  SE=0.033
+  Dice: MA=0.522  HE=0.682  EX=0.777  SE=0.000
+  select(MA/HE/EX)=0.6906
+  Healthy FP px/img (>0.5): MA=66.600  HE=80.000  EX=16.900  SE=0.000
+  Healthy mean max-prob: MA=0.431  HE=0.398  EX=0.154  SE=0.000
+Epoch 14:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 14: 100%|██████████| 584/584 [00:54<00:00, 10.77it/s]
+Epoch 14: train_loss=0.4997  mAUPR=0.5157  lr(enc/dec)=7.61e-05/2.28e-04
+  AUPR: MA=0.405  HE=0.749  EX=0.865  SE=0.043
+  Dice: MA=0.473  HE=0.690  EX=0.754  SE=0.000
+  select(MA/HE/EX)=0.6731
+  Healthy FP px/img (>0.5): MA=51.500  HE=586.700  EX=28.600  SE=0.000
+  Healthy mean max-prob: MA=0.426  HE=0.684  EX=0.435  SE=0.000
+Epoch 15:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 15: 100%|██████████| 584/584 [00:54<00:00, 10.74it/s]
+Epoch 15: train_loss=0.4992  mAUPR=0.5461  lr(enc/dec)=7.27e-05/2.18e-04
+  AUPR: MA=0.408  HE=0.770  EX=0.861  SE=0.145
+  Dice: MA=0.439  HE=0.693  EX=0.733  SE=0.000
+  select(MA/HE/EX)=0.6798
+  Healthy FP px/img (>0.5): MA=5.400  HE=242.500  EX=4.200  SE=0.000
+  Healthy mean max-prob: MA=0.148  HE=0.385  EX=0.149  SE=0.000
+Epoch 16:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 16: 100%|██████████| 584/584 [00:54<00:00, 10.73it/s]
+Epoch 16: train_loss=0.4884  mAUPR=0.6418  lr(enc/dec)=6.91e-05/2.07e-04
+  AUPR: MA=0.471  HE=0.768  EX=0.876  SE=0.453
+  Dice: MA=0.522  HE=0.714  EX=0.794  SE=0.000
+  select(MA/HE/EX)=0.7049
+  Healthy FP px/img (>0.5): MA=46.800  HE=397.300  EX=58.000  SE=0.000
+  Healthy mean max-prob: MA=0.428  HE=0.462  EX=0.350  SE=0.000
+Epoch 17:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 17: 100%|██████████| 584/584 [00:54<00:00, 10.75it/s]
+Epoch 17: train_loss=0.4769  mAUPR=0.6739  lr(enc/dec)=6.55e-05/1.96e-04
+  AUPR: MA=0.479  HE=0.779  EX=0.884  SE=0.553
+  Dice: MA=0.524  HE=0.721  EX=0.800  SE=0.000
+  select(MA/HE/EX)=0.7141
+  Healthy FP px/img (>0.5): MA=69.400  HE=1394.200  EX=194.900  SE=0.000
+  Healthy mean max-prob: MA=0.400  HE=0.483  EX=0.399  SE=0.000
+  -> saved best
+Epoch 18:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 18: 100%|██████████| 584/584 [00:54<00:00, 10.72it/s]
+Epoch 18: train_loss=0.4808  mAUPR=0.5739  lr(enc/dec)=6.17e-05/1.85e-04
+  AUPR: MA=0.351  HE=0.717  EX=0.874  SE=0.353
+  Dice: MA=0.378  HE=0.634  EX=0.781  SE=0.000
+  select(MA/HE/EX)=0.6476
+  Healthy FP px/img (>0.5): MA=0.000  HE=0.000  EX=11.900  SE=0.000
+  Healthy mean max-prob: MA=0.000  HE=0.009  EX=0.131  SE=0.000
+Epoch 19:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 19: 100%|██████████| 584/584 [00:54<00:00, 10.75it/s]
+Epoch 19: train_loss=0.4703  mAUPR=0.6554  lr(enc/dec)=5.78e-05/1.73e-04
+  AUPR: MA=0.472  HE=0.775  EX=0.843  SE=0.532
+  Dice: MA=0.513  HE=0.720  EX=0.747  SE=0.000
+  select(MA/HE/EX)=0.6966
+  Healthy FP px/img (>0.5): MA=71.700  HE=68.200  EX=11.100  SE=0.000
+  Healthy mean max-prob: MA=0.478  HE=0.210  EX=0.100  SE=0.000
+Epoch 20:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 20: 100%|██████████| 584/584 [00:54<00:00, 10.78it/s]
+Epoch 20: train_loss=0.4524  mAUPR=0.7069  lr(enc/dec)=5.39e-05/1.62e-04
+  AUPR: MA=0.455  HE=0.784  EX=0.885  SE=0.704
+  Dice: MA=0.521  HE=0.696  EX=0.799  SE=0.000
+  select(MA/HE/EX)=0.7080
+  Healthy FP px/img (>0.5): MA=63.700  HE=46.300  EX=32.200  SE=0.000
+  Healthy mean max-prob: MA=0.382  HE=0.189  EX=0.293  SE=0.000
+Epoch 21:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 21: 100%|██████████| 584/584 [00:54<00:00, 10.74it/s]
+Epoch 21: train_loss=0.4431  mAUPR=0.6938  lr(enc/dec)=5.00e-05/1.50e-04
+  AUPR: MA=0.441  HE=0.741  EX=0.882  SE=0.712
+  Dice: MA=0.498  HE=0.691  EX=0.797  SE=0.000
+  select(MA/HE/EX)=0.6878
+  Healthy FP px/img (>0.5): MA=35.900  HE=59.100  EX=33.300  SE=0.000
+  Healthy mean max-prob: MA=0.200  HE=0.125  EX=0.275  SE=0.000
+Epoch 22:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 22: 100%|██████████| 584/584 [00:54<00:00, 10.78it/s]
+Epoch 22: train_loss=0.4331  mAUPR=0.7092  lr(enc/dec)=4.61e-05/1.38e-04
+  AUPR: MA=0.435  HE=0.784  EX=0.880  SE=0.737
+  Dice: MA=0.508  HE=0.722  EX=0.795  SE=0.000
+  select(MA/HE/EX)=0.6999
+  Healthy FP px/img (>0.5): MA=36.400  HE=61.300  EX=14.400  SE=0.000
+  Healthy mean max-prob: MA=0.541  HE=0.210  EX=0.203  SE=0.000
+Epoch 23:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 23: 100%|██████████| 584/584 [00:54<00:00, 10.76it/s]
+Epoch 23: train_loss=0.4267  mAUPR=0.7224  lr(enc/dec)=4.22e-05/1.27e-04
+  AUPR: MA=0.474  HE=0.787  EX=0.872  SE=0.756
+  Dice: MA=0.532  HE=0.730  EX=0.784  SE=0.000
+  select(MA/HE/EX)=0.7112
+  Healthy FP px/img (>0.5): MA=48.500  HE=58.500  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.226  HE=0.222  EX=0.000  SE=0.000
+Epoch 24:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 24: 100%|██████████| 584/584 [00:54<00:00, 10.73it/s]
+Epoch 24: train_loss=0.4255  mAUPR=0.7044  lr(enc/dec)=3.83e-05/1.15e-04
+  AUPR: MA=0.511  HE=0.747  EX=0.877  SE=0.683
+  Dice: MA=0.527  HE=0.686  EX=0.796  SE=0.000
+  select(MA/HE/EX)=0.7116
+  Healthy FP px/img (>0.5): MA=42.300  HE=70.400  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.245  HE=0.100  EX=0.000  SE=0.000
+Epoch 25:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 25: 100%|██████████| 584/584 [00:54<00:00, 10.73it/s]
+Epoch 25: train_loss=0.4435  mAUPR=0.7102  lr(enc/dec)=3.45e-05/1.04e-04
+  AUPR: MA=0.477  HE=0.771  EX=0.870  SE=0.724
+  Dice: MA=0.535  HE=0.718  EX=0.777  SE=0.000
+  select(MA/HE/EX)=0.7057
+  Healthy FP px/img (>0.5): MA=32.700  HE=57.400  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.283  HE=0.186  EX=0.025  SE=0.000
+Epoch 26:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 26: 100%|██████████| 584/584 [00:54<00:00, 10.74it/s]
+Epoch 26: train_loss=0.4179  mAUPR=0.6999  lr(enc/dec)=3.09e-05/9.26e-05
+  AUPR: MA=0.517  HE=0.795  EX=0.886  SE=0.602
+  Dice: MA=0.553  HE=0.732  EX=0.802  SE=0.000
+  select(MA/HE/EX)=0.7326
+  Healthy FP px/img (>0.5): MA=45.000  HE=76.300  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.330  HE=0.273  EX=0.061  SE=0.000
+  -> saved best
+Epoch 27:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 27: 100%|██████████| 584/584 [00:54<00:00, 10.77it/s]
+Epoch 27: train_loss=0.4080  mAUPR=0.7097  lr(enc/dec)=2.73e-05/8.19e-05
+  AUPR: MA=0.500  HE=0.783  EX=0.884  SE=0.672
+  Dice: MA=0.528  HE=0.729  EX=0.798  SE=0.000
+  select(MA/HE/EX)=0.7225
+  Healthy FP px/img (>0.5): MA=78.800  HE=88.900  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.535  HE=0.304  EX=0.150  SE=0.000
+Epoch 28:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 28: 100%|██████████| 584/584 [00:54<00:00, 10.73it/s]
+Epoch 28: train_loss=0.4104  mAUPR=0.7241  lr(enc/dec)=2.39e-05/7.16e-05
+  AUPR: MA=0.507  HE=0.788  EX=0.886  SE=0.715
+  Dice: MA=0.547  HE=0.719  EX=0.799  SE=0.000
+  select(MA/HE/EX)=0.7270
+  Healthy FP px/img (>0.5): MA=43.500  HE=70.900  EX=2.300  SE=0.000
+  Healthy mean max-prob: MA=0.324  HE=0.104  EX=0.254  SE=0.000
+Epoch 29:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 29: 100%|██████████| 584/584 [00:54<00:00, 10.74it/s]
+Epoch 29: train_loss=0.4102  mAUPR=0.7148  lr(enc/dec)=2.06e-05/6.18e-05
+  AUPR: MA=0.507  HE=0.792  EX=0.880  SE=0.680
+  Dice: MA=0.536  HE=0.737  EX=0.793  SE=0.000
+  select(MA/HE/EX)=0.7263
+  Healthy FP px/img (>0.5): MA=44.700  HE=594.200  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.331  HE=0.350  EX=0.132  SE=0.000
+Epoch 30:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 30: 100%|██████████| 584/584 [00:54<00:00, 10.73it/s]
+Epoch 30: train_loss=0.4025  mAUPR=0.7084  lr(enc/dec)=1.75e-05/5.26e-05
+  AUPR: MA=0.428  HE=0.779  EX=0.884  SE=0.743
+  Dice: MA=0.500  HE=0.647  EX=0.800  SE=0.000
+  select(MA/HE/EX)=0.6969
+  Healthy FP px/img (>0.5): MA=0.000  HE=42.500  EX=0.000  SE=0.000
+  Healthy mean max-prob: MA=0.019  HE=0.150  EX=0.094  SE=0.000
+Epoch 31:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 31: 100%|██████████| 584/584 [00:54<00:00, 10.78it/s]
+Epoch 31: train_loss=0.4135  mAUPR=0.7325  lr(enc/dec)=1.46e-05/4.39e-05
+  AUPR: MA=0.487  HE=0.783  EX=0.885  SE=0.775
+  Dice: MA=0.539  HE=0.709  EX=0.800  SE=0.000
+  select(MA/HE/EX)=0.7184
+  Healthy FP px/img (>0.5): MA=40.700  HE=217.600  EX=14.200  SE=0.000
+  Healthy mean max-prob: MA=0.279  HE=0.250  EX=0.264  SE=0.000
+Epoch 32:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 32: 100%|██████████| 584/584 [00:54<00:00, 10.74it/s]
+Epoch 32: train_loss=0.3968  mAUPR=0.7313  lr(enc/dec)=1.20e-05/3.59e-05
+  AUPR: MA=0.486  HE=0.767  EX=0.885  SE=0.787
+  Dice: MA=0.540  HE=0.680  EX=0.798  SE=0.000
+  select(MA/HE/EX)=0.7128
+  Healthy FP px/img (>0.5): MA=19.600  HE=57.000  EX=3.200  SE=0.000
+  Healthy mean max-prob: MA=0.164  HE=0.102  EX=0.175  SE=0.000
+Epoch 33:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 33: 100%|██████████| 584/584 [00:54<00:00, 10.74it/s]
+Epoch 33: train_loss=0.3990  mAUPR=0.7410  lr(enc/dec)=9.55e-06/2.86e-05
+  AUPR: MA=0.509  HE=0.790  EX=0.887  SE=0.777
+  Dice: MA=0.554  HE=0.724  EX=0.794  SE=0.000
+  select(MA/HE/EX)=0.7289
+  Healthy FP px/img (>0.5): MA=56.900  HE=74.200  EX=11.400  SE=0.000
+  Healthy mean max-prob: MA=0.420  HE=0.293  EX=0.236  SE=0.000
+Epoch 34:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 34: 100%|██████████| 584/584 [00:54<00:00, 10.75it/s]
+Epoch 34: train_loss=0.3839  mAUPR=0.7396  lr(enc/dec)=7.37e-06/2.21e-05
+  AUPR: MA=0.487  HE=0.797  EX=0.887  SE=0.787
+  Dice: MA=0.541  HE=0.705  EX=0.791  SE=0.000
+  select(MA/HE/EX)=0.7237
+  Healthy FP px/img (>0.5): MA=11.500  HE=53.100  EX=9.100  SE=0.000
+  Healthy mean max-prob: MA=0.169  HE=0.144  EX=0.225  SE=0.000
+Epoch 35:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 35: 100%|██████████| 584/584 [00:54<00:00, 10.76it/s]
+Epoch 35: train_loss=0.3943  mAUPR=0.7322  lr(enc/dec)=5.45e-06/1.63e-05
+  AUPR: MA=0.481  HE=0.784  EX=0.877  SE=0.787
+  Dice: MA=0.527  HE=0.667  EX=0.786  SE=0.000
+  select(MA/HE/EX)=0.7140
+  Healthy FP px/img (>0.5): MA=0.000  HE=43.200  EX=0.800  SE=0.000
+  Healthy mean max-prob: MA=0.025  HE=0.100  EX=0.112  SE=0.000
+Epoch 36:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 36: 100%|██████████| 584/584 [00:54<00:00, 10.75it/s]
+Epoch 36: train_loss=0.4005  mAUPR=0.7332  lr(enc/dec)=3.81e-06/1.14e-05
+  AUPR: MA=0.492  HE=0.788  EX=0.882  SE=0.771
+  Dice: MA=0.539  HE=0.714  EX=0.794  SE=0.000
+  select(MA/HE/EX)=0.7206
+  Healthy FP px/img (>0.5): MA=0.200  HE=54.000  EX=2.700  SE=0.000
+  Healthy mean max-prob: MA=0.100  HE=0.100  EX=0.125  SE=0.000
+Epoch 37:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 37: 100%|██████████| 584/584 [00:54<00:00, 10.78it/s]
+Epoch 37: train_loss=0.3957  mAUPR=0.7387  lr(enc/dec)=2.45e-06/7.34e-06
+  AUPR: MA=0.497  HE=0.791  EX=0.885  SE=0.781
+  Dice: MA=0.545  HE=0.720  EX=0.802  SE=0.000
+  select(MA/HE/EX)=0.7244
+  Healthy FP px/img (>0.5): MA=3.000  HE=53.500  EX=3.800  SE=0.000
+  Healthy mean max-prob: MA=0.133  HE=0.100  EX=0.157  SE=0.000
+Epoch 38:   0%|          | 0/584 [00:00<?, ?it/s]Epoch 38: 100%|██████████| 584/584 [00:54<00:00, 10.79it/s]
+Epoch 38: train_loss=0.4000  mAUPR=0.7359  lr(enc/dec)=1.38e-06/4.14e-06
+  AUPR: MA=0.497  HE=0.793  EX=0.882  SE=0.772
+  Dice: MA=0.546  HE=0.700  EX=0.791  SE=0.000
+  select(MA/HE/EX)=0.7239
+  Healthy FP px/img (>0.5): MA=2.100  HE=47.800  EX=2.900  SE=0.000
+  Healthy mean max-prob: MA=0.112  HE=0.100  EX=0.125  SE=0.000
+Early stopping
+Training complete. Best select score (MA/HE/EX)=0.7326  ->  /kaggle/working/ckpt/best.pth
+train.py exit code 0
+Outputs: ['best.pth', 'history.json', 'last.pth']
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 388927 bytes to __results__.html

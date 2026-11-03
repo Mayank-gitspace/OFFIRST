@@ -1,0 +1,271 @@
+{
+ "IDRiD_55": {
+  "before": {
+   "lesions": [
+    [
+     "MA",
+     0.968
+    ],
+    [
+     "HE",
+     0.954
+    ],
+    [
+     "EX",
+     0.953
+    ]
+   ],
+   "hits": [
+    1,
+    1,
+    1
+   ]
+  },
+  "after": {
+   "lesions": [
+    [
+     "MA",
+     0.974
+    ],
+    [
+     "EX",
+     0.971
+    ],
+    [
+     "HE",
+     0.943
+    ]
+   ],
+   "hits": [
+    1,
+    1,
+    1
+   ]
+  },
+  "png": "v5_demo/IDRiD_55_before_after.png"
+ },
+ "IDRiD_60": {
+  "before": {
+   "lesions": [
+    [
+     "MA",
+     0.971
+    ],
+    [
+     "EX",
+     0.952
+    ]
+   ],
+   "hits": [
+    1,
+    1
+   ]
+  },
+  "after": {
+   "lesions": [
+    [
+     "MA",
+     0.977
+    ],
+    [
+     "HE",
+     0.967
+    ],
+    [
+     "EX",
+     0.965
+    ]
+   ],
+   "hits": [
+    0,
+    1,
+    1
+   ]
+  },
+  "png": "v5_demo/IDRiD_60_before_after.png"
+ },
+ "IDRiD_67": {
+  "before": {
+   "lesions": [
+    [
+     "HE",
+     0.967
+    ],
+    [
+     "MA",
+     0.967
+    ],
+    [
+     "EX",
+     0.957
+    ]
+   ],
+   "hits": [
+    1,
+    1,
+    1
+   ]
+  },
+  "after": {
+   "lesions": [
+    [
+     "MA",
+     0.98
+    ],
+    [
+     "HE",
+     0.969
+    ],
+    [
+     "EX",
+     0.967
+    ]
+   ],
+   "hits": [
+    1,
+    1,
+    1
+   ]
+  },
+  "png": "v5_demo/IDRiD_67_before_after.png"
+ },
+ "IDRiD_75": {
+  "before": {
+   "lesions": [
+    [
+     "MA",
+     0.969
+    ],
+    [
+     "HE",
+     0.961
+    ]
+   ],
+   "hits": [
+    1,
+    1
+   ]
+  },
+  "after": {
+   "lesions": [
+    [
+     "MA",
+     0.979
+    ],
+    [
+     "HE",
+     0.964
+    ],
+    [
+     "EX",
+     0.958
+    ]
+   ],
+   "hits": [
+    1,
+    1,
+    1
+   ]
+  },
+  "png": "v5_demo/IDRiD_75_before_after.png"
+ },
+ "10": {
+  "before": {
+   "lesions": [],
+   "hits": null
+  },
+  "after": {
+   "lesions": [],
+   "hits": null
+  },
+  "png": "v5_demo/RFMiD_10_before_after.png"
+ },
+ "28": {
+  "before": {
+   "lesions": [
+    [
+     "MA",
+     0.968
+    ],
+    [
+     "SE",
+     0.967
+    ]
+   ],
+   "hits": null
+  },
+  "after": {
+   "lesions": [
+    [
+     "EX",
+     0.918
+    ]
+   ],
+   "hits": null
+  },
+  "png": "v5_demo/RFMiD_28_before_after.png"
+ },
+ "1508": {
+  "before": {
+   "lesions": [],
+   "hits": null
+  },
+  "after": {
+   "lesions": [],
+   "hits": null
+  },
+  "png": "v5_demo/RFMiD_1508_before_after.png"
+ },
+ "1526": {
+  "before": {
+   "lesions": [
+    [
+     "MA",
+     0.967
+    ]
+   ],
+   "hits": null
+  },
+  "after": {
+   "lesions": [
+    [
+     "MA",
+     0.959
+    ],
+    [
+     "HE",
+     0.885
+    ]
+   ],
+   "hits": null
+  },
+  "png": "v5_demo/RFMiD_1526_before_after.png"
+ },
+ "1742": {
+  "before": {
+   "lesions": [],
+   "hits": null
+  },
+  "after": {
+   "lesions": [],
+   "hits": null
+  },
+  "png": "v5_demo/RFMiD_1742_before_after.png"
+ },
+ "1757": {
+  "before": {
+   "lesions": [],
+   "hits": null
+  },
+  "after": {
+   "lesions": [
+    [
+     "HE",
+     0.936
+    ]
+   ],
+   "hits": null
+  },
+  "png": "v5_demo/RFMiD_1757_before_after.png"
+ }
+}
