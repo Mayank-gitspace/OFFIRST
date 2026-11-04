@@ -1,0 +1,180 @@
+[{"stream_name":"stdout","time":4.739726581,"data":"[    0.1s] RUN_MODE=full  input=/kaggle/input  out=/kaggle/working/out\n"}
+,{"stream_name":"stdout","time":11.29996159,"data":"[    6.6s] labels /kaggle/input/datasets/awsaf49/rfmid-train-dataset/Training_Set/RFMiD_Training_Labels.csv rows=1920  images /kaggle/input/datasets/awsaf49/rfmid-train-dataset/Training_Set/Training\n"}
+,{"stream_name":"stdout","time":11.680183771,"data":"[    7.0s] split from /kaggle/input/notebooks/jeetmuley/team-offirst-encoder-baseline/out/split_5fold_seed42.csv; fold sizes [384, 384, 384, 384, 384]; eval fold 0 (excluded from SSL)\n"}
+,{"stream_name":"stdout","time":51.011051036,"data":"[   46.3s]   cached 400/1920\n"}
+,{"stream_name":"stdout","time":88.505011862,"data":"[   83.8s]   cached 800/1920\n"}
+,{"stream_name":"stdout","time":126.03910403,"data":"[  121.4s]   cached 1200/1920\n"}
+,{"stream_name":"stdout","time":178.604142534,"data":"[  173.9s]   cached 1600/1920\n"}
+,{"stream_name":"stdout","time":241.66571471,"data":"[  237.0s] cache ready (1920, 512, 512, 3) in 230.0s\n"}
+,{"stream_name":"stdout","time":415.254370765,"data":"[  410.6s] locator: {\"n\": 1920, \"disc_ok_rate\": 0.8760416666666667, \"fovea_ok_rate\": 0.8729166666666667, \"both_ok_rate\": 0.8729166666666667, \"min_conf\": 0.5, \"seconds\": 173.58720636367798, \"disc_ok_rate_normals\": 0.9825436408977556, \"disc_ok_rate_diseased\": 0.847926267281106}\n"}
+,{"stream_name":"stdout","time":415.419601463,"data":"[  410.7s] contact sheet -\u003e /kaggle/working/out/anatomy_contact_sheet.jpg (green circle/box = disc ok, orange = low conf; cyan cross = fovea ok, red = low conf)\n"}
+,{"stream_name":"stdout","time":447.10235452,"data":"[  442.4s] device cuda Tesla T4 torch 2.11.0+cu130 timm 1.0.30\n"}
+,{"stream_name":"stdout","time":447.114768216,"data":"[  442.4s] SSL images 1536 (full run would use 1536); eval query (fold 0) 384\n"}
+,{"stream_name":"stdout","time":543.193693957,"data":"[  538.5s]   EVAL[supervised_convnext_tiny_best] probe mAUROC(common, 11 dz) 0.962  DiseaseRisk 0.967 | k=1 logreg 0.730±0.063  k=5 logreg 0.856±0.025  k=10 logreg 0.879±0.023  (95s)\n"}
+,{"stream_name":"stderr","time":544.017056524,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":658.400216502,"data":"[  653.7s]   EVAL[imagenet_init_384] probe mAUROC(common, 11 dz) 0.900  DiseaseRisk 0.932 | k=1 logreg 0.593±0.083  k=5 logreg 0.656±0.039  k=10 logreg 0.690±0.032  (91s)\n"}
+,{"stream_name":"stdout","time":660.334639049,"data":"[  655.7s] batch probe: bs=64 grad_ckpt=False OOM\n"}
+,{"stream_name":"stdout","time":662.147572209,"data":"[  657.5s] batch probe: bs=48 grad_ckpt=False OOM\n"}
+,{"stream_name":"stdout","time":672.534421656,"data":"[  667.9s] batch probe: bs=48 grad_ckpt=True fits, peak 7.62 GiB\n"}
+,{"stream_name":"stdout","time":673.228460816,"data":"[  668.6s] === BYOL crop_mode=random: 1536 imgs, bs 48, grad_ckpt True, 32 steps/ep, 150 ep\n"}
+,{"stream_name":"stdout","time":762.68702725,"data":"[  758.0s]   [random] ep 1/150 loss 1.3100 std_z 0.847 std_h 0.557 tau 0.9900 17.2 img/s (89s)\n"}
+,{"stream_name":"stdout","time":859.908077484,"data":"[  855.2s]   [random] ep 2/150 loss 0.5607 std_z 0.903 std_h 0.460 tau 0.9900 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":957.397548095,"data":"[  952.7s]   [random] ep 3/150 loss 0.3341 std_z 0.919 std_h 0.429 tau 0.9900 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":1054.933870404,"data":"[ 1050.3s]   [random] ep 4/150 loss 0.2268 std_z 0.927 std_h 0.419 tau 0.9900 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":1152.404216844,"data":"[ 1147.7s]   [random] ep 5/150 loss 0.1720 std_z 0.937 std_h 0.410 tau 0.9900 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":1249.667679676,"data":"[ 1245.0s]   [random] ep 6/150 loss 0.1467 std_z 0.940 std_h 0.393 tau 0.9900 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":1347.180607122,"data":"[ 1342.5s]   [random] ep 7/150 loss 0.1288 std_z 0.945 std_h 0.394 tau 0.9901 15.8 img/s (98s)\n"}
+,{"stream_name":"stdout","time":1444.540412324,"data":"[ 1439.9s]   [random] ep 8/150 loss 0.1152 std_z 0.952 std_h 0.395 tau 0.9901 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":1541.57295072,"data":"[ 1536.9s]   [random] ep 9/150 loss 0.1104 std_z 0.952 std_h 0.382 tau 0.9901 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":1649.620445435,"data":"[ 1644.9s]   [random] ep 10/150 loss 0.1043 std_z 0.955 std_h 0.392 tau 0.9901 15.8 img/s (97s) | kNN mAUROC 0.867 DR-risk acc 0.841 (11s)\n"}
+,{"stream_name":"stdout","time":1747.127271294,"data":"[ 1742.5s]   [random] ep 11/150 loss 0.0976 std_z 0.957 std_h 0.396 tau 0.9901 15.8 img/s (98s)\n"}
+,{"stream_name":"stdout","time":1844.291196492,"data":"[ 1839.6s]   [random] ep 12/150 loss 0.0864 std_z 0.958 std_h 0.393 tau 0.9902 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":1941.300351438,"data":"[ 1936.6s]   [random] ep 13/150 loss 0.0819 std_z 0.962 std_h 0.408 tau 0.9902 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":2038.547529478,"data":"[ 2033.9s]   [random] ep 14/150 loss 0.0795 std_z 0.962 std_h 0.395 tau 0.9902 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":2136.213805205,"data":"[ 2131.5s]   [random] ep 15/150 loss 0.0786 std_z 0.964 std_h 0.414 tau 0.9902 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":2233.580536072,"data":"[ 2228.9s]   [random] ep 16/150 loss 0.0756 std_z 0.964 std_h 0.419 tau 0.9903 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":2330.991165321,"data":"[ 2326.3s]   [random] ep 17/150 loss 0.0746 std_z 0.965 std_h 0.425 tau 0.9903 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":2428.396321122,"data":"[ 2423.7s]   [random] ep 18/150 loss 0.0729 std_z 0.964 std_h 0.436 tau 0.9903 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":2526.023022094,"data":"[ 2521.3s]   [random] ep 19/150 loss 0.0768 std_z 0.965 std_h 0.448 tau 0.9904 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":2634.045580469,"data":"[ 2629.4s]   [random] ep 20/150 loss 0.0727 std_z 0.967 std_h 0.457 tau 0.9904 15.8 img/s (97s) | kNN mAUROC 0.881 DR-risk acc 0.849 (11s)\n"}
+,{"stream_name":"stdout","time":2731.643061777,"data":"[ 2727.0s]   [random] ep 21/150 loss 0.0713 std_z 0.967 std_h 0.465 tau 0.9905 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":2829.027807129,"data":"[ 2824.4s]   [random] ep 22/150 loss 0.0711 std_z 0.966 std_h 0.461 tau 0.9905 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":2926.781433803,"data":"[ 2922.1s]   [random] ep 23/150 loss 0.0696 std_z 0.966 std_h 0.473 tau 0.9906 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":3024.085948709,"data":"[ 3019.4s]   [random] ep 24/150 loss 0.0715 std_z 0.966 std_h 0.488 tau 0.9906 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":3121.601590248,"data":"[ 3116.9s]   [random] ep 25/150 loss 0.0695 std_z 0.966 std_h 0.493 tau 0.9907 15.8 img/s (98s)\n"}
+,{"stream_name":"stdout","time":3219.590759529,"data":"[ 3214.9s]   [random] ep 26/150 loss 0.0668 std_z 0.966 std_h 0.507 tau 0.9907 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":3317.064108657,"data":"[ 3312.4s]   [random] ep 27/150 loss 0.0686 std_z 0.965 std_h 0.503 tau 0.9908 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":3414.69084965,"data":"[ 3410.0s]   [random] ep 28/150 loss 0.0682 std_z 0.965 std_h 0.518 tau 0.9908 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":3511.903078167,"data":"[ 3507.2s]   [random] ep 29/150 loss 0.0666 std_z 0.964 std_h 0.531 tau 0.9909 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":3620.317228521,"data":"[ 3615.6s]   [random] ep 30/150 loss 0.0666 std_z 0.965 std_h 0.524 tau 0.9910 15.8 img/s (97s) | kNN mAUROC 0.878 DR-risk acc 0.841 (11s)\n"}
+,{"stream_name":"stdout","time":3717.327197533,"data":"[ 3712.7s]   [random] ep 31/150 loss 0.0644 std_z 0.965 std_h 0.545 tau 0.9910 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":3814.619620962,"data":"[ 3809.9s]   [random] ep 32/150 loss 0.0654 std_z 0.965 std_h 0.549 tau 0.9911 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":3911.596577899,"data":"[ 3906.9s]   [random] ep 33/150 loss 0.0636 std_z 0.965 std_h 0.553 tau 0.9911 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4008.661308748,"data":"[ 4004.0s]   [random] ep 34/150 loss 0.0624 std_z 0.964 std_h 0.553 tau 0.9912 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4105.963717422,"data":"[ 4101.3s]   [random] ep 35/150 loss 0.0614 std_z 0.964 std_h 0.569 tau 0.9913 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4203.272037598,"data":"[ 4198.6s]   [random] ep 36/150 loss 0.0615 std_z 0.964 std_h 0.572 tau 0.9914 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4300.300313671,"data":"[ 4295.6s]   [random] ep 37/150 loss 0.0590 std_z 0.964 std_h 0.577 tau 0.9914 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4397.734007302,"data":"[ 4393.1s]   [random] ep 38/150 loss 0.0597 std_z 0.964 std_h 0.572 tau 0.9915 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4494.857079914,"data":"[ 4490.2s]   [random] ep 39/150 loss 0.0585 std_z 0.964 std_h 0.582 tau 0.9916 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4603.188077865,"data":"[ 4598.5s]   [random] ep 40/150 loss 0.0578 std_z 0.965 std_h 0.588 tau 0.9917 15.8 img/s (97s) | kNN mAUROC 0.888 DR-risk acc 0.833 (11s)\n"}
+,{"stream_name":"stdout","time":4700.038116379,"data":"[ 4695.4s]   [random] ep 41/150 loss 0.0559 std_z 0.965 std_h 0.585 tau 0.9917 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4797.251973216,"data":"[ 4792.6s]   [random] ep 42/150 loss 0.0549 std_z 0.965 std_h 0.594 tau 0.9918 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4894.37149205,"data":"[ 4889.7s]   [random] ep 43/150 loss 0.0549 std_z 0.965 std_h 0.609 tau 0.9919 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":4991.829723928,"data":"[ 4987.2s]   [random] ep 44/150 loss 0.0530 std_z 0.965 std_h 0.607 tau 0.9920 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5088.704383251,"data":"[ 5084.0s]   [random] ep 45/150 loss 0.0526 std_z 0.965 std_h 0.621 tau 0.9921 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5186.125483566,"data":"[ 5181.4s]   [random] ep 46/150 loss 0.0510 std_z 0.965 std_h 0.614 tau 0.9921 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5283.299585667,"data":"[ 5278.6s]   [random] ep 47/150 loss 0.0530 std_z 0.965 std_h 0.617 tau 0.9922 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5380.364831628,"data":"[ 5375.7s]   [random] ep 48/150 loss 0.0510 std_z 0.965 std_h 0.621 tau 0.9923 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5477.492365176,"data":"[ 5472.8s]   [random] ep 49/150 loss 0.0500 std_z 0.965 std_h 0.626 tau 0.9924 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5585.496037251,"data":"[ 5580.8s]   [random] ep 50/150 loss 0.0488 std_z 0.965 std_h 0.631 tau 0.9925 15.8 img/s (97s) | kNN mAUROC 0.886 DR-risk acc 0.839 (11s)\n"}
+,{"stream_name":"stdout","time":5682.475997396,"data":"[ 5677.8s]   [random] ep 51/150 loss 0.0489 std_z 0.965 std_h 0.629 tau 0.9926 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5779.491663206,"data":"[ 5774.8s]   [random] ep 52/150 loss 0.0486 std_z 0.966 std_h 0.635 tau 0.9927 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5876.981404816,"data":"[ 5872.3s]   [random] ep 53/150 loss 0.0484 std_z 0.966 std_h 0.645 tau 0.9928 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":5973.864638151,"data":"[ 5969.2s]   [random] ep 54/150 loss 0.0460 std_z 0.966 std_h 0.651 tau 0.9929 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6071.132577881,"data":"[ 6066.5s]   [random] ep 55/150 loss 0.0458 std_z 0.965 std_h 0.645 tau 0.9930 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6168.250041654,"data":"[ 6163.6s]   [random] ep 56/150 loss 0.0460 std_z 0.965 std_h 0.659 tau 0.9931 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6265.494542206,"data":"[ 6260.8s]   [random] ep 57/150 loss 0.0453 std_z 0.965 std_h 0.656 tau 0.9932 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6362.51975139,"data":"[ 6357.8s]   [random] ep 58/150 loss 0.0438 std_z 0.966 std_h 0.663 tau 0.9933 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6459.625494621,"data":"[ 6455.0s]   [random] ep 59/150 loss 0.0428 std_z 0.966 std_h 0.668 tau 0.9934 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6567.835499282,"data":"[ 6563.2s]   [random] ep 60/150 loss 0.0415 std_z 0.966 std_h 0.677 tau 0.9935 15.8 img/s (97s) | kNN mAUROC 0.886 DR-risk acc 0.841 (11s)\n"}
+,{"stream_name":"stdout","time":6665.095086837,"data":"[ 6660.4s]   [random] ep 61/150 loss 0.0423 std_z 0.966 std_h 0.675 tau 0.9936 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6762.123678808,"data":"[ 6757.4s]   [random] ep 62/150 loss 0.0406 std_z 0.966 std_h 0.678 tau 0.9937 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6859.309500409,"data":"[ 6854.6s]   [random] ep 63/150 loss 0.0406 std_z 0.966 std_h 0.682 tau 0.9938 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":6956.355921178,"data":"[ 6951.7s]   [random] ep 64/150 loss 0.0397 std_z 0.966 std_h 0.685 tau 0.9939 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":7053.087858606,"data":"[ 7048.4s]   [random] ep 65/150 loss 0.0392 std_z 0.966 std_h 0.695 tau 0.9940 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":7150.007220978,"data":"[ 7145.3s]   [random] ep 66/150 loss 0.0387 std_z 0.966 std_h 0.698 tau 0.9941 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":7247.09398848,"data":"[ 7242.4s]   [random] ep 67/150 loss 0.0368 std_z 0.966 std_h 0.703 tau 0.9942 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":7344.661237696,"data":"[ 7340.0s]   [random] ep 68/150 loss 0.0369 std_z 0.966 std_h 0.705 tau 0.9943 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":7442.059828424,"data":"[ 7437.4s]   [random] ep 69/150 loss 0.0364 std_z 0.965 std_h 0.704 tau 0.9944 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":7550.451507483,"data":"[ 7545.8s]   [random] ep 70/150 loss 0.0353 std_z 0.966 std_h 0.713 tau 0.9945 15.8 img/s (97s) | kNN mAUROC 0.877 DR-risk acc 0.841 (11s)\n"}
+,{"stream_name":"stdout","time":7647.81413374,"data":"[ 7643.1s]   [random] ep 71/150 loss 0.0353 std_z 0.965 std_h 0.716 tau 0.9946 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":7745.232231055,"data":"[ 7740.6s]   [random] ep 72/150 loss 0.0344 std_z 0.965 std_h 0.708 tau 0.9947 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":7842.746996222,"data":"[ 7838.1s]   [random] ep 73/150 loss 0.0341 std_z 0.965 std_h 0.717 tau 0.9948 15.8 img/s (98s)\n"}
+,{"stream_name":"stdout","time":7939.964510021,"data":"[ 7935.3s]   [random] ep 74/150 loss 0.0339 std_z 0.965 std_h 0.726 tau 0.9949 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8037.364889278,"data":"[ 8032.7s]   [random] ep 75/150 loss 0.0327 std_z 0.965 std_h 0.721 tau 0.9950 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8134.566588998,"data":"[ 8129.9s]   [random] ep 76/150 loss 0.0318 std_z 0.965 std_h 0.727 tau 0.9951 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8231.789685323,"data":"[ 8227.1s]   [random] ep 77/150 loss 0.0314 std_z 0.965 std_h 0.736 tau 0.9952 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8328.927201782,"data":"[ 8324.3s]   [random] ep 78/150 loss 0.0317 std_z 0.965 std_h 0.736 tau 0.9953 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8426.017663617,"data":"[ 8421.3s]   [random] ep 79/150 loss 0.0301 std_z 0.965 std_h 0.736 tau 0.9954 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8534.225443552,"data":"[ 8529.5s]   [random] ep 80/150 loss 0.0293 std_z 0.965 std_h 0.746 tau 0.9955 15.8 img/s (97s) | kNN mAUROC 0.868 DR-risk acc 0.833 (11s)\n"}
+,{"stream_name":"stdout","time":8631.158073067,"data":"[ 8626.5s]   [random] ep 81/150 loss 0.0282 std_z 0.965 std_h 0.745 tau 0.9956 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8728.204933381,"data":"[ 8723.5s]   [random] ep 82/150 loss 0.0277 std_z 0.965 std_h 0.755 tau 0.9957 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8825.338052275,"data":"[ 8820.7s]   [random] ep 83/150 loss 0.0277 std_z 0.965 std_h 0.755 tau 0.9958 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":8922.846230998,"data":"[ 8918.2s]   [random] ep 84/150 loss 0.0273 std_z 0.965 std_h 0.758 tau 0.9959 15.8 img/s (98s)\n"}
+,{"stream_name":"stdout","time":9019.967213283,"data":"[ 9015.3s]   [random] ep 85/150 loss 0.0264 std_z 0.965 std_h 0.767 tau 0.9960 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9116.930578183,"data":"[ 9112.3s]   [random] ep 86/150 loss 0.0262 std_z 0.965 std_h 0.761 tau 0.9961 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9214.084486246,"data":"[ 9209.4s]   [random] ep 87/150 loss 0.0254 std_z 0.965 std_h 0.766 tau 0.9962 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9311.217424061,"data":"[ 9306.5s]   [random] ep 88/150 loss 0.0255 std_z 0.965 std_h 0.772 tau 0.9963 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9408.134719313,"data":"[ 9403.5s]   [random] ep 89/150 loss 0.0244 std_z 0.965 std_h 0.777 tau 0.9964 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9516.439918453,"data":"[ 9511.8s]   [random] ep 90/150 loss 0.0254 std_z 0.965 std_h 0.779 tau 0.9965 15.8 img/s (97s) | kNN mAUROC 0.871 DR-risk acc 0.833 (11s)\n"}
+,{"stream_name":"stdout","time":9613.439025029,"data":"[ 9608.8s]   [random] ep 91/150 loss 0.0235 std_z 0.965 std_h 0.775 tau 0.9966 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9710.270497509,"data":"[ 9705.6s]   [random] ep 92/150 loss 0.0233 std_z 0.965 std_h 0.781 tau 0.9967 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9807.477807533,"data":"[ 9802.8s]   [random] ep 93/150 loss 0.0226 std_z 0.965 std_h 0.781 tau 0.9968 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":9904.759325923,"data":"[ 9900.1s]   [random] ep 94/150 loss 0.0222 std_z 0.965 std_h 0.786 tau 0.9969 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10001.373129071,"data":"[ 9996.7s]   [random] ep 95/150 loss 0.0222 std_z 0.965 std_h 0.790 tau 0.9970 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10098.775631388,"data":"[10094.1s]   [random] ep 96/150 loss 0.0218 std_z 0.964 std_h 0.794 tau 0.9971 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10195.894600053,"data":"[10191.2s]   [random] ep 97/150 loss 0.0213 std_z 0.964 std_h 0.796 tau 0.9972 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10293.247177152,"data":"[10288.6s]   [random] ep 98/150 loss 0.0206 std_z 0.964 std_h 0.797 tau 0.9973 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10390.469978597,"data":"[10385.8s]   [random] ep 99/150 loss 0.0205 std_z 0.964 std_h 0.800 tau 0.9974 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10498.49612478,"data":"[10493.8s]   [random] ep 100/150 loss 0.0207 std_z 0.964 std_h 0.802 tau 0.9975 15.8 img/s (97s) | kNN mAUROC 0.867 DR-risk acc 0.839 (11s)\n"}
+,{"stream_name":"stdout","time":10596.151462282,"data":"[10591.5s]   [random] ep 101/150 loss 0.0194 std_z 0.964 std_h 0.802 tau 0.9976 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10693.324946624,"data":"[10688.7s]   [random] ep 102/150 loss 0.0195 std_z 0.964 std_h 0.804 tau 0.9977 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10790.387499558,"data":"[10785.7s]   [random] ep 103/150 loss 0.0186 std_z 0.964 std_h 0.807 tau 0.9978 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10887.365134293,"data":"[10882.7s]   [random] ep 104/150 loss 0.0185 std_z 0.964 std_h 0.808 tau 0.9979 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":10983.840501853,"data":"[10979.2s]   [random] ep 105/150 loss 0.0181 std_z 0.964 std_h 0.809 tau 0.9979 15.9 img/s (96s)\n"}
+,{"stream_name":"stdout","time":11080.954221065,"data":"[11076.3s]   [random] ep 106/150 loss 0.0184 std_z 0.964 std_h 0.815 tau 0.9980 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11177.92683837,"data":"[11173.3s]   [random] ep 107/150 loss 0.0174 std_z 0.964 std_h 0.816 tau 0.9981 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11274.985710122,"data":"[11270.3s]   [random] ep 108/150 loss 0.0173 std_z 0.964 std_h 0.816 tau 0.9982 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11372.133026974,"data":"[11367.5s]   [random] ep 109/150 loss 0.0174 std_z 0.964 std_h 0.820 tau 0.9983 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11479.919483622,"data":"[11475.2s]   [random] ep 110/150 loss 0.0167 std_z 0.964 std_h 0.825 tau 0.9983 15.9 img/s (97s) | kNN mAUROC 0.870 DR-risk acc 0.841 (11s)\n"}
+,{"stream_name":"stdout","time":11576.941320495,"data":"[11572.3s]   [random] ep 111/150 loss 0.0164 std_z 0.964 std_h 0.824 tau 0.9984 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11673.87565943,"data":"[11669.2s]   [random] ep 112/150 loss 0.0163 std_z 0.964 std_h 0.821 tau 0.9985 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11770.533461404,"data":"[11765.9s]   [random] ep 113/150 loss 0.0161 std_z 0.964 std_h 0.823 tau 0.9986 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11867.370963463,"data":"[11862.7s]   [random] ep 114/150 loss 0.0157 std_z 0.964 std_h 0.827 tau 0.9986 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":11963.759025525,"data":"[11959.1s]   [random] ep 115/150 loss 0.0155 std_z 0.964 std_h 0.827 tau 0.9987 15.9 img/s (96s)\n"}
+,{"stream_name":"stdout","time":12060.607154672,"data":"[12055.9s]   [random] ep 116/150 loss 0.0151 std_z 0.964 std_h 0.827 tau 0.9988 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12157.804326716,"data":"[12153.1s]   [random] ep 117/150 loss 0.0147 std_z 0.964 std_h 0.829 tau 0.9989 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12254.922623822,"data":"[12250.2s]   [random] ep 118/150 loss 0.0143 std_z 0.964 std_h 0.830 tau 0.9989 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12351.62364853,"data":"[12346.9s]   [random] ep 119/150 loss 0.0146 std_z 0.963 std_h 0.829 tau 0.9990 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12459.354432284,"data":"[12454.7s]   [random] ep 120/150 loss 0.0138 std_z 0.963 std_h 0.831 tau 0.9990 15.9 img/s (97s) | kNN mAUROC 0.868 DR-risk acc 0.831 (11s)\n"}
+,{"stream_name":"stdout","time":12556.337638381,"data":"[12551.7s]   [random] ep 121/150 loss 0.0140 std_z 0.963 std_h 0.831 tau 0.9991 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12653.482380258,"data":"[12648.8s]   [random] ep 122/150 loss 0.0138 std_z 0.963 std_h 0.831 tau 0.9992 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12750.493466053,"data":"[12745.8s]   [random] ep 123/150 loss 0.0143 std_z 0.963 std_h 0.833 tau 0.9992 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12847.455698082,"data":"[12842.8s]   [random] ep 124/150 loss 0.0141 std_z 0.963 std_h 0.834 tau 0.9993 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":12944.391218491,"data":"[12939.7s]   [random] ep 125/150 loss 0.0137 std_z 0.963 std_h 0.836 tau 0.9993 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13041.598729425,"data":"[13036.9s]   [random] ep 126/150 loss 0.0132 std_z 0.963 std_h 0.839 tau 0.9994 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13138.795414407,"data":"[13134.1s]   [random] ep 127/150 loss 0.0132 std_z 0.963 std_h 0.838 tau 0.9994 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13235.995104243,"data":"[13231.3s]   [random] ep 128/150 loss 0.0133 std_z 0.963 std_h 0.839 tau 0.9995 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13333.156292027,"data":"[13328.5s]   [random] ep 129/150 loss 0.0134 std_z 0.963 std_h 0.840 tau 0.9995 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13441.183244585,"data":"[13436.5s]   [random] ep 130/150 loss 0.0128 std_z 0.963 std_h 0.842 tau 0.9996 15.8 img/s (97s) | kNN mAUROC 0.863 DR-risk acc 0.820 (11s)\n"}
+,{"stream_name":"stdout","time":13538.239304213,"data":"[13533.6s]   [random] ep 131/150 loss 0.0127 std_z 0.963 std_h 0.842 tau 0.9996 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13635.332850718,"data":"[13630.7s]   [random] ep 132/150 loss 0.0126 std_z 0.963 std_h 0.841 tau 0.9996 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13732.543267581,"data":"[13727.9s]   [random] ep 133/150 loss 0.0128 std_z 0.963 std_h 0.842 tau 0.9997 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13829.696512427,"data":"[13825.0s]   [random] ep 134/150 loss 0.0128 std_z 0.963 std_h 0.842 tau 0.9997 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":13926.788561564,"data":"[13922.1s]   [random] ep 135/150 loss 0.0127 std_z 0.963 std_h 0.842 tau 0.9998 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14023.928395245,"data":"[14019.3s]   [random] ep 136/150 loss 0.0124 std_z 0.963 std_h 0.842 tau 0.9998 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14121.192171346,"data":"[14116.5s]   [random] ep 137/150 loss 0.0122 std_z 0.963 std_h 0.842 tau 0.9998 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14218.450411728,"data":"[14213.8s]   [random] ep 138/150 loss 0.0122 std_z 0.963 std_h 0.843 tau 0.9998 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14316.08515311,"data":"[14311.4s]   [random] ep 139/150 loss 0.0121 std_z 0.963 std_h 0.844 tau 0.9999 15.7 img/s (98s)\n"}
+,{"stream_name":"stdout","time":14424.065434617,"data":"[14419.4s]   [random] ep 140/150 loss 0.0123 std_z 0.963 std_h 0.843 tau 0.9999 15.8 img/s (97s) | kNN mAUROC 0.865 DR-risk acc 0.831 (11s)\n"}
+,{"stream_name":"stdout","time":14521.230018931,"data":"[14516.6s]   [random] ep 141/150 loss 0.0123 std_z 0.963 std_h 0.843 tau 0.9999 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14618.187545352,"data":"[14613.5s]   [random] ep 142/150 loss 0.0124 std_z 0.963 std_h 0.843 tau 0.9999 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14715.484180039,"data":"[14710.8s]   [random] ep 143/150 loss 0.0124 std_z 0.963 std_h 0.843 tau 0.9999 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14812.8920307,"data":"[14808.2s]   [random] ep 144/150 loss 0.0123 std_z 0.963 std_h 0.844 tau 1.0000 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":14910.107198833,"data":"[14905.4s]   [random] ep 145/150 loss 0.0121 std_z 0.963 std_h 0.844 tau 1.0000 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":15007.004433024,"data":"[15002.3s]   [random] ep 146/150 loss 0.0123 std_z 0.963 std_h 0.844 tau 1.0000 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":15104.253332308,"data":"[15099.6s]   [random] ep 147/150 loss 0.0121 std_z 0.963 std_h 0.844 tau 1.0000 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":15201.21220846,"data":"[15196.5s]   [random] ep 148/150 loss 0.0122 std_z 0.963 std_h 0.844 tau 1.0000 15.8 img/s (97s)\n"}
+,{"stream_name":"stdout","time":15297.824999185,"data":"[15293.2s]   [random] ep 149/150 loss 0.0120 std_z 0.963 std_h 0.844 tau 1.0000 15.9 img/s (97s)\n"}
+,{"stream_name":"stdout","time":15405.757492942,"data":"[15401.1s]   [random] ep 150/150 loss 0.0121 std_z 0.963 std_h 0.844 tau 1.0000 15.8 img/s (97s) | kNN mAUROC 0.865 DR-risk acc 0.828 (11s)\n"}
+,{"stream_name":"stdout","time":15496.023161045,"data":"[15491.3s]   EVAL[byol_random/online] probe mAUROC(common, 11 dz) 0.895  DiseaseRisk 0.922 | k=1 logreg 0.628±0.045  k=5 logreg 0.729±0.033  k=10 logreg 0.763±0.032  (69s)\n"}
+,{"stream_name":"stdout","time":15563.209481933,"data":"[15558.5s]   EVAL[byol_random/target] probe mAUROC(common, 11 dz) 0.898  DiseaseRisk 0.927 | k=1 logreg 0.631±0.045  k=5 logreg 0.731±0.034  k=10 logreg 0.766±0.031  (67s)\n"}
+,{"stream_name":"stdout","time":15563.335073341,"data":"[15558.7s] ESTIMATE {\"random\": {\"wall_img_per_s\": 17.171133472872476, \"sec_per_epoch_full_data\": 89.45245242118835, \"knn_monitor_s_full\": 10.93718506495158, \"est_150ep_hours\": 3.772757121986813}}\n"}
+,{"stream_name":"stdout","time":15563.335235565,"data":"[15558.7s] DONE {\"cache_s\": 229.97144556045532, \"locator_s\": 173.58720636367798, \"ref_eval_s\": 115.20814371109009, \"random_total_s\": 14890.695035934448, \"wall_s\": 15558.653319835663}\n"}
+,{"stream_name":"stderr","time":15577.508617821,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":15577.508659999,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":15577.961893005,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":15577.961919666,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":15578.970853316,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":15580.840202335,"data":"[NbConvertApp] Writing 581768 bytes to __results__.html\n"}
+]
