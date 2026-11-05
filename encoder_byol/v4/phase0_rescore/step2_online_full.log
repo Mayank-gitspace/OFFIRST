@@ -1,0 +1,2 @@
+  EVAL[v4_ep20_online_full_locked] probe mAUROC(common, 11 dz) 0.918  DiseaseRisk 0.938 | k=1 logreg 0.595±0.043  k=5 logreg 0.696±0.052  k=10 logreg 0.726±0.032  (10s)
+v4_ep20_online_full_locked {"LP": 0.9176, "DR": 0.9381, "k=1": 0.595, "k=1_sd": 0.0434, "k=1_ODC": 0.5449, "k=1_ODP": 0.4795, "k=1_ARMD": 0.7607, "k=5": 0.696, "k=5_sd": 0.0521, "k=5_ODC": 0.6326, "k=5_ODP": 0.5794, "k=5_ARMD": 0.8761, "k=10": 0.7262, "k=10_sd": 0.0325, "k=10_ODC": 0.6741, "k=10_ODP": 0.5605, "k=10_ARMD": 0.9438}

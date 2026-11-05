@@ -1,0 +1,1021 @@
+{
+ "run_mode": "smoke",
+ "labels": [
+  "Disease_Risk",
+  "DR",
+  "ARMD",
+  "MH",
+  "DN",
+  "MYA",
+  "BRVO",
+  "TSLN",
+  "ERM",
+  "LS",
+  "MS",
+  "CSR",
+  "ODC",
+  "CRVO",
+  "TV",
+  "AH",
+  "ODP",
+  "ODE",
+  "ST",
+  "AION",
+  "PT",
+  "RT",
+  "RS",
+  "CRS",
+  "EDN",
+  "RPEC",
+  "MHL",
+  "RP",
+  "OTHER"
+ ],
+ "split_source": "recomputed(iterstrat)",
+ "eval_fold": 0,
+ "n_ssl": 16,
+ "n_ssl_full": 1536,
+ "n_query": 384,
+ "locator": {
+  "n": 1920,
+  "conf_cutoff": 1.0,
+  "low_conf_frac_all": 0.2046875,
+  "low_conf_frac_ssl": 0.208984375
+ },
+ "config": {
+  "seed": 42,
+  "data": {
+   "cache_size": 512,
+   "n_folds": 5,
+   "eval_fold": 0,
+   "num_workers": 2
+  },
+  "views": {
+   "global_size": 384,
+   "global_scale": [
+    0.5,
+    1.0
+   ],
+   "n_local": 4,
+   "local_size": 160,
+   "local_scale": [
+    0.25,
+    0.55
+   ],
+   "ratio": [
+    0.75,
+    1.3333
+   ],
+   "hflip": 0.5,
+   "vflip": 0.5,
+   "rotate_deg": 30,
+   "jitter_p": 0.8,
+   "brightness": 0.2,
+   "contrast": 0.2,
+   "saturation": 0.15,
+   "hue": 0.03,
+   "blur_p": 0.3,
+   "blur_sigma": [
+    0.1,
+    2.0
+   ],
+   "jpeg_p": 0.5,
+   "jpeg_q": [
+    40,
+    95
+   ],
+   "cam_bright_p": 0.5,
+   "cam_bright": 0.15
+  },
+  "anatomy_v4": {
+   "n_disc": 1,
+   "n_macula": 1,
+   "n_random": 2,
+   "disc_dd": [
+    2.5,
+    3.2
+   ],
+   "mac_dd": [
+    2.5,
+    3.2
+   ],
+   "jitter_frac": 0.3,
+   "conf_cutoff": 1.0
+  },
+  "anatomy": {
+   "p_image": 0.5,
+   "crop_dd": 2.5,
+   "dd_frac": 0.12,
+   "jitter_dd": 0.25,
+   "scale_jitter": [
+    0.85,
+    1.15
+   ],
+   "min_conf": 0.5
+  },
+  "model": {
+   "backbone": "convnext_tiny",
+   "pretrained": true,
+   "proj_hidden": 2048,
+   "proj_out": 256,
+   "pred_hidden": 2048
+  },
+  "train": {
+   "crop_modes": [
+    "anatomy_v4"
+   ],
+   "epochs": 2,
+   "batch_size": 64,
+   "lr_heads": 0.001,
+   "lr_backbone": 0.0002,
+   "weight_decay": 0.05,
+   "warmup_epochs": 0,
+   "tau_base": 0.99,
+   "amp": true,
+   "grad_clip": 3.0,
+   "ckpt_every": 10,
+   "vicreg": {
+    "enabled": true,
+    "lambda_var": 10.0,
+    "lambda_cov": 1.0,
+    "loss_weight": 0.1,
+    "gamma": 1.0
+   }
+  },
+  "monitor": {
+   "knn_every": 1,
+   "knn_k": 20,
+   "collapse_warn": 0.2,
+   "eval_epochs": [
+    1
+   ]
+  },
+  "eval": {
+   "img_size": 384,
+   "batch_size": 64,
+   "common_min_query_pos": 3,
+   "rare_min_total_pos": 8,
+   "rare_min_query_pos": 3,
+   "rare_headline": [
+    "ODC",
+    "ODP",
+    "ARMD"
+   ],
+   "shots": [
+    1,
+    5,
+    10
+   ],
+   "draws": 3,
+   "neg_per_pos": 1,
+   "knn_k": 5,
+   "logreg_C": 1.0,
+   "probe_C_grid": [
+    0.01,
+    0.1,
+    1.0
+   ],
+   "multi_region_probe": {
+    "enabled": true,
+    "disc_dd": 2.5,
+    "mac_dd": 2.5,
+    "region_size": 224,
+    "power_norm": true
+   }
+  },
+  "smoke": {
+   "epochs": 2,
+   "n_train": 16,
+   "n_query": 96,
+   "knn_every": 1,
+   "eval_epochs": [
+    1
+   ],
+   "common_min_query_pos": 3,
+   "rare_min_total_pos": 8,
+   "rare_min_query_pos": 3,
+   "draws": 3,
+   "time_steps": 6
+  }
+ },
+ "modes": {
+  "anatomy_v4": {
+   "crop_mode": "anatomy_v4",
+   "batch_size": 4,
+   "grad_ckpt": false,
+   "steps_per_epoch": 4,
+   "history": [
+    {
+     "epoch": 1,
+     "loss": 2.0944542288780212,
+     "std_z": 0.8247983455657959,
+     "std_h": 0.6881154179573059,
+     "tau_end": 0.9930865828381745,
+     "lr_bb": 0.000138268343236509,
+     "train_s": 11.347787380218506,
+     "img_per_s": 1.4099664951328965,
+     "gpu_img_per_s_median_step": 1.5495271287748342,
+     "anchor_frac": {
+      "random": 0.5,
+      "disc": 0.21875,
+      "macula": 0.21875,
+      "fallback_random": 0.0625
+     },
+     "anatomy_views_frac": 0.4375,
+     "loss_byol": 1.2375566363334656,
+     "vicreg_var": 0.6506342589855194,
+     "vicreg_cov": 2.0626338124275208,
+     "knn_mauroc": 0.6717665511986951,
+     "knn_dr_acc": 0.7916666666666666,
+     "knn_dr_auroc": 0.6890419407894737,
+     "knn_s": 21.478411197662354
+    },
+    {
+     "epoch": 2,
+     "loss": 1.7989720404148102,
+     "std_z": 0.7442381381988525,
+     "std_h": 0.11887044459581375,
+     "tau_end": 0.9996193976625565,
+     "lr_bb": 7.612046748871327e-06,
+     "train_s": 10.442597389221191,
+     "img_per_s": 1.5321858541166338,
+     "gpu_img_per_s_median_step": 1.8488731766140445,
+     "anchor_frac": {
+      "random": 0.5,
+      "disc": 0.21875,
+      "macula": 0.21875,
+      "fallback_random": 0.0625
+     },
+     "anatomy_views_frac": 0.4375,
+     "loss_byol": 0.8934259712696075,
+     "vicreg_var": 0.6508455723524094,
+     "vicreg_cov": 2.547004520893097,
+     "knn_mauroc": 0.6157552062837206,
+     "knn_dr_acc": 0.7916666666666666,
+     "knn_dr_auroc": 0.6079358552631579,
+     "knn_s": 20.276363611221313
+    }
+   ],
+   "peak_gpu_gib": NaN,
+   "eval_online": {
+    "tag": "byol_anatomy_v4/online",
+    "n_support": 16,
+    "n_query": 384,
+    "common_labels": [
+     "Disease_Risk",
+     "DR",
+     "MH",
+     "ODC",
+     "AION"
+    ],
+    "rare_labels": [],
+    "rare_counts": {},
+    "linear_probe": {
+     "per_label": {
+      "Disease_Risk": {
+       "auroc": 0.6609786184210527,
+       "C": 0.01
+      },
+      "DR": {
+       "auroc": 0.73576179359556,
+       "C": 1.0
+      },
+      "MH": {
+       "auroc": 0.8712851703505908,
+       "C": 0.01
+      },
+      "ODC": {
+       "auroc": 0.6539634146341463,
+       "C": 1.0
+      },
+      "AION": {
+       "auroc": 0.568678915135608,
+       "C": 0.01
+      }
+     },
+     "mean_auroc_common": 0.7074223234289763,
+     "disease_risk_auroc": 0.6609786184210527
+    },
+    "fewshot_rare": {
+     "k=1": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=5": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=10": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     }
+    },
+    "eval_s": 0.2288806438446045
+   },
+   "eval_target": {
+    "tag": "byol_anatomy_v4/target",
+    "n_support": 16,
+    "n_query": 384,
+    "common_labels": [
+     "Disease_Risk",
+     "DR",
+     "MH",
+     "ODC",
+     "AION"
+    ],
+    "rare_labels": [],
+    "rare_counts": {},
+    "linear_probe": {
+     "per_label": {
+      "Disease_Risk": {
+       "auroc": 0.7172697368421054,
+       "C": 0.01
+      },
+      "DR": {
+       "auroc": 0.8332819451173854,
+       "C": 1.0
+      },
+      "MH": {
+       "auroc": 0.9271621421154131,
+       "C": 0.01
+      },
+      "ODC": {
+       "auroc": 0.6971363240418118,
+       "C": 0.01
+      },
+      "AION": {
+       "auroc": 0.6587926509186351,
+       "C": 0.01
+      }
+     },
+     "mean_auroc_common": 0.7790932655483113,
+     "disease_risk_auroc": 0.7172697368421054
+    },
+    "fewshot_rare": {
+     "k=1": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=5": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=10": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     }
+    },
+    "eval_s": 0.20044279098510742
+   },
+   "eval_multi_region_online": {
+    "tag": "byol_anatomy_v4/multiregion_online",
+    "n_support": 16,
+    "n_query": 384,
+    "common_labels": [
+     "Disease_Risk",
+     "DR",
+     "MH",
+     "ODC",
+     "AION"
+    ],
+    "rare_labels": [],
+    "rare_counts": {},
+    "linear_probe": {
+     "per_label": {
+      "Disease_Risk": {
+       "auroc": 0.6686677631578947,
+       "C": 0.01
+      },
+      "DR": {
+       "auroc": 0.7789719420340925,
+       "C": 1.0
+      },
+      "MH": {
+       "auroc": 0.8336547495426,
+       "C": 0.01
+      },
+      "ODC": {
+       "auroc": 0.6675740418118467,
+       "C": 0.1
+      },
+      "AION": {
+       "auroc": 0.552930883639545,
+       "C": 0.01
+      }
+     },
+     "mean_auroc_common": 0.708282904257021,
+     "disease_risk_auroc": 0.6686677631578947
+    },
+    "fewshot_rare": {
+     "k=1": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=5": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=10": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     }
+    },
+    "eval_s": 0.7533218860626221,
+    "low_conf_frac": 0.185
+   },
+   "epoch_evals": {
+    "ep1": {
+     "online": {
+      "tag": "byol_anatomy_v4/ep1_online",
+      "n_support": 16,
+      "n_query": 384,
+      "common_labels": [
+       "Disease_Risk",
+       "DR",
+       "MH",
+       "ODC",
+       "AION"
+      ],
+      "rare_labels": [],
+      "rare_counts": {},
+      "linear_probe": {
+       "per_label": {
+        "Disease_Risk": {
+         "auroc": 0.6884868421052631,
+         "C": 0.01
+        },
+        "DR": {
+         "auroc": 0.6519843192529621,
+         "C": 1.0
+        },
+        "MH": {
+         "auroc": 0.9109924343569203,
+         "C": 1.0
+        },
+        "ODC": {
+         "auroc": 0.689459930313589,
+         "C": 0.1
+        },
+        "AION": {
+         "auroc": 0.706036745406824,
+         "C": 1.0
+        }
+       },
+       "mean_auroc_common": 0.7396183573325739,
+       "disease_risk_auroc": 0.6884868421052631
+      },
+      "fewshot_rare": {
+       "k=1": {
+        "prototype": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "logreg": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "knn": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        }
+       },
+       "k=5": {
+        "prototype": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "logreg": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "knn": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        }
+       },
+       "k=10": {
+        "prototype": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "logreg": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "knn": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        }
+       }
+      },
+      "eval_s": 0.23293089866638184
+     },
+     "multi_region_online": {
+      "tag": "byol_anatomy_v4/ep1_multiregion",
+      "n_support": 16,
+      "n_query": 384,
+      "common_labels": [
+       "Disease_Risk",
+       "DR",
+       "MH",
+       "ODC",
+       "AION"
+      ],
+      "rare_labels": [],
+      "rare_counts": {},
+      "linear_probe": {
+       "per_label": {
+        "Disease_Risk": {
+         "auroc": 0.6271381578947368,
+         "C": 0.01
+        },
+        "DR": {
+         "auroc": 0.7776945778091001,
+         "C": 1.0
+        },
+        "MH": {
+         "auroc": 0.8571923057904367,
+         "C": 1.0
+        },
+        "ODC": {
+         "auroc": 0.6516223867595818,
+         "C": 0.01
+        },
+        "AION": {
+         "auroc": 0.6482939632545932,
+         "C": 0.01
+        }
+       },
+       "mean_auroc_common": 0.733700808403428,
+       "disease_risk_auroc": 0.6271381578947368
+      },
+      "fewshot_rare": {
+       "k=1": {
+        "prototype": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "logreg": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "knn": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        }
+       },
+       "k=5": {
+        "prototype": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "logreg": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "knn": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        }
+       },
+       "k=10": {
+        "prototype": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "logreg": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        },
+        "knn": {
+         "headline_labels": [],
+         "headline_mean": NaN,
+         "headline_std_over_draws": NaN,
+         "all_rare_mean": NaN,
+         "all_rare_std_over_draws": NaN,
+         "per_label": {}
+        }
+       }
+      },
+      "eval_s": 0.7641456127166748,
+      "low_conf_frac": 0.185
+     },
+     "eval_s": 33.41244649887085
+    }
+   },
+   "best_knn": {
+    "epoch": 1,
+    "knn_mauroc": 0.6717665511986951
+   },
+   "eval_best_online": {
+    "tag": "byol_anatomy_v4/best_ep1_online",
+    "n_support": 16,
+    "n_query": 384,
+    "common_labels": [
+     "Disease_Risk",
+     "DR",
+     "MH",
+     "ODC",
+     "AION"
+    ],
+    "rare_labels": [],
+    "rare_counts": {},
+    "linear_probe": {
+     "per_label": {
+      "Disease_Risk": {
+       "auroc": 0.6884868421052631,
+       "C": 0.01
+      },
+      "DR": {
+       "auroc": 0.6519843192529621,
+       "C": 1.0
+      },
+      "MH": {
+       "auroc": 0.9109924343569203,
+       "C": 1.0
+      },
+      "ODC": {
+       "auroc": 0.689459930313589,
+       "C": 0.1
+      },
+      "AION": {
+       "auroc": 0.706036745406824,
+       "C": 1.0
+      }
+     },
+     "mean_auroc_common": 0.7396183573325739,
+     "disease_risk_auroc": 0.6884868421052631
+    },
+    "fewshot_rare": {
+     "k=1": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=5": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     },
+     "k=10": {
+      "prototype": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "logreg": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      },
+      "knn": {
+       "headline_labels": [],
+       "headline_mean": NaN,
+       "headline_std_over_draws": NaN,
+       "all_rare_mean": NaN,
+       "all_rare_std_over_draws": NaN,
+       "per_label": {}
+      }
+     }
+    },
+    "eval_s": 0.24285054206848145
+   },
+   "final_eval_s": 69.45080399513245
+  }
+ },
+ "references": {},
+ "citation": "RFMiD (Pachade et al., Data 6(2):14, 2021; IEEE DataPort, doi:10.21227/s3g7-st65), CC BY 4.0",
+ "timings": {
+  "cache_s": 0.0023806095123291016,
+  "ref_eval_s": 7.152557373046875e-07,
+  "anatomy_v4_total_s": 171.97290110588074,
+  "wall_s": 175.0536789894104
+ },
+ "batch": {
+  "batch_size": 4,
+  "grad_ckpt": false,
+  "probe_peak_gib": null
+ },
+ "estimate_full": {
+  "anatomy_v4": {
+   "wall_img_per_s": 1.5321858541166338,
+   "sec_per_epoch_full_data": 1002.4893493652343,
+   "knn_monitor_s_full": 100.2114595413208,
+   "est_full_hours": 36.75669363021851
+  }
+ }
+}

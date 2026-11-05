@@ -30,3 +30,6 @@ Each checkpoint is a dict with `online` (backbone+projector+predictor), `target_
 
 - Push: `KAGGLE_API_TOKEN="$KAGGLE_KEY" kaggle kernels push -p kernels/<mode>`
 - Citation: RFMiD (Pachade et al., Data 6(2):14, 2021; IEEE DataPort, doi:10.21227/s3g7-st65), CC BY 4.0. BYOL: Grill et al., NeurIPS 2020.
+
+## v4 (anatomy v4 + locked-split re-score)
+See [`v4/README.md`](v4/README.md); weights in release `encoder-byol-v4`.

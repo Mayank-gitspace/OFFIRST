@@ -1,0 +1,248 @@
+{
+ "ep1": {
+  "online": {
+   "tag": "byol_anatomy_v4/ep1_online",
+   "n_support": 16,
+   "n_query": 384,
+   "common_labels": [
+    "Disease_Risk",
+    "DR",
+    "MH",
+    "ODC",
+    "AION"
+   ],
+   "rare_labels": [],
+   "rare_counts": {},
+   "linear_probe": {
+    "per_label": {
+     "Disease_Risk": {
+      "auroc": 0.6884868421052631,
+      "C": 0.01
+     },
+     "DR": {
+      "auroc": 0.6519843192529621,
+      "C": 1.0
+     },
+     "MH": {
+      "auroc": 0.9109924343569203,
+      "C": 1.0
+     },
+     "ODC": {
+      "auroc": 0.689459930313589,
+      "C": 0.1
+     },
+     "AION": {
+      "auroc": 0.706036745406824,
+      "C": 1.0
+     }
+    },
+    "mean_auroc_common": 0.7396183573325739,
+    "disease_risk_auroc": 0.6884868421052631
+   },
+   "fewshot_rare": {
+    "k=1": {
+     "prototype": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "logreg": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "knn": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     }
+    },
+    "k=5": {
+     "prototype": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "logreg": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "knn": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     }
+    },
+    "k=10": {
+     "prototype": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "logreg": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "knn": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     }
+    }
+   },
+   "eval_s": 0.23293089866638184
+  },
+  "multi_region_online": {
+   "tag": "byol_anatomy_v4/ep1_multiregion",
+   "n_support": 16,
+   "n_query": 384,
+   "common_labels": [
+    "Disease_Risk",
+    "DR",
+    "MH",
+    "ODC",
+    "AION"
+   ],
+   "rare_labels": [],
+   "rare_counts": {},
+   "linear_probe": {
+    "per_label": {
+     "Disease_Risk": {
+      "auroc": 0.6271381578947368,
+      "C": 0.01
+     },
+     "DR": {
+      "auroc": 0.7776945778091001,
+      "C": 1.0
+     },
+     "MH": {
+      "auroc": 0.8571923057904367,
+      "C": 1.0
+     },
+     "ODC": {
+      "auroc": 0.6516223867595818,
+      "C": 0.01
+     },
+     "AION": {
+      "auroc": 0.6482939632545932,
+      "C": 0.01
+     }
+    },
+    "mean_auroc_common": 0.733700808403428,
+    "disease_risk_auroc": 0.6271381578947368
+   },
+   "fewshot_rare": {
+    "k=1": {
+     "prototype": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "logreg": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "knn": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     }
+    },
+    "k=5": {
+     "prototype": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "logreg": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "knn": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     }
+    },
+    "k=10": {
+     "prototype": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "logreg": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     },
+     "knn": {
+      "headline_labels": [],
+      "headline_mean": NaN,
+      "headline_std_over_draws": NaN,
+      "all_rare_mean": NaN,
+      "all_rare_std_over_draws": NaN,
+      "per_label": {}
+     }
+    }
+   },
+   "eval_s": 0.7641456127166748,
+   "low_conf_frac": 0.185
+  },
+  "eval_s": 33.41244649887085
+ }
+}

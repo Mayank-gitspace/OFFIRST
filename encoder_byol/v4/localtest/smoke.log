@@ -1,0 +1,22 @@
+[    0.0s] RUN_MODE=smoke  input=/workspace/rfmid_train_dl  out=/workspace/zeiss/encoder_byol/v4/localtest/out
+[    0.1s] labels /workspace/rfmid_train_dl/Training_Set/RFMiD_Training_Labels.csv rows=1920  images /workspace/rfmid_train_dl/Training_Set/Training
+[    1.0s] split from recomputed(iterstrat); fold sizes [384, 384, 384, 384, 384]; eval fold 0 (excluded from SSL)
+[    1.0s] cache ready (1920, 512, 512, 3) in 0.0s
+[    1.0s] box table: {"n": 1920, "conf_cutoff": 1.0, "low_conf_frac_all": 0.2046875, "low_conf_frac_ssl": 0.208984375}
+[    3.1s] device cpu  torch 2.14.1+cpu timm 1.0.15
+[    3.1s] SSL images 16 (full run would use 1536); eval query (fold 0) 384
+[    3.1s] WARNING: supervised baseline embeddings not mounted; skipping reference (c)
+[    3.8s] crop grid -> /workspace/zeiss/encoder_byol/v4/localtest/out/local_views_grid.png
+[    8.2s] === BYOL crop_mode=anatomy_v4: 16 imgs, bs 4, grad_ckpt False, 4 steps/ep, 2 ep
+[   41.3s]   new best kNN 0.6718 at ep 1 -> best.pth
+[   41.3s]   [anatomy_v4] ep 1/2 loss 2.0945 std_z 0.825 std_h 0.688 (byol 1.2376 var 0.651 cov 2.063) tau 0.9931 1.4 img/s (11s) | kNN mAUROC 0.672 DR-risk acc 0.792 (21s) anat 0.44 random=0.50 disc=0.22 macula=0.22 fallba=0.06
+[   63.6s]   EVAL[byol_anatomy_v4/ep1_online] probe mAUROC(common, 4 dz) 0.740  DiseaseRisk 0.688 | k=1 logreg nan±nan  k=5 logreg nan±nan  k=10 logreg nan±nan  (0s)
+[   74.7s]   EVAL[byol_anatomy_v4/ep1_multiregion] probe mAUROC(common, 4 dz) 0.734  DiseaseRisk 0.627 | k=1 logreg nan±nan  k=5 logreg nan±nan  k=10 logreg nan±nan  (1s)
+[   85.1s]   WARNING backbone std_h 0.119 < 0.2 (ep 2)
+[  105.4s]   [anatomy_v4] ep 2/2 loss 1.7990 std_z 0.744 std_h 0.119 (byol 0.8934 var 0.651 cov 2.547) tau 0.9996 1.5 img/s (10s) | kNN mAUROC 0.616 DR-risk acc 0.792 (20s) anat 0.44 random=0.50 disc=0.22 macula=0.22 fallba=0.06
+[  144.6s]   EVAL[byol_anatomy_v4/online] probe mAUROC(common, 4 dz) 0.707  DiseaseRisk 0.661 | k=1 logreg nan±nan  k=5 logreg nan±nan  k=10 logreg nan±nan  (0s)
+[  144.8s]   EVAL[byol_anatomy_v4/target] probe mAUROC(common, 4 dz) 0.779  DiseaseRisk 0.717 | k=1 logreg nan±nan  k=5 logreg nan±nan  k=10 logreg nan±nan  (0s)
+[  155.3s]   EVAL[byol_anatomy_v4/multiregion_online] probe mAUROC(common, 4 dz) 0.708  DiseaseRisk 0.669 | k=1 logreg nan±nan  k=5 logreg nan±nan  k=10 logreg nan±nan  (1s)
+[  175.0s]   EVAL[byol_anatomy_v4/best_ep1_online] probe mAUROC(common, 4 dz) 0.740  DiseaseRisk 0.688 | k=1 logreg nan±nan  k=5 logreg nan±nan  k=10 logreg nan±nan  (0s)
+[  175.1s] ESTIMATE {"anatomy_v4": {"wall_img_per_s": 1.5321858541166338, "sec_per_epoch_full_data": 1002.4893493652343, "knn_monitor_s_full": 100.2114595413208, "est_full_hours": 36.75669363021851}}
+[  175.1s] DONE {"cache_s": 0.0023806095123291016, "ref_eval_s": 7.152557373046875e-07, "anatomy_v4_total_s": 171.97290110588074, "wall_s": 175.0536789894104}

@@ -1,0 +1,2 @@
+  EVAL[v4_ep20_online_l2mean_locked] probe mAUROC(common, 11 dz) 0.917  DiseaseRisk 0.930 | k=1 logreg 0.587±0.052  k=5 logreg 0.694±0.060  k=10 logreg 0.720±0.033  (14s)
+v4_ep20_online_l2mean_locked {"LP": 0.9173, "DR": 0.9298, "k=1": 0.5874, "k=1_sd": 0.0521, "k=1_ODC": 0.5448, "k=1_ODP": 0.4752, "k=1_ARMD": 0.742, "k=5": 0.6936, "k=5_sd": 0.0602, "k=5_ODC": 0.659, "k=5_ODP": 0.6014, "k=5_ARMD": 0.8204, "k=10": 0.7201, "k=10_sd": 0.0331, "k=10_ODC": 0.6835, "k=10_ODP": 0.5888, "k=10_ARMD": 0.888}

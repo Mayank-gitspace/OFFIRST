@@ -1,0 +1,21 @@
+/workspace/kenv/lib/python3.12/site-packages/torch/jit/_script.py:1643: FutureWarning: `torch.jit.interface` is deprecated. Please use `torch.compile` instead.
+  warnings.warn(
+full 0 4s
+full 320 46s
+full 640 86s
+full 960 127s
+full 1280 166s
+full 1600 203s
+disc 0 1s
+disc 320 13s
+disc 640 24s
+disc 960 36s
+disc 1280 47s
+disc 1600 58s
+macula 0 1s
+macula 320 12s
+macula 640 24s
+macula 960 36s
+macula 1280 47s
+macula 1600 62s
+DONE

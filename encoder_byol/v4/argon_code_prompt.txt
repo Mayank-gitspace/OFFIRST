@@ -1,0 +1,30 @@
+You are Gemini 4 Argon. Write production-ready Python snippets for our OFFIRST BYOL fundus encoder v4. Output ONLY code blocks with clear filenames/headers — no fluff.
+
+CONTEXT
+- Parent file: team_offirst_encoder_byol.py (BYOL, ConvNeXt-Tiny, 2 global 384 + 4 local 160).
+- v2 used anatomy_v2: multinomial 40% disc / 30% mac / 30% random; tight OR wide disc DD; disc crops had no hue/sat.
+- Detector gives disc/macula centres + conf; low conf -> random for that slot. Boxes in fundus-square fractions.
+- Existing helpers in parent: make_views(img, rng, row, mode), colour jitter, blur, jpeg, cam_bright, disc/mac crop from DD.
+
+LOCKED v4
+- Mode name: anatomy_v4
+- Among 4 locals: ALWAYS 1 disc + 1 macula + 2 random (slot order shuffled per image)
+- disc_dd and mac_dd ranges [2.5, 3.2]; NO tight 1.2–1.5
+- Uniform colour jitter on ALL views including disc/mac (brightness=0.2, contrast=0.2, saturation=0.15, hue=0.03, p=0.8) — delete disc-only mild BC exemption
+- Keep blur_p=0.3, jpeg, cam_bright as in v2
+- VICReg on online projector z (batch BxD): variance + covariance only; invariance already from BYOL
+  L = L_byol + loss_weight * (lambda_var * L_var + lambda_cov * L_cov)
+  defaults: lambda_var=10, lambda_cov=1, loss_weight=0.1, gamma=1.0 target std
+- train epochs 120, eval_epochs [70,120], warmup 8, rare_headline [ODC,ODP,ARMD]
+
+DELIVER THESE SNIPPETS
+1) `vicreg_var_cov(z, gamma=1.0)` — pure torch, AMP-safe, returns (L_var, L_cov) scalars
+2) how to add into train_step after computing online z (minimal diff)
+3) `make_views` branch for mode=="anatomy_v4" (or full replacement function) using CFG["anatomy_v4"] and CFG["views"]; return same shape as parent (globals list, locals list, anchor stats)
+4) YAML/dict fragment for anatomy_v4 + views colour + train.vicreg + monitor.eval_epochs
+5) 5-line unit-test style assert for VICReg: identical constant z -> high L_var or L_cov; random orthogonal-ish z -> lower
+
+CONSTRAINTS
+- No new dependencies beyond torch/numpy already used
+- Match parent style (compact, no classes unless needed)
+- Do not invent detector APIs — assume functions `crop_disc(img, row, dd, jitter_frac, rng)` / `crop_macula(...)` or show call sites clearly with placeholders matching typical v2 names; if unsure, write the geometry with comments for wiring
