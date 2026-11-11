@@ -1,0 +1,183 @@
+{
+ "a": "<workdir>/encoder_mnv3_ssl/full_out/out/byol_mnv3_anatomy_v4/embeddings_target.npy",
+ "b": "<workdir>/encoder_mnv3_ssl/full_out/out/byol_mnv3_anatomy_v4/embeddings_online.npy",
+ "split": "/workspace/offirst_upload/encoder_byol/full_run/split_used.csv",
+ "n_query": 384,
+ "n_support": 1536,
+ "draws": 20,
+ "n_boot": 1000,
+ "common_labels": [
+  "Disease_Risk",
+  "DR",
+  "ARMD",
+  "MH",
+  "DN",
+  "MYA",
+  "BRVO",
+  "TSLN",
+  "LS",
+  "ODC",
+  "ODP",
+  "ODE"
+ ],
+ "rare_headline": [
+  "ARMD",
+  "ODC",
+  "ODP"
+ ],
+ "fold0_positives": {
+  "Disease_Risk": 303,
+  "DR": 72,
+  "ARMD": 20,
+  "MH": 64,
+  "DN": 28,
+  "MYA": 21,
+  "BRVO": 14,
+  "TSLN": 37,
+  "LS": 10,
+  "ODC": 56,
+  "ODP": 13,
+  "ODE": 12
+ },
+ "metrics": {
+  "LP_common": {
+   "A": 0.9165995879606768,
+   "B": 0.9155509092591025,
+   "delta": -0.0010486787015742127,
+   "ci95": [
+    -0.00929173305180378,
+    0.005713012856192939
+   ],
+   "p_delta_gt_0": 0.413,
+   "p_delta_gt_-0.005": 0.843,
+   "ci95_2level": [
+    -0.00929173305180378,
+    0.005713012856192939
+   ],
+   "p_delta_gt_0_2level": 0.413
+  },
+  "LP_clean_to_deg": {
+   "A": 0.9082106893712824,
+   "B": 0.9101960333910856,
+   "delta": 0.0019853440198032146,
+   "ci95": [
+    -0.005971400796618273,
+    0.009311758707612324
+   ],
+   "p_delta_gt_0": 0.702,
+   "p_delta_gt_-0.005": 0.965,
+   "ci95_2level": [
+    -0.005971400796618273,
+    0.009311758707612324
+   ],
+   "p_delta_gt_0_2level": 0.702
+  },
+  "kNN_deg_query": {
+   "A": 0.8758257180452347,
+   "B": 0.8877442429463068,
+   "delta": 0.011918524901072147,
+   "ci95": [
+    0.0026999082411717223,
+    0.022432779320803793
+   ],
+   "p_delta_gt_0": 0.999,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0026999082411717223,
+    0.022432779320803793
+   ],
+   "p_delta_gt_0_2level": 0.999
+  },
+  "rare_1shot": {
+   "A": 0.5528952181339264,
+   "B": 0.5560627381006876,
+   "delta": 0.003167519966761234,
+   "ci95": [
+    0.0014726888735716094,
+    0.00481219220415684
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0004600324817802065,
+    0.005819411868852761
+   ],
+   "p_delta_gt_0_2level": 0.989
+  },
+  "rare_5shot": {
+   "A": 0.6068060596783956,
+   "B": 0.6115361452102661,
+   "delta": 0.004730085531870487,
+   "ci95": [
+    0.002388064037636012,
+    0.007056071494859905
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0012523064048439974,
+    0.008356446345696537
+   ],
+   "p_delta_gt_0_2level": 0.994
+  },
+  "rare_10shot": {
+   "A": 0.6398952603340149,
+   "B": 0.6483330329259237,
+   "delta": 0.00843777259190881,
+   "ci95": [
+    0.005075062601793676,
+    0.012195051368066406
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0042103441052605385,
+    0.012910259464763487
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "ARMD@10": {
+   "A": 0.7894437313079834,
+   "B": 0.8006799817085266,
+   "delta": 0.011236250400543213,
+   "ci95": [
+    0.006020647169713633,
+    0.0164375718166476
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.004597981770833928,
+    0.017984568978894493
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "rare_mean_5_10": {
+   "A": 0.6233506600062053,
+   "B": 0.629934589068095,
+   "delta": 0.0065839290618896484,
+   "ci95": [
+    0.003840661661182798,
+    0.0092226695188803
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.003342374846763982,
+    0.009842453509533283
+   ],
+   "p_delta_gt_0_2level": 1.0
+  }
+ },
+ "decision_rule": {
+  "rare_mean_5_10_ge_0.02": false,
+  "ARMD@10_ge_0.05": false,
+  "LP_common_noninf_-0.005": true,
+  "degraded_LP_c2d_noninf_-0.005": true,
+  "degraded_kNN_noninf_-0.005": true,
+  "KEEP_B": false,
+  "KEEP_B_if_P_from_2level_bootstrap": false
+ },
+ "secs": 557.0074157714844,
+ "notes": "B minus A; paired joint image bootstrap over locked fold 0; few-shot support from locked folds 1-4 (protocol), fixed seeds"
+}

@@ -1,0 +1,6 @@
+/workspace/kenv/lib/python3.12/site-packages/torch/jit/_script.py:1643: FutureWarning: `torch.jit.interface` is deprecated. Please use `torch.compile` instead.
+  warnings.warn(
+teacher load missing [] unexpected [] out dim 768
+512-cache path vs phase0 ref fold0: cos min 1.000000 mean 1.000000 (30s)
+640-cache (kernel path) all 1920 in 131s
+640-cache vs phase0 ref all: cos min 0.9989 mean 0.9998

@@ -1,0 +1,9 @@
+LP_common          A 0.9166  B 0.9316  d +0.0150 [+0.0037,+0.0273]  P(d>0) 0.999 | 2-level CI [+0.0037,+0.0273] P 0.999
+LP_clean_to_deg    A 0.9082  B 0.9285  d +0.0203 [+0.0058,+0.0365]  P(d>0) 0.998 | 2-level CI [+0.0058,+0.0365] P 0.998
+kNN_deg_query      A 0.8758  B 0.8893  d +0.0135 [-0.0104,+0.0394]  P(d>0) 0.878 | 2-level CI [-0.0104,+0.0394] P 0.878
+rare_1shot         A 0.5529  B 0.6016  d +0.0487 [+0.0298,+0.0674]  P(d>0) 1.000 | 2-level CI [+0.0182,+0.0779] P 1.000
+rare_5shot         A 0.6068  B 0.6929  d +0.0861 [+0.0609,+0.1096]  P(d>0) 1.000 | 2-level CI [+0.0536,+0.1160] P 1.000
+rare_10shot        A 0.6399  B 0.7276  d +0.0877 [+0.0610,+0.1143]  P(d>0) 1.000 | 2-level CI [+0.0539,+0.1197] P 1.000
+ARMD@10            A 0.7894  B 0.9486  d +0.1592 [+0.1155,+0.2074]  P(d>0) 1.000 | 2-level CI [+0.1085,+0.2206] P 1.000
+rare_mean_5_10     A 0.6234  B 0.7102  d +0.0869 [+0.0616,+0.1108]  P(d>0) 1.000 | 2-level CI [+0.0589,+0.1137] P 1.000
+decision {"rare_mean_5_10_ge_0.02": true, "ARMD@10_ge_0.05": true, "LP_common_noninf_-0.005": true, "degraded_LP_c2d_noninf_-0.005": true, "degraded_kNN_noninf_-0.005": true, "KEEP_B": true, "KEEP_B_if_P_from_2level_bootstrap": true}

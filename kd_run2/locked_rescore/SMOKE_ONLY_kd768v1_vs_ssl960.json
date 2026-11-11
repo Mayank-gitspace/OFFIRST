@@ -1,0 +1,183 @@
+{
+ "a": "<workdir>/encoder_mnv3_ssl/full_out/out/byol_mnv3_anatomy_v4/embeddings_target.npy",
+ "b": "../kaggle_smoke_out_v1_unmasked/out/kd_run2/embeddings_kd768.npy",
+ "split": "/workspace/offirst_upload/encoder_byol/full_run/split_used.csv",
+ "n_query": 384,
+ "n_support": 1536,
+ "draws": 20,
+ "n_boot": 1000,
+ "common_labels": [
+  "Disease_Risk",
+  "DR",
+  "ARMD",
+  "MH",
+  "DN",
+  "MYA",
+  "BRVO",
+  "TSLN",
+  "LS",
+  "ODC",
+  "ODP",
+  "ODE"
+ ],
+ "rare_headline": [
+  "ARMD",
+  "ODC",
+  "ODP"
+ ],
+ "fold0_positives": {
+  "Disease_Risk": 303,
+  "DR": 72,
+  "ARMD": 20,
+  "MH": 64,
+  "DN": 28,
+  "MYA": 21,
+  "BRVO": 14,
+  "TSLN": 37,
+  "LS": 10,
+  "ODC": 56,
+  "ODP": 13,
+  "ODE": 12
+ },
+ "metrics": {
+  "LP_common": {
+   "A": 0.9165995879606768,
+   "B": 0.9268568700010126,
+   "delta": 0.010257282040335824,
+   "ci95": [
+    0.0005664752622084574,
+    0.01941155701561592
+   ],
+   "p_delta_gt_0": 0.982,
+   "p_delta_gt_-0.005": 0.998,
+   "ci95_2level": [
+    0.0005664752622084574,
+    0.01941155701561592
+   ],
+   "p_delta_gt_0_2level": 0.982
+  },
+  "LP_clean_to_deg": {
+   "A": 0.9082106893712824,
+   "B": 0.9130362001332369,
+   "delta": 0.004825510761954588,
+   "ci95": [
+    -0.009943240562930446,
+    0.018512174425918376
+   ],
+   "p_delta_gt_0": 0.748,
+   "p_delta_gt_-0.005": 0.904,
+   "ci95_2level": [
+    -0.009943240562930446,
+    0.018512174425918376
+   ],
+   "p_delta_gt_0_2level": 0.748
+  },
+  "kNN_deg_query": {
+   "A": 0.8758257180452347,
+   "B": 0.8869119236866633,
+   "delta": 0.011086205641428593,
+   "ci95": [
+    -0.011481761005220028,
+    0.033803539105208946
+   ],
+   "p_delta_gt_0": 0.841,
+   "p_delta_gt_-0.005": 0.923,
+   "ci95_2level": [
+    -0.011481761005220028,
+    0.033803539105208946
+   ],
+   "p_delta_gt_0_2level": 0.841
+  },
+  "rare_1shot": {
+   "A": 0.5528952181339264,
+   "B": 0.569811741511027,
+   "delta": 0.01691652337710059,
+   "ci95": [
+    0.004166809845572672,
+    0.029385699452742154
+   ],
+   "p_delta_gt_0": 0.995,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    -0.003328948180588947,
+    0.035699673520220555
+   ],
+   "p_delta_gt_0_2level": 0.945
+  },
+  "rare_5shot": {
+   "A": 0.6068060596783956,
+   "B": 0.6504960060119629,
+   "delta": 0.043689946333567264,
+   "ci95": [
+    0.029385237769400403,
+    0.05685979938711411
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.022051881403376775,
+    0.0630437974705427
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "rare_10shot": {
+   "A": 0.6398952603340149,
+   "B": 0.683435300985972,
+   "delta": 0.04354004065195716,
+   "ci95": [
+    0.023221593109829512,
+    0.06422182296608686
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.019814033779453188,
+    0.06731056738105574
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "ARMD@10": {
+   "A": 0.7894437313079834,
+   "B": 0.8524930477142334,
+   "delta": 0.06304931640625,
+   "ci95": [
+    0.029486535735999447,
+    0.10133304364920391
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.022880341499556766,
+    0.1074501854020303
+   ],
+   "p_delta_gt_0_2level": 0.999
+  },
+  "rare_mean_5_10": {
+   "A": 0.6233506600062053,
+   "B": 0.6669656534989674,
+   "delta": 0.0436149934927621,
+   "ci95": [
+    0.027204016906819273,
+    0.05897265515817141
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.025097699858122956,
+    0.0616250148737452
+   ],
+   "p_delta_gt_0_2level": 1.0
+  }
+ },
+ "decision_rule": {
+  "rare_mean_5_10_ge_0.02": true,
+  "ARMD@10_ge_0.05": true,
+  "LP_common_noninf_-0.005": true,
+  "degraded_LP_c2d_noninf_-0.005": true,
+  "degraded_kNN_noninf_-0.005": true,
+  "KEEP_B": true,
+  "KEEP_B_if_P_from_2level_bootstrap": true
+ },
+ "secs": 345.7418854236603,
+ "notes": "B minus A; paired joint image bootstrap over locked fold 0; few-shot support from locked folds 1-4 (protocol), fixed seeds"
+}

@@ -1,0 +1,2 @@
+{"title": "offirst-kd-run2-weights", "id": "teamoffirst/offirst-kd-run2-weights", "licenses": [{"name": "CC-BY-4.0"}], "isPrivate": true,
+ "description": "OFFIRST KD Run 2 inputs: frozen teacher = BYOL anatomy v4 ConvNeXt-T ep20 target backbone (timm convnext_tiny, num_classes=0, 768-d, 384 px); student init = MobileNetV3-Large BYOL SSL ep40 target backbone (GAPEncoder keys body.*, 960-d GAP, 512 px). Trained on RFMiD training split only. SHA256SUMS.txt included."}

@@ -1,0 +1,183 @@
+{
+ "a": "<workdir>/encoder_mnv3_ssl/full_out/out/byol_mnv3_anatomy_v4/embeddings_target.npy",
+ "b": "../full_out/out/kd_run2/embeddings_kd768.npy",
+ "split": "/workspace/offirst_upload/encoder_byol/full_run/split_used.csv",
+ "n_query": 384,
+ "n_support": 1536,
+ "draws": 20,
+ "n_boot": 1000,
+ "common_labels": [
+  "Disease_Risk",
+  "DR",
+  "ARMD",
+  "MH",
+  "DN",
+  "MYA",
+  "BRVO",
+  "TSLN",
+  "LS",
+  "ODC",
+  "ODP",
+  "ODE"
+ ],
+ "rare_headline": [
+  "ARMD",
+  "ODC",
+  "ODP"
+ ],
+ "fold0_positives": {
+  "Disease_Risk": 303,
+  "DR": 72,
+  "ARMD": 20,
+  "MH": 64,
+  "DN": 28,
+  "MYA": 21,
+  "BRVO": 14,
+  "TSLN": 37,
+  "LS": 10,
+  "ODC": 56,
+  "ODP": 13,
+  "ODE": 12
+ },
+ "metrics": {
+  "LP_common": {
+   "A": 0.9165995879606768,
+   "B": 0.9316224564205516,
+   "delta": 0.015022868459874883,
+   "ci95": [
+    0.0036696314041060885,
+    0.027312940317729566
+   ],
+   "p_delta_gt_0": 0.999,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0036696314041060885,
+    0.027312940317729566
+   ],
+   "p_delta_gt_0_2level": 0.999
+  },
+  "LP_clean_to_deg": {
+   "A": 0.9082106893712824,
+   "B": 0.9285251931710676,
+   "delta": 0.020314503799785277,
+   "ci95": [
+    0.005801546324635954,
+    0.036511775054847
+   ],
+   "p_delta_gt_0": 0.998,
+   "p_delta_gt_-0.005": 0.999,
+   "ci95_2level": [
+    0.005801546324635954,
+    0.036511775054847
+   ],
+   "p_delta_gt_0_2level": 0.998
+  },
+  "kNN_deg_query": {
+   "A": 0.8758257180452347,
+   "B": 0.8893293837706248,
+   "delta": 0.01350366572539008,
+   "ci95": [
+    -0.010389308927338484,
+    0.0394223069407357
+   ],
+   "p_delta_gt_0": 0.878,
+   "p_delta_gt_-0.005": 0.946,
+   "ci95_2level": [
+    -0.010389308927338484,
+    0.0394223069407357
+   ],
+   "p_delta_gt_0_2level": 0.878
+  },
+  "rare_1shot": {
+   "A": 0.5528952181339264,
+   "B": 0.6016345123449961,
+   "delta": 0.048739294211069706,
+   "ci95": [
+    0.029778733435776646,
+    0.06738271424723191
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.018164295823497788,
+    0.07787910510982943
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "rare_5shot": {
+   "A": 0.6068060596783956,
+   "B": 0.6928637623786926,
+   "delta": 0.086057702700297,
+   "ci95": [
+    0.060921632875552384,
+    0.10961339730609879
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.05361931643090633,
+    0.11598592238378773
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "rare_10shot": {
+   "A": 0.6398952603340149,
+   "B": 0.727616012096405,
+   "delta": 0.08772075176239014,
+   "ci95": [
+    0.06100012173921654,
+    0.11430748872301856
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.05388543035139061,
+    0.11973064657716843
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "ARMD@10": {
+   "A": 0.7894437313079834,
+   "B": 0.9486331939697266,
+   "delta": 0.15918946266174316,
+   "ci95": [
+    0.11551191258366025,
+    0.20742189154255286
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.10852981511348792,
+    0.2205697073459741
+   ],
+   "p_delta_gt_0_2level": 1.0
+  },
+  "rare_mean_5_10": {
+   "A": 0.6233506600062053,
+   "B": 0.7102398872375488,
+   "delta": 0.08688922723134351,
+   "ci95": [
+    0.061566279865999114,
+    0.11075623638140193
+   ],
+   "p_delta_gt_0": 1.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.05886434405029941,
+    0.11368804611395708
+   ],
+   "p_delta_gt_0_2level": 1.0
+  }
+ },
+ "decision_rule": {
+  "rare_mean_5_10_ge_0.02": true,
+  "ARMD@10_ge_0.05": true,
+  "LP_common_noninf_-0.005": true,
+  "degraded_LP_c2d_noninf_-0.005": true,
+  "degraded_kNN_noninf_-0.005": true,
+  "KEEP_B": true,
+  "KEEP_B_if_P_from_2level_bootstrap": true
+ },
+ "secs": 325.9629566669464,
+ "notes": "B minus A; paired joint image bootstrap over locked fold 0; few-shot support from locked folds 1-4 (protocol), fixed seeds"
+}

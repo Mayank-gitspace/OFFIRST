@@ -1,0 +1,27 @@
+{
+ "self_included": {
+  "p_t_max": 0.9651050567626953,
+  "p_t_top5_mass": 0.9960253834724426,
+  "entropy_nats": 0.159818634390831,
+  "eff_neighbours_exp_entropy": 1.2029576301574707,
+  "top1_identical_labelset": 1.0,
+  "top1_shares_a_label": 0.7907986111111112,
+  "random_identical_labelset": 0.0798611111111111,
+  "ARMD_query_mass_on_ARMD_anchors": 0.9872893691062927,
+  "ARMD_prevalence_in_bank": 0.052083333333333336
+ },
+ "masked": {
+  "p_t_max": 0.44127970933914185,
+  "p_t_top5_mass": 0.7386897802352905,
+  "entropy_nats": 2.3961868286132812,
+  "eff_neighbours_exp_entropy": 23.24686622619629,
+  "top1_identical_labelset": 0.4609375,
+  "top1_shares_a_label": 0.4930555555555556,
+  "random_identical_labelset": 0.0798611111111111,
+  "ARMD_query_mass_on_ARMD_anchors": 0.41481563448905945,
+  "ARMD_prevalence_in_bank": 0.052083333333333336
+ },
+ "masked_kl_value": 0.04268747195601463,
+ "masked_kl_grad_finite": true,
+ "grad_norm": 0.01700049825012684
+}

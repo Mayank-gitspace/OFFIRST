@@ -1,0 +1,183 @@
+{
+ "a": "<workdir>/encoder_mnv3_ssl/full_out/out/byol_mnv3_anatomy_v4/embeddings_target.npy",
+ "b": "../full_out/out/kd_run2/embeddings_ssl_ep40_960.npy",
+ "split": "/workspace/offirst_upload/encoder_byol/full_run/split_used.csv",
+ "n_query": 384,
+ "n_support": 1536,
+ "draws": 20,
+ "n_boot": 1000,
+ "common_labels": [
+  "Disease_Risk",
+  "DR",
+  "ARMD",
+  "MH",
+  "DN",
+  "MYA",
+  "BRVO",
+  "TSLN",
+  "LS",
+  "ODC",
+  "ODP",
+  "ODE"
+ ],
+ "rare_headline": [
+  "ARMD",
+  "ODC",
+  "ODP"
+ ],
+ "fold0_positives": {
+  "Disease_Risk": 303,
+  "DR": 72,
+  "ARMD": 20,
+  "MH": 64,
+  "DN": 28,
+  "MYA": 21,
+  "BRVO": 14,
+  "TSLN": 37,
+  "LS": 10,
+  "ODC": 56,
+  "ODP": 13,
+  "ODE": 12
+ },
+ "metrics": {
+  "LP_common": {
+   "A": 0.9165995879606768,
+   "B": 0.9165995879606768,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  },
+  "LP_clean_to_deg": {
+   "A": 0.9082106893712824,
+   "B": 0.9082106893712824,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  },
+  "kNN_deg_query": {
+   "A": 0.8758257180452347,
+   "B": 0.8758257180452347,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  },
+  "rare_1shot": {
+   "A": 0.5528952181339264,
+   "B": 0.5528952181339264,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  },
+  "rare_5shot": {
+   "A": 0.6068060596783956,
+   "B": 0.6068060596783956,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  },
+  "rare_10shot": {
+   "A": 0.6398952603340149,
+   "B": 0.6398952603340149,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  },
+  "ARMD@10": {
+   "A": 0.7894437313079834,
+   "B": 0.7894437313079834,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  },
+  "rare_mean_5_10": {
+   "A": 0.6233506600062053,
+   "B": 0.6233506600062053,
+   "delta": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0": 0.0,
+   "p_delta_gt_-0.005": 1.0,
+   "ci95_2level": [
+    0.0,
+    0.0
+   ],
+   "p_delta_gt_0_2level": 0.0
+  }
+ },
+ "decision_rule": {
+  "rare_mean_5_10_ge_0.02": false,
+  "ARMD@10_ge_0.05": false,
+  "LP_common_noninf_-0.005": true,
+  "degraded_LP_c2d_noninf_-0.005": true,
+  "degraded_kNN_noninf_-0.005": true,
+  "KEEP_B": false,
+  "KEEP_B_if_P_from_2level_bootstrap": false
+ },
+ "secs": 361.1526415348053,
+ "notes": "B minus A; paired joint image bootstrap over locked fold 0; few-shot support from locked folds 1-4 (protocol), fixed seeds"
+}

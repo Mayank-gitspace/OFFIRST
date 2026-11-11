@@ -1,0 +1,27 @@
+[    0.0s] KD RUN 2  RUN_MODE=smoke  backbone=mobilenetv3_large_100  global=512  local=224  cache=640  input=/workspace/rfmid_train_dl  out=/tmp/kd_units_out
+[    0.1s] labels /workspace/rfmid_train_dl/Training_Set/RFMiD_Training_Labels.csv rows=1920  images /workspace/rfmid_train_dl/Training_Set/Training
+[    0.8s] split from recomputed(iterstrat); fold sizes [384, 384, 384, 384, 384]; eval fold 0 (excluded from SSL)
+[    0.8s] degrader geometry: {"raw_width_over_side_median": 1.5369175627240144, "raw_side_median": 1395.0, "fov_radius_frac_median": 0.4989539948219054, "fov_centre_offset_frac_max": 0.1322593989860703}
+[    0.8s] cache ready (1920, 640, 640, 3) in 0.0s
+[    0.8s] box table: {"n": 1920, "conf_cutoff": 1.0, "low_conf_frac_all": 0.2046875, "low_conf_frac_ssl": 0.20572916666666666}
+[    3.1s] device cpu  torch 2.14.1+cpu timm 1.0.15
+[    3.1s] SSL images 1152 from folds [1, 2, 3] (full run would use 1152); inner support 1152 / inner query fold 4 384; dev support 1536 / dev query fold 0 384
+[    3.1s] KD train rows 1152 folds [1, 2, 3]; student 256px teacher 192px
+PASS teacher_strict_load {"n": 180}
+PASS student_strict_load {"n": 308}
+PASS student_equals_ssl_ep40_target {"n": 308}
+PASS shapes {"h": [2, 960], "zs": [2, 768], "zt": [2, 768], "t_in": [2, 3, 192, 192]}
+PASS views_same_fov {"per_image": [{"aligned": 0.019925523549318314, "hflip_ctrl": 0.3937990069389343, "rot5_ctrl": 0.08520518988370895, "clean_same_p0": true, "student_is_clean_p0": true, "deg_mae_u8": 3.580388387044271, "alpha": 0.26843898010187117}, {"aligned": 0.01949605531990528, "hflip_ctrl": 0.21028664708137512, "rot5_ctrl": 0.07521621137857437, "clean_same_p0": true, "student_is_clean_p0": true, "deg_mae_u8": 6.026926676432292, "alpha": 0.5553564738223304}, {"aligned": 0.01898692362010479, "hflip_ctrl": 0.36261460185050964, "rot5_ctrl": 0.10508804023265839, "clean_same_p0": true, "student_is_clean_p0": true, "deg_mae_u8": 2.315180460611979, "alpha": 0.08405965116535008}, {"aligned": 0.02086542919278145, "hflip_ctrl": 0.26783129572868347, "rot5_ctrl": 0.08403133600950241, "clean_same_p0": true, "student_is_clean_p0": true, "deg_mae_u8": 9.460596720377604, "alpha": 0.6853598183677972}], "note": "MAE in ImageNet-normalised units; 0.02 ~ 1.1/255 resampling noise"}
+PASS degradation_student_only {}
+PASS dataset_C_clean_Sx_degraded_iff_alpha {"n_deg": 4, "n": 8}
+PASS procrustes {"cos_before": -0.004275336395949125, "cos_after": 0.8247160911560059, "orth_err": 5.364418029785156e-07}
+PASS loss_sane {"identical": [6.705522537231445e-08, 0.0040268744342029095], "kl_floor_tau_mismatch": 0.0040268744342029095, "random": [1.0061147212982178, 0.03423832729458809], "p_t_self": null, "p_t_entropy": 0.7732943296432495}
+PASS kl_matches_F_kl_div_form {"note": "own KL = sum p_t (log p_t - log p_s), batchmean x tau_s^2 (same as Argon/F.kl_div)"}
+PASS overfit_stage1_losses_decrease {"cos_first_last": [0.2997575104236603, 0.004320688545703888], "kl_first_last": [0.01638646423816681, 0.003631061874330044]}
+PASS stage1_backbone_frozen_incl_bn_stats {"head_moved": true}
+PASS overfit_stage2_losses_decrease {"cos_first_last": [0.677371621131897, 0.0031679943203926086], "kl_first_last": [0.026598414406180382, 0.003544070990756154]}
+[   16.4s] BN recal: {"n_bn": 46, "n_images": 16, "deg_frac": 0.5, "mean_abs_delta_running_mean": 0.053287153113279084, "mean_rel_delta_running_var": 0.15513433718486971, "num_batches_tracked_first": 2}
+PASS bn_recal_changes_running_stats {"mean_abs_change": 2.607047483552141, "report": {"n_bn": 46, "n_images": 16, "deg_frac": 0.5, "mean_abs_delta_running_mean": 0.053287153113279084, "mean_rel_delta_running_var": 0.15513433718486971, "num_batches_tracked_first": 2}}
+PASS eval_output_768 {"shape": [8, 768]}
+PASS fold0_not_in_train_rows {"n": 1152, "folds": [1, 2, 3]}
+ALL PASS
