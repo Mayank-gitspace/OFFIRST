@@ -1,0 +1,17 @@
+[    0.0s] RUN_MODE=eval  backbone=mobilenetv3_large_100  global=512  local=224  cache=640  input=/workspace/rfmid_train_dl  out=<workdir>/encoder_mnv3_ssl/localtest/out_eval
+[    0.1s] labels /workspace/rfmid_train_dl/Training_Set/RFMiD_Training_Labels.csv rows=1920  images /workspace/rfmid_train_dl/Training_Set/Training
+[    0.8s] split from recomputed(iterstrat); fold sizes [384, 384, 384, 384, 384]; eval fold 0 (excluded from SSL)
+[    0.8s] degrader geometry: {"raw_width_over_side_median": 1.5369175627240144, "raw_side_median": 1395.0, "fov_radius_frac_median": 0.4989539948219054, "fov_centre_offset_frac_max": 0.1322593989860703}
+[    0.8s] cache ready (1920, 640, 640, 3) in 0.0s
+[    0.8s] box table: {"n": 1920, "conf_cutoff": 1.0, "low_conf_frac_all": 0.2046875, "low_conf_frac_ssl": 0.20572916666666666}
+[    3.1s] device cpu  torch 2.14.1+cpu timm 1.0.15
+[    3.1s] SSL images 1152 from folds [1, 2, 3] (full run would use 1152); inner support 1152 / inner query fold 4 384; dev support 1536 / dev query fold 0 384
+[    3.6s] degrade examples -> <workdir>/encoder_mnv3_ssl/localtest/out_eval/degrade_eval_examples.png
+[    3.6s] WARNING: supervised baseline embeddings not mounted (or smoke); skipping reference (c)
+[  423.3s]   EVAL[imagenet_init_512|dev] LP clean 0.886 DR 0.916 | LP c->deg 0.865 deg->deg 0.886 | fewshot(logreg ODC/ODP/ARMD) k=1 0.543  k=5 0.562  k=10 0.618 | c->deg k=1 0.540  k=5 0.567  k=10 0.619 | kNN 0.846/0.806 | erank 178.6/179.9 pair-rand 0.142 (centred 0.631)  (303s)
+[  748.9s]   EVAL[imagenet_init_512|inner] LP clean 0.907 DR 0.937 | LP c->deg 0.872 deg->deg 0.904 | fewshot(logreg ODC/ODP/ARMD) k=1 0.546  k=5 0.585  k=10 0.613 | c->deg k=1 0.550  k=5 0.588  k=10 0.618 | kNN 0.854/0.766 | erank 180.6/182.1 pair-rand 0.143 (centred 0.631)  (326s)
+[ 1412.4s]   EVAL[ckpt:/tmp/mnv3_smoke_best.pth:online|dev] LP clean 0.901 DR 0.918 | LP c->deg 0.854 deg->deg 0.892 | fewshot(logreg ODC/ODP/ARMD) k=1 0.562  k=5 0.599  k=10 0.645 | c->deg k=1 0.555  k=5 0.597  k=10 0.646 | kNN 0.860/0.790 | erank 226.2/226.3 pair-rand 0.200 (centred 0.435)  (549s)
+[ 1660.0s]   EVAL[ckpt:/tmp/mnv3_smoke_best.pth:online|inner] LP clean 0.897 DR 0.939 | LP c->deg 0.828 deg->deg 0.901 | fewshot(logreg ODC/ODP/ARMD) k=1 0.556  k=5 0.597  k=10 0.647 | c->deg k=1 0.556  k=5 0.591  k=10 0.637 | kNN 0.851/0.761 | erank 227.7/227.9 pair-rand 0.200 (centred 0.430)  (248s)
+[ 2641.9s]   EVAL[ckpt:/tmp/mnv3_smoke_best.pth:target|dev] LP clean 0.900 DR 0.916 | LP c->deg 0.853 deg->deg 0.892 | fewshot(logreg ODC/ODP/ARMD) k=1 0.565  k=5 0.601  k=10 0.648 | c->deg k=1 0.556  k=5 0.593  k=10 0.644 | kNN 0.861/0.803 | erank 226.8/226.0 pair-rand 0.199 (centred 0.452)  (285s)
+[ 3336.6s]   EVAL[ckpt:/tmp/mnv3_smoke_best.pth:target|inner] LP clean 0.900 DR 0.936 | LP c->deg 0.827 deg->deg 0.900 | fewshot(logreg ODC/ODP/ARMD) k=1 0.556  k=5 0.600  k=10 0.648 | c->deg k=1 0.554  k=5 0.588  k=10 0.632 | kNN 0.853/0.773 | erank 228.5/227.5 pair-rand 0.198 (centred 0.447)  (695s)
+[ 3336.6s] DONE eval

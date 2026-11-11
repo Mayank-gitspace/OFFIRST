@@ -1,0 +1,26 @@
+[    0.0s] RUN_MODE=smoke  backbone=mobilenetv3_large_100  global=512  local=224  cache=640  input=/workspace/rfmid_train_dl  out=<workdir>/encoder_mnv3_ssl/localtest/out
+[    0.2s] labels /workspace/rfmid_train_dl/Training_Set/RFMiD_Training_Labels.csv rows=1920  images /workspace/rfmid_train_dl/Training_Set/Training
+[    1.4s] split from recomputed(iterstrat); fold sizes [384, 384, 384, 384, 384]; eval fold 0 (excluded from SSL)
+[    1.4s] degrader geometry: {"raw_width_over_side_median": 1.5369175627240144, "raw_side_median": 1395.0, "fov_radius_frac_median": 0.4989539948219054, "fov_centre_offset_frac_max": 0.1322593989860703}
+[    1.4s] cache ready (1920, 640, 640, 3) in 0.0s
+[    1.4s] box table: {"n": 1920, "conf_cutoff": 1.0, "low_conf_frac_all": 0.2046875, "low_conf_frac_ssl": 0.20572916666666666}
+[    4.6s] device cpu  torch 2.14.1+cpu timm 1.0.15
+[    4.7s] SSL images 32 from folds [1, 2, 3] (full run would use 1152); inner support 450 / inner query fold 4 150; dev support 600 / dev query fold 0 150
+[    5.2s] degrade examples -> <workdir>/encoder_mnv3_ssl/localtest/out/degrade_eval_examples.png
+[    5.2s] WARNING: supervised baseline embeddings not mounted (or smoke); skipping reference (c)
+[   88.9s]   EVAL[imagenet_init_512|dev] LP clean 0.813 DR 0.921 | LP c->deg 0.802 deg->deg 0.813 | fewshot(logreg ODC/ODP/ARMD) k=1 0.519  k=5 0.523  k=10 0.547 | c->deg k=1 0.490  k=5 0.528  k=10 0.561 | kNN 0.767/0.772 | erank 88.1/88.2 pair-rand 0.146 (centred 0.638)  (36s)
+[   93.4s]   EVAL[imagenet_init_512|inner] LP clean 0.874 DR 0.921 | LP c->deg 0.863 deg->deg 0.877 | fewshot(logreg ODC/ODP/ARMD) k=1 0.562  k=5 0.549  k=10 0.580 | c->deg k=1 0.545  k=5 0.533  k=10 0.584 | kNN 0.781/0.747 | erank 90.0/90.4 pair-rand 0.136 (centred 0.622)  (5s)
+[   94.9s] crop grid -> <workdir>/encoder_mnv3_ssl/localtest/out/local_views_grid.png
+[   95.4s] === BYOL mobilenetv3_large_100 crop_mode=anatomy_v4: 32 imgs, bs 4, grad_ckpt False, 8 steps/ep, 2 ep, emb dim 960, params 6.52M (backbone 2.97M)
+[  119.4s]   [anatomy_v4] ep 1/2 loss 1.0753 std_z 0.884 std_h 0.643 tau 0.9940 lr_bb 1.20e-04 4.0 img/s (8s) | inner kNN 0.808 deg-q 0.778 erank 106.8 pair-rand 0.191/0.437c (16s) | deg g0 0.00 g1 0.88 loc 0.59 a 0.55 | anat 0.39 random=0.50 disc=0.20 macula=0.20 fallba=0.11
+[  584.3s]   EVAL[byol_mnv3_anatomy_v4/ep1_target|inner] LP clean 0.891 DR 0.920 | LP c->deg 0.857 deg->deg 0.873 | fewshot(logreg ODC/ODP/ARMD) k=1 0.565  k=5 0.540  k=10 0.582 | c->deg k=1 0.533  k=5 0.512  k=10 0.599 | kNN 0.808/0.778 | erank 106.8/106.0 pair-rand 0.191 (centred 0.437)  (5s)
+[  615.5s]   EVAL[byol_mnv3_anatomy_v4/ep1_online|inner] LP clean 0.894 DR 0.919 | LP c->deg 0.857 deg->deg 0.867 | fewshot(logreg ODC/ODP/ARMD) k=1 0.566  k=5 0.539  k=10 0.582 | c->deg k=1 0.529  k=5 0.519  k=10 0.604 | kNN 0.806/0.794 | erank 106.5/106.3 pair-rand 0.192 (centred 0.420)  (5s)
+[  615.6s]   inner-val select (lp_mean_clean_deg, target) 0.8742 at ep 1 -> best.pth
+[  643.2s]   [anatomy_v4] ep 2/2 loss 0.8602 std_z 0.917 std_h 0.660 tau 0.9999 lr_bb 1.92e-06 3.4 img/s (9s) | inner kNN 0.819 deg-q 0.782 erank 111.9 pair-rand 0.169/0.343c (18s) | deg g0 0.00 g1 0.84 loc 0.57 a 0.47 | anat 0.39 random=0.50 disc=0.20 macula=0.20 fallba=0.11
+[  671.5s]   EVAL[byol_mnv3_anatomy_v4/ep2_target|inner] LP clean 0.886 DR 0.918 | LP c->deg 0.835 deg->deg 0.852 | fewshot(logreg ODC/ODP/ARMD) k=1 0.535  k=5 0.582  k=10 0.615 | c->deg k=1 0.484  k=5 0.522  k=10 0.574 | kNN 0.819/0.782 | erank 111.9/112.2 pair-rand 0.169 (centred 0.343)  (4s)
+[  698.8s]   EVAL[byol_mnv3_anatomy_v4/ep2_online|inner] LP clean 0.884 DR 0.926 | LP c->deg 0.841 deg->deg 0.859 | fewshot(logreg ODC/ODP/ARMD) k=1 0.541  k=5 0.588  k=10 0.627 | c->deg k=1 0.474  k=5 0.529  k=10 0.587 | kNN 0.822/0.786 | erank 111.5/112.4 pair-rand 0.163 (centred 0.317)  (4s)
+[  789.7s]   EVAL[byol_mnv3_anatomy_v4/online|dev] LP clean 0.826 DR 0.901 | LP c->deg 0.740 deg->deg 0.824 | fewshot(logreg ODC/ODP/ARMD) k=1 0.512  k=5 0.524  k=10 0.532 | c->deg k=1 0.511  k=5 0.539  k=10 0.564 | kNN 0.771/0.722 | erank 109.8/110.6 pair-rand 0.173 (centred 0.334)  (28s)
+[  820.0s]   EVAL[byol_mnv3_anatomy_v4/target|dev] LP clean 0.837 DR 0.921 | LP c->deg 0.770 deg->deg 0.814 | fewshot(logreg ODC/ODP/ARMD) k=1 0.510  k=5 0.522  k=10 0.529 | c->deg k=1 0.508  k=5 0.537  k=10 0.542 | kNN 0.769/0.723 | erank 110.1/110.6 pair-rand 0.179 (centred 0.361)  (30s)
+[  881.6s]   EVAL[byol_mnv3_anatomy_v4/selected_ep1_target|dev] LP clean 0.833 DR 0.908 | LP c->deg 0.782 deg->deg 0.833 | fewshot(logreg ODC/ODP/ARMD) k=1 0.488  k=5 0.542  k=10 0.522 | c->deg k=1 0.492  k=5 0.552  k=10 0.536 | kNN 0.777/0.767 | erank 105.0/104.6 pair-rand 0.203 (centred 0.464)  (31s)
+[  881.7s] ESTIMATE {"anatomy_v4": {"device": "cpu", "wall_img_per_s": 3.9747417499465465, "sec_per_epoch_full_data": 289.83015060424805, "knn_s_full": 43.66348876953125, "inner_eval_s_full": 706.0257354736328, "final_eval_s_full": 467.8603631591797, "est_full_hours": 4.035680973307292, "note": "assumes 40 ep, kNN every 5, 3 inner evals; extrapolated from this run's measured times"}}
+[  881.7s] DONE {"cache_s": 0.0031969547271728516, "ref_eval_s": 88.24573254585266, "anatomy_v4_total_s": 788.1810033321381, "wall_s": 881.6689698696136}

@@ -1,0 +1,9 @@
+{
+ "views_with_degrade(default p)_ms_per_image": 111.9,
+ "views_no_degrade(v4-equivalent)_ms_per_image": 73.3,
+ "views_all_degraded(p=1 on g1+locals)_ms_per_image": 119.1,
+ "degrade_eval_512_ms_per_image": 26.1,
+ "clean_eval_resize_512_ms_per_image": 1.9,
+ "n_images": 32,
+ "cpu": 8
+}

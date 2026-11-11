@@ -1,0 +1,137 @@
+[
+ {
+  "id": "1",
+  "raw_w": 2144,
+  "raw_side": 1395,
+  "mae_fov_full(ours vs ref)": 0.11858894675970078,
+  "mae_fov_full(naive-blur vs ref)": 0.4224420189857483,
+  "mae_fov_full(degrade.py on RGB cache vs ref)": 22.253746032714844,
+  "mae_fov_full(clean vs ref)": 13.3027982711792,
+  "mae_fov_local_crops(ours vs ref crop)": 0.19151872023940086,
+  "sobel_mean": {
+   "clean": 12.544,
+   "ref": 11.484,
+   "ours": 11.446,
+   "naive": 12.432,
+   "rgb_as_bgr": 12.427
+  },
+  "ratio_r_g": {
+   "clean": 1.369,
+   "ref": 1.109,
+   "ours": 1.109,
+   "naive": 1.109,
+   "rgb_as_bgr": 1.5
+  },
+  "ratio_b_g": {
+   "clean": 0.559,
+   "ref": 0.612,
+   "ours": 0.612,
+   "naive": 0.612,
+   "rgb_as_bgr": 0.452
+  },
+  "mean_L": {
+   "clean": 50.574,
+   "ref": 50.566,
+   "ours": 50.567,
+   "naive": 50.61,
+   "rgb_as_bgr": 55.517
+  },
+  "radial_edge_ratio": {
+   "clean": 0.961,
+   "ref": 0.848,
+   "ours": 0.848,
+   "naive": 0.848,
+   "rgb_as_bgr": 0.844
+  }
+ },
+ {
+  "id": "1494",
+  "raw_w": 4288,
+  "raw_side": 3417,
+  "mae_fov_full(ours vs ref)": 0.11740005761384964,
+  "mae_fov_full(naive-blur vs ref)": 0.23561963438987732,
+  "mae_fov_full(degrade.py on RGB cache vs ref)": 14.75384521484375,
+  "mae_fov_full(clean vs ref)": 9.549430847167969,
+  "mae_fov_local_crops(ours vs ref crop)": 0.21325431019067764,
+  "sobel_mean": {
+   "clean": 15.31,
+   "ref": 14.714,
+   "ours": 14.703,
+   "naive": 15.291,
+   "rgb_as_bgr": 15.287
+  },
+  "ratio_r_g": {
+   "clean": 2.016,
+   "ref": 1.605,
+   "ours": 1.605,
+   "naive": 1.605,
+   "rgb_as_bgr": 2.161
+  },
+  "ratio_b_g": {
+   "clean": 0.157,
+   "ref": 0.218,
+   "ours": 0.218,
+   "naive": 0.218,
+   "rgb_as_bgr": 0.161
+  },
+  "mean_L": {
+   "clean": 35.324,
+   "ref": 34.292,
+   "ours": 34.283,
+   "naive": 34.289,
+   "rgb_as_bgr": 40.291
+  },
+  "radial_edge_ratio": {
+   "clean": 0.477,
+   "ref": 0.418,
+   "ours": 0.417,
+   "naive": 0.418,
+   "rgb_as_bgr": 0.427
+  }
+ },
+ {
+  "id": "1741",
+  "raw_w": 2048,
+  "raw_side": 1476,
+  "mae_fov_full(ours vs ref)": 0.10768570005893707,
+  "mae_fov_full(naive-blur vs ref)": 0.37372392416000366,
+  "mae_fov_full(degrade.py on RGB cache vs ref)": 10.593717575073242,
+  "mae_fov_full(clean vs ref)": 7.341521739959717,
+  "mae_fov_local_crops(ours vs ref crop)": 0.2057216800749302,
+  "sobel_mean": {
+   "clean": 11.36,
+   "ref": 8.146,
+   "ours": 8.103,
+   "naive": 9.41,
+   "rgb_as_bgr": 9.41
+  },
+  "ratio_r_g": {
+   "clean": 1.836,
+   "ref": 1.473,
+   "ours": 1.473,
+   "naive": 1.472,
+   "rgb_as_bgr": 1.992
+  },
+  "ratio_b_g": {
+   "clean": 0.15,
+   "ref": 0.237,
+   "ours": 0.236,
+   "naive": 0.236,
+   "rgb_as_bgr": 0.175
+  },
+  "mean_L": {
+   "clean": 25.511,
+   "ref": 24.833,
+   "ours": 24.835,
+   "naive": 24.85,
+   "rgb_as_bgr": 28.999
+  },
+  "radial_edge_ratio": {
+   "clean": 1.055,
+   "ref": 0.937,
+   "ours": 0.937,
+   "naive": 0.937,
+   "rgb_as_bgr": 0.927
+  }
+ }
+]

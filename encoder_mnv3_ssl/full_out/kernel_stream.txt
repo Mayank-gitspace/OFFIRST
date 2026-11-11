@@ -1,0 +1,81 @@
+[    0.0s] RUN_MODE=full  backbone=mobilenetv3_large_100  global=512  local=224  cache=640  input=/kaggle/input  out=/kaggle/working/out
+[    2.2s] labels /kaggle/input/datasets/awsaf49/rfmid-train-dataset/Training_Set/RFMiD_Training_Labels.csv rows=1920  images /kaggle/input/datasets/awsaf49/rfmid-train-dataset/Training_Set/Training
+[    7.9s] split from recomputed(iterstrat); fold sizes [384, 384, 384, 384, 384]; eval fold 0 (excluded from SSL)
+[   35.6s]   cached 400/1920
+[   62.8s]   cached 800/1920
+[   88.8s]   cached 1200/1920
+[  133.2s]   cached 1600/1920
+[  183.1s] degrader geometry: {"raw_width_over_side_median": 1.5369175627240144, "raw_side_median": 1395.0, "fov_radius_frac_median": 0.4989539948219054, "fov_centre_offset_frac_max": 0.1322593989860703}
+[  183.1s] cache ready (1920, 640, 640, 3) in 175.3s
+[  183.2s] box table: {"n": 1920, "conf_cutoff": 1.0, "low_conf_frac_all": 0.2046875, "low_conf_frac_ssl": 0.20572916666666666}
+[  199.5s] device cuda Tesla T4 torch 2.11.0+cu130 timm 1.0.30
+[  199.5s] SSL images 1152 from folds [1, 2, 3] (full run would use 1152); inner support 1152 / inner query fold 4 384; dev support 1536 / dev query fold 0 384
+[  200.5s] degrade examples -> /kaggle/working/out/degrade_eval_examples.png
+[  200.6s] WARNING: supervised baseline embeddings not mounted (or smoke); skipping reference (c)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[  416.1s]   EVAL[imagenet_init_512|dev] LP clean 0.886 DR 0.917 | LP c->deg 0.865 deg->deg 0.886 | fewshot(logreg ODC/ODP/ARMD) k=1 0.543  k=5 0.562  k=10 0.618 | c->deg k=1 0.541  k=5 0.567  k=10 0.619 | kNN 0.845/0.804 | erank 178.6/179.9 pair-rand 0.143 (centred 0.632)  (160s)
+[  565.6s]   EVAL[imagenet_init_512|inner] LP clean 0.907 DR 0.937 | LP c->deg 0.871 deg->deg 0.904 | fewshot(logreg ODC/ODP/ARMD) k=1 0.546  k=5 0.585  k=10 0.613 | c->deg k=1 0.550  k=5 0.588  k=10 0.619 | kNN 0.855/0.767 | erank 180.6/182.1 pair-rand 0.143 (centred 0.631)  (150s)
+[  569.0s] batch probe: bs=64 grad_ckpt=False OOM
+[  571.7s] batch probe: bs=48 grad_ckpt=False OOM
+[  578.9s] batch probe: bs=48 grad_ckpt=True fits, peak 4.42 GiB
+[  581.2s] crop grid -> /kaggle/working/out/local_views_grid.png
+[  581.4s] === BYOL mobilenetv3_large_100 crop_mode=anatomy_v4: 1152 imgs, bs 48, grad_ckpt True, 24 steps/ep, 40 ep, emb dim 960, params 6.52M (backbone 2.97M)
+[  674.3s]   [anatomy_v4] ep 1/40 loss 1.2907 std_z 0.849 std_h 0.710 tau 0.9900 lr_bb 5.00e-05 12.4 img/s (93s) | deg g0 0.00 g1 0.83 loc 0.60 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[  767.4s]   [anatomy_v4] ep 2/40 loss 0.8043 std_z 0.904 std_h 0.716 tau 0.9901 lr_bb 1.00e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.85 loc 0.59 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[  860.0s]   [anatomy_v4] ep 3/40 loss 0.6905 std_z 0.918 std_h 0.719 tau 0.9901 lr_bb 1.50e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.86 loc 0.60 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[  951.7s]   [anatomy_v4] ep 4/40 loss 0.5540 std_z 0.912 std_h 0.717 tau 0.9902 lr_bb 2.00e-04 12.6 img/s (92s) | deg g0 0.00 g1 0.84 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1057.7s]   [anatomy_v4] ep 5/40 loss 0.4476 std_z 0.912 std_h 0.713 tau 0.9904 lr_bb 2.00e-04 12.6 img/s (91s) | inner kNN 0.858 deg-q 0.783 erank 248.5 pair-rand 0.188/0.347c (15s) | deg g0 0.00 g1 0.83 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1149.2s]   [anatomy_v4] ep 6/40 loss 0.3636 std_z 0.912 std_h 0.710 tau 0.9905 lr_bb 1.99e-04 12.6 img/s (91s) | deg g0 0.00 g1 0.84 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1240.9s]   [anatomy_v4] ep 7/40 loss 0.3011 std_z 0.917 std_h 0.706 tau 0.9907 lr_bb 1.97e-04 12.6 img/s (92s) | deg g0 0.00 g1 0.87 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1331.5s]   [anatomy_v4] ep 8/40 loss 0.2582 std_z 0.921 std_h 0.705 tau 0.9909 lr_bb 1.94e-04 12.7 img/s (91s) | deg g0 0.00 g1 0.85 loc 0.61 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1424.2s]   [anatomy_v4] ep 9/40 loss 0.2338 std_z 0.926 std_h 0.705 tau 0.9912 lr_bb 1.91e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.84 loc 0.60 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1532.2s]   [anatomy_v4] ep 10/40 loss 0.2143 std_z 0.930 std_h 0.704 tau 0.9915 lr_bb 1.87e-04 12.4 img/s (93s) | inner kNN 0.841 deg-q 0.818 erank 240.1 pair-rand 0.299/0.534c (15s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1624.3s]   [anatomy_v4] ep 11/40 loss 0.2000 std_z 0.932 std_h 0.703 tau 0.9917 lr_bb 1.82e-04 12.5 img/s (92s) | deg g0 0.00 g1 0.83 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1716.0s]   [anatomy_v4] ep 12/40 loss 0.1866 std_z 0.934 std_h 0.703 tau 0.9920 lr_bb 1.77e-04 12.6 img/s (92s) | deg g0 0.00 g1 0.88 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1808.9s]   [anatomy_v4] ep 13/40 loss 0.1800 std_z 0.937 std_h 0.702 tau 0.9924 lr_bb 1.71e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.83 loc 0.61 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 1901.9s]   [anatomy_v4] ep 14/40 loss 0.1723 std_z 0.938 std_h 0.700 tau 0.9927 lr_bb 1.65e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.87 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 2008.8s]   [anatomy_v4] ep 15/40 loss 0.1707 std_z 0.942 std_h 0.700 tau 0.9931 lr_bb 1.58e-04 12.6 img/s (92s) | inner kNN 0.844 deg-q 0.829 erank 236.7 pair-rand 0.383/0.674c (15s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 2101.9s]   [anatomy_v4] ep 16/40 loss 0.1624 std_z 0.943 std_h 0.701 tau 0.9934 lr_bb 1.50e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.86 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 2195.2s]   [anatomy_v4] ep 17/40 loss 0.1555 std_z 0.943 std_h 0.700 tau 0.9938 lr_bb 1.43e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.83 loc 0.61 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 2287.7s]   [anatomy_v4] ep 18/40 loss 0.1515 std_z 0.944 std_h 0.698 tau 0.9942 lr_bb 1.35e-04 12.5 img/s (92s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 2381.7s]   [anatomy_v4] ep 19/40 loss 0.1474 std_z 0.945 std_h 0.698 tau 0.9946 lr_bb 1.26e-04 12.2 img/s (94s) | deg g0 0.00 g1 0.84 loc 0.60 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 2489.1s]   [anatomy_v4] ep 20/40 loss 0.1458 std_z 0.944 std_h 0.696 tau 0.9950 lr_bb 1.18e-04 12.5 img/s (92s) | inner kNN 0.848 deg-q 0.836 erank 236.6 pair-rand 0.408/0.720c (15s) | deg g0 0.00 g1 0.84 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 2692.8s]   EVAL[byol_mnv3_anatomy_v4/ep20_target|inner] LP clean 0.919 DR 0.934 | LP c->deg 0.866 deg->deg 0.901 | fewshot(logreg ODC/ODP/ARMD) k=1 0.557  k=5 0.590  k=10 0.629 | c->deg k=1 0.558  k=5 0.589  k=10 0.624 | kNN 0.848/0.836 | erank 236.6/239.0 pair-rand 0.408 (centred 0.720)  (165s)
+[ 2891.6s]   EVAL[byol_mnv3_anatomy_v4/ep20_online|inner] LP clean 0.921 DR 0.934 | LP c->deg 0.883 deg->deg 0.905 | fewshot(logreg ODC/ODP/ARMD) k=1 0.557  k=5 0.591  k=10 0.632 | c->deg k=1 0.558  k=5 0.591  k=10 0.630 | kNN 0.859/0.843 | erank 234.0/234.0 pair-rand 0.441 (centred 0.770)  (160s)
+[ 2891.7s]   inner-val select (lp_mean_clean_deg, target) 0.8928 at ep 20 -> best.pth
+[ 2982.9s]   [anatomy_v4] ep 21/40 loss 0.1389 std_z 0.944 std_h 0.698 tau 0.9954 lr_bb 1.09e-04 12.6 img/s (91s) | deg g0 0.00 g1 0.84 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3075.5s]   [anatomy_v4] ep 22/40 loss 0.1384 std_z 0.946 std_h 0.699 tau 0.9958 lr_bb 1.00e-04 12.4 img/s (93s) | deg g0 0.00 g1 0.85 loc 0.59 a 0.49 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3168.1s]   [anatomy_v4] ep 23/40 loss 0.1331 std_z 0.946 std_h 0.699 tau 0.9962 lr_bb 9.16e-05 12.4 img/s (93s) | deg g0 0.00 g1 0.83 loc 0.61 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3261.5s]   [anatomy_v4] ep 24/40 loss 0.1367 std_z 0.947 std_h 0.699 tau 0.9965 lr_bb 8.30e-05 12.3 img/s (93s) | deg g0 0.00 g1 0.84 loc 0.61 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3370.8s]   [anatomy_v4] ep 25/40 loss 0.1273 std_z 0.946 std_h 0.697 tau 0.9969 lr_bb 7.45e-05 12.2 img/s (94s) | inner kNN 0.854 deg-q 0.840 erank 235.5 pair-rand 0.421/0.736c (15s) | deg g0 0.00 g1 0.86 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3463.5s]   [anatomy_v4] ep 26/40 loss 0.1306 std_z 0.947 std_h 0.697 tau 0.9973 lr_bb 6.61e-05 12.4 img/s (93s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3556.6s]   [anatomy_v4] ep 27/40 loss 0.1267 std_z 0.947 std_h 0.697 tau 0.9976 lr_bb 5.81e-05 12.4 img/s (93s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3649.5s]   [anatomy_v4] ep 28/40 loss 0.1249 std_z 0.948 std_h 0.696 tau 0.9979 lr_bb 5.03e-05 12.4 img/s (93s) | deg g0 0.00 g1 0.86 loc 0.61 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3742.9s]   [anatomy_v4] ep 29/40 loss 0.1255 std_z 0.947 std_h 0.695 tau 0.9982 lr_bb 4.29e-05 12.3 img/s (93s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 3850.6s]   [anatomy_v4] ep 30/40 loss 0.1245 std_z 0.948 std_h 0.696 tau 0.9985 lr_bb 3.60e-05 12.4 img/s (93s) | inner kNN 0.857 deg-q 0.837 erank 235.5 pair-rand 0.428/0.746c (15s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 4071.2s]   EVAL[byol_mnv3_anatomy_v4/ep30_target|inner] LP clean 0.921 DR 0.933 | LP c->deg 0.875 deg->deg 0.905 | fewshot(logreg ODC/ODP/ARMD) k=1 0.557  k=5 0.591  k=10 0.631 | c->deg k=1 0.559  k=5 0.591  k=10 0.628 | kNN 0.857/0.837 | erank 235.5/236.0 pair-rand 0.428 (centred 0.746)  (182s)
+[ 4275.8s]   EVAL[byol_mnv3_anatomy_v4/ep30_online|inner] LP clean 0.924 DR 0.934 | LP c->deg 0.892 deg->deg 0.905 | fewshot(logreg ODC/ODP/ARMD) k=1 0.558  k=5 0.594  k=10 0.636 | c->deg k=1 0.560  k=5 0.594  k=10 0.635 | kNN 0.864/0.851 | erank 233.7/233.1 pair-rand 0.450 (centred 0.792)  (166s)
+[ 4276.0s]   inner-val select (lp_mean_clean_deg, target) 0.8981 at ep 30 -> best.pth
+[ 4367.5s]   [anatomy_v4] ep 31/40 loss 0.1217 std_z 0.947 std_h 0.697 tau 0.9988 lr_bb 2.95e-05 12.6 img/s (92s) | deg g0 0.00 g1 0.85 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 4461.5s]   [anatomy_v4] ep 32/40 loss 0.1191 std_z 0.948 std_h 0.698 tau 0.9990 lr_bb 2.36e-05 12.3 img/s (94s) | deg g0 0.00 g1 0.85 loc 0.61 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 4555.0s]   [anatomy_v4] ep 33/40 loss 0.1212 std_z 0.947 std_h 0.696 tau 0.9993 lr_bb 1.83e-05 12.3 img/s (93s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 4646.5s]   [anatomy_v4] ep 34/40 loss 0.1214 std_z 0.948 std_h 0.696 tau 0.9994 lr_bb 1.36e-05 12.6 img/s (92s) | deg g0 0.00 g1 0.86 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 4754.0s]   [anatomy_v4] ep 35/40 loss 0.1173 std_z 0.948 std_h 0.697 tau 0.9996 lr_bb 9.52e-06 12.5 img/s (92s) | inner kNN 0.858 deg-q 0.843 erank 235.2 pair-rand 0.431/0.750c (15s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 4845.6s]   [anatomy_v4] ep 36/40 loss 0.1151 std_z 0.948 std_h 0.698 tau 0.9998 lr_bb 6.16e-06 12.6 img/s (92s) | deg g0 0.00 g1 0.84 loc 0.61 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 4937.8s]   [anatomy_v4] ep 37/40 loss 0.1191 std_z 0.948 std_h 0.697 tau 0.9999 lr_bb 3.50e-06 12.5 img/s (92s) | deg g0 0.00 g1 0.84 loc 0.59 a 0.49 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 5030.0s]   [anatomy_v4] ep 38/40 loss 0.1179 std_z 0.948 std_h 0.698 tau 0.9999 lr_bb 1.58e-06 12.5 img/s (92s) | deg g0 0.00 g1 0.86 loc 0.60 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 5122.6s]   [anatomy_v4] ep 39/40 loss 0.1178 std_z 0.948 std_h 0.697 tau 1.0000 lr_bb 4.13e-07 12.5 img/s (93s) | deg g0 0.00 g1 0.85 loc 0.59 a 0.50 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 5230.2s]   [anatomy_v4] ep 40/40 loss 0.1186 std_z 0.948 std_h 0.696 tau 1.0000 lr_bb 6.61e-10 12.4 img/s (93s) | inner kNN 0.858 deg-q 0.837 erank 235.1 pair-rand 0.431/0.750c (15s) | deg g0 0.00 g1 0.85 loc 0.60 a 0.51 | anat 0.40 random=0.50 disc=0.20 macula=0.20 fallba=0.10
+[ 5426.7s]   EVAL[byol_mnv3_anatomy_v4/ep40_target|inner] LP clean 0.922 DR 0.933 | LP c->deg 0.879 deg->deg 0.907 | fewshot(logreg ODC/ODP/ARMD) k=1 0.558  k=5 0.592  k=10 0.633 | c->deg k=1 0.560  k=5 0.593  k=10 0.633 | kNN 0.858/0.837 | erank 235.1/236.2 pair-rand 0.431 (centred 0.750)  (158s)
+[ 5628.0s]   EVAL[byol_mnv3_anatomy_v4/ep40_online|inner] LP clean 0.924 DR 0.934 | LP c->deg 0.895 deg->deg 0.907 | fewshot(logreg ODC/ODP/ARMD) k=1 0.559  k=5 0.596  k=10 0.639 | c->deg k=1 0.561  k=5 0.597  k=10 0.640 | kNN 0.862/0.855 | erank 233.1/232.9 pair-rand 0.450 (centred 0.796)  (163s)
+[ 5628.2s]   inner-val select (lp_mean_clean_deg, target) 0.9002 at ep 40 -> best.pth
+[ 5899.0s]   EVAL[byol_mnv3_anatomy_v4/online|dev] LP clean 0.912 DR 0.928 | LP c->deg 0.886 deg->deg 0.894 | fewshot(logreg ODC/ODP/ARMD) k=1 0.555  k=5 0.595  k=10 0.643 | c->deg k=1 0.556  k=5 0.602  k=10 0.650 | kNN 0.887/0.864 | erank 231.5/230.7 pair-rand 0.450 (centred 0.797)  (174s)
+[ 6065.2s]   EVAL[byol_mnv3_anatomy_v4/target|dev] LP clean 0.905 DR 0.928 | LP c->deg 0.875 deg->deg 0.890 | fewshot(logreg ODC/ODP/ARMD) k=1 0.551  k=5 0.589  k=10 0.634 | c->deg k=1 0.553  k=5 0.598  k=10 0.642 | kNN 0.880/0.872 | erank 233.8/234.2 pair-rand 0.431 (centred 0.752)  (166s)
+[ 6065.3s] ESTIMATE {"anatomy_v4": {"device": "cuda", "wall_img_per_s": 12.717114383388484, "sec_per_epoch_full_data": 90.58658790588379, "knn_s_full": 15.098861247301102, "inner_eval_s_full": 408.35628867149353, "final_eval_s_full": 436.9465763568878, "est_full_hours": 1.5017416246069801, "note": "assumes 40 ep, kNN every 5, 3 inner evals; extrapolated from this run's measured times"}}
+[ 6065.3s] DONE {"cache_s": 175.27022099494934, "ref_eval_s": 365.0635166168213, "anatomy_v4_total_s": 5486.2592878341675, "wall_s": 6065.259206533432}
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 758008 bytes to __results__.html

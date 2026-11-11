@@ -1,0 +1,58 @@
+{
+ "default_gap960": {
+  "losses": [
+   2.0179,
+   0.8994,
+   0.7027
+  ],
+  "finite": true,
+  "emb_shape": [
+   2,
+   960
+  ],
+  "target_ema_moved": true,
+  "ckpt_roundtrip_equal": true
+ },
+ "neck768": {
+  "losses": [
+   1.9922,
+   0.8758,
+   0.6701
+  ],
+  "finite": true,
+  "emb_shape": [
+   2,
+   768
+  ],
+  "target_ema_moved": true,
+  "ckpt_roundtrip_equal": true
+ },
+ "gap960_gradckpt": {
+  "losses": [
+   2.0179,
+   0.8994,
+   0.7027
+  ],
+  "finite": true,
+  "emb_shape": [
+   2,
+   960
+  ],
+  "target_ema_moved": true,
+  "ckpt_roundtrip_equal": true
+ },
+ "timm_head1280": {
+  "losses": [
+   1.9986,
+   0.8593,
+   0.6777
+  ],
+  "finite": true,
+  "emb_shape": [
+   2,
+   1280
+  ],
+  "target_ema_moved": true,
+  "ckpt_roundtrip_equal": true
+ }
+}
