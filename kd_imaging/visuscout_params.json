@@ -1,0 +1,43 @@
+{
+  "params": {
+    "crf_gamma": 1.05,
+    "crf_toe": 0.02,
+    "crf_shoulder": 0.92,
+    "exposure": 1.04,
+    "vignette_strength": 0.16,
+    "vignette_power": 2.0,
+    "blur_sigma": 1.15,
+    "gain_r": 0.85,
+    "gain_g": 1.05,
+    "gain_b": 1.15,
+    "leak_strength": 0.0,
+    "leak_angle_deg": -1.0,
+    "leak_width": 0.25,
+    "noise_sigma": 1.4000000000000001,
+    "jpeg_quality": 70,
+    "seed": 0
+  },
+  "fitted_means": {
+    "green_peak": 78.2,
+    "ratio_r_g": 1.4277462720870973,
+    "ratio_b_g": 0.5698733419179917,
+    "mean_L": 40.124823570251465,
+    "mean_a": 10.510891723632813,
+    "mean_b": 27.467803955078125,
+    "sobel_mean": 13.708019351959228,
+    "sobel_p95": 43.610470581054685,
+    "radial_edge_ratio": 0.9595800000000002
+  },
+  "target": {
+    "green_peak": 77.125,
+    "ratio_r_g": 1.407859280705452,
+    "ratio_b_g": 0.6170457725723585,
+    "mean_L": 43.711452881495156,
+    "mean_a": 11.57196299235026,
+    "mean_b": 27.409781138102215,
+    "sobel_mean": 14.235777179400126,
+    "sobel_p95": 38.2960631052653,
+    "radial_edge_ratio": 0.9269958333333334
+  },
+  "loss": 0.4365854781905305
+}
