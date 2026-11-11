@@ -1,0 +1,63 @@
+kd768 probes done 40s
+ssl960 probes done 103s
+ssl768p probes done 150s
+teacher probes done 186s
+
+== paired_KD768_minus_SSL960 (A -> B)
+  clean         DR5_macroAUROC   A 0.824  B 0.814  d -0.010 [-0.036,+0.017]  P(d>0) 0.240
+  clean         DR5_QWK          A 0.651  B 0.616  d -0.035 [-0.156,+0.084]  P(d>0) 0.300
+  clean         DME3_macroAUROC  A 0.885  B 0.893  d +0.009 [-0.021,+0.035]  P(d>0) 0.748
+  clean         DME3_acc         A 0.796  B 0.796  d +0.000 [-0.049,+0.049]  P(d>0) 0.421
+  clean         RDR_AUROC        A 0.915  B 0.925  d +0.009 [-0.015,+0.032]  P(d>0) 0.793
+  clean         kNN_RDR_AUROC    A 0.887  B 0.891  d +0.004 [-0.026,+0.031]  P(d>0) 0.612
+  clean_to_deg  DR5_macroAUROC   A 0.798  B 0.811  d +0.013 [-0.021,+0.051]  P(d>0) 0.762
+  clean_to_deg  DR5_QWK          A 0.647  B 0.576  d -0.071 [-0.192,+0.035]  P(d>0) 0.112
+  clean_to_deg  DME3_macroAUROC  A 0.857  B 0.884  d +0.027 [-0.025,+0.072]  P(d>0) 0.887
+  clean_to_deg  DME3_acc         A 0.738  B 0.738  d +0.000 [-0.068,+0.068]  P(d>0) 0.447
+  clean_to_deg  RDR_AUROC        A 0.907  B 0.929  d +0.022 [+0.001,+0.049]  P(d>0) 0.983
+  clean_to_deg  kNN_RDR_AUROC    A 0.871  B 0.892  d +0.020 [-0.025,+0.071]  P(d>0) 0.816
+  deg_to_deg    DR5_macroAUROC   A 0.842  B 0.825  d -0.017 [-0.055,+0.024]  P(d>0) 0.204
+  deg_to_deg    DR5_QWK          A 0.627  B 0.595  d -0.032 [-0.102,+0.040]  P(d>0) 0.182
+  deg_to_deg    DME3_macroAUROC  A 0.889  B 0.887  d -0.001 [-0.044,+0.032]  P(d>0) 0.523
+  deg_to_deg    DME3_acc         A 0.786  B 0.767  d -0.019 [-0.068,+0.029]  P(d>0) 0.193
+  deg_to_deg    RDR_AUROC        A 0.922  B 0.935  d +0.013 [-0.008,+0.034]  P(d>0) 0.896
+
+== paired_KD768_minus_SSL768p (A -> B)
+  clean         DR5_macroAUROC   A 0.817  B 0.814  d -0.004 [-0.023,+0.016]  P(d>0) 0.360
+  clean         DR5_QWK          A 0.607  B 0.616  d +0.009 [-0.075,+0.102]  P(d>0) 0.560
+  clean         DME3_macroAUROC  A 0.879  B 0.893  d +0.015 [-0.014,+0.043]  P(d>0) 0.839
+  clean         DME3_acc         A 0.786  B 0.796  d +0.010 [-0.039,+0.058]  P(d>0) 0.589
+  clean         RDR_AUROC        A 0.919  B 0.925  d +0.006 [-0.013,+0.026]  P(d>0) 0.729
+  clean         kNN_RDR_AUROC    A 0.887  B 0.891  d +0.003 [-0.027,+0.032]  P(d>0) 0.609
+  clean_to_deg  DR5_macroAUROC   A 0.820  B 0.811  d -0.009 [-0.040,+0.023]  P(d>0) 0.297
+  clean_to_deg  DR5_QWK          A 0.596  B 0.576  d -0.020 [-0.121,+0.085]  P(d>0) 0.368
+  clean_to_deg  DME3_macroAUROC  A 0.858  B 0.884  d +0.026 [-0.014,+0.067]  P(d>0) 0.899
+  clean_to_deg  DME3_acc         A 0.699  B 0.738  d +0.039 [-0.029,+0.117]  P(d>0) 0.821
+  clean_to_deg  RDR_AUROC        A 0.899  B 0.929  d +0.030 [+0.005,+0.058]  P(d>0) 0.995
+  clean_to_deg  kNN_RDR_AUROC    A 0.877  B 0.892  d +0.015 [-0.021,+0.052]  P(d>0) 0.804
+  deg_to_deg    DR5_macroAUROC   A 0.840  B 0.825  d -0.014 [-0.048,+0.019]  P(d>0) 0.210
+  deg_to_deg    DR5_QWK          A 0.601  B 0.595  d -0.005 [-0.069,+0.069]  P(d>0) 0.433
+  deg_to_deg    DME3_macroAUROC  A 0.884  B 0.887  d +0.003 [-0.024,+0.025]  P(d>0) 0.621
+  deg_to_deg    DME3_acc         A 0.777  B 0.767  d -0.010 [-0.058,+0.039]  P(d>0) 0.292
+  deg_to_deg    RDR_AUROC        A 0.927  B 0.935  d +0.008 [-0.011,+0.027]  P(d>0) 0.817
+
+== paired_Teacher_minus_KD768_reference (A -> B)
+  clean         DR5_macroAUROC   A 0.814  B 0.784  d -0.029 [-0.066,+0.005]  P(d>0) 0.048
+  clean         DR5_QWK          A 0.616  B 0.562  d -0.055 [-0.124,-0.001]  P(d>0) 0.023
+  clean         DME3_macroAUROC  A 0.893  B 0.901  d +0.007 [-0.016,+0.033]  P(d>0) 0.740
+  clean         DME3_acc         A 0.796  B 0.748  d -0.049 [-0.126,+0.029]  P(d>0) 0.087
+  clean         RDR_AUROC        A 0.925  B 0.935  d +0.010 [-0.007,+0.029]  P(d>0) 0.879
+  clean         kNN_RDR_AUROC    A 0.891  B 0.897  d +0.006 [-0.017,+0.031]  P(d>0) 0.696
+  clean_to_deg  DR5_macroAUROC   A 0.811  B 0.751  d -0.060 [-0.103,-0.017]  P(d>0) 0.000
+  clean_to_deg  DR5_QWK          A 0.576  B 0.511  d -0.065 [-0.175,+0.052]  P(d>0) 0.116
+  clean_to_deg  DME3_macroAUROC  A 0.884  B 0.907  d +0.023 [-0.004,+0.051]  P(d>0) 0.957
+  clean_to_deg  DME3_acc         A 0.738  B 0.767  d +0.029 [-0.029,+0.087]  P(d>0) 0.808
+  clean_to_deg  RDR_AUROC        A 0.929  B 0.921  d -0.008 [-0.028,+0.012]  P(d>0) 0.194
+  clean_to_deg  kNN_RDR_AUROC    A 0.892  B 0.885  d -0.007 [-0.035,+0.022]  P(d>0) 0.334
+  deg_to_deg    DR5_macroAUROC   A 0.825  B 0.766  d -0.059 [-0.106,-0.016]  P(d>0) 0.004
+  deg_to_deg    DR5_QWK          A 0.595  B 0.605  d +0.010 [-0.082,+0.096]  P(d>0) 0.544
+  deg_to_deg    DME3_macroAUROC  A 0.887  B 0.896  d +0.008 [-0.011,+0.030]  P(d>0) 0.825
+  deg_to_deg    DME3_acc         A 0.767  B 0.777  d +0.010 [-0.039,+0.068]  P(d>0) 0.562
+  deg_to_deg    RDR_AUROC        A 0.935  B 0.924  d -0.011 [-0.031,+0.004]  P(d>0) 0.090
+C selected: {"kd768/DR5": [0.01, 0.01], "kd768/DME3": [0.01, 0.01], "kd768/RDR": [0.01, 0.01], "ssl960/DR5": [0.01, 0.01], "ssl960/DME3": [0.1, 0.01], "ssl960/RDR": [0.1, 0.01], "ssl768p/DR5": [0.01, 0.01], "ssl768p/DME3": [0.1, 0.01], "ssl768p/RDR": [0.01, 0.01], "teacher/DR5": [0.01, 0.01], "teacher/DME3": [0.01, 0.01], "teacher/RDR": [0.01, 0.01]}
+DONE 302.1494209766388

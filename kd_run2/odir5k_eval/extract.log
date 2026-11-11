@@ -1,0 +1,14 @@
+/workspace/kenv/lib/python3.12/site-packages/torch/jit/_script.py:1643: FutureWarning: `torch.jit.interface` is deprecated. Please use `torch.compile` instead.
+  warnings.warn(
+eyes kept 6565/7000; patients 3358; train eyes 4583 test eyes 1982
+  cached 1000 12s
+  cached 2000 20s
+  cached 3000 28s
+  cached 4000 36s
+  cached 5000 43s
+  cached 6000 51s
+cache done 55s
+embedded degraded=False 1052s
+embedded degraded=True 2869s
+near-dup: {"teacher": {"max_cos_to_rfmid_max": 0.8994213342666626, "p99": 0.7920287847518921, "n_ge_0.98": 0, "n_ge_0.95": 0}, "ssl960": {"max_cos_to_rfmid_max": 0.9376888275146484, "p99": 0.8985017538070679, "n_ge_0.98": 0, "n_ge_0.95": 0}}
+DONE 2869.2309896945953

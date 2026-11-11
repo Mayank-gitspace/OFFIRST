@@ -1,0 +1,40 @@
+/workspace/kenv/lib/python3.12/site-packages/torch/jit/_script.py:1643: FutureWarning: `torch.jit.interface` is deprecated. Please use `torch.compile` instead.
+  warnings.warn(
+sanity vs kernel embeddings: {
+ "kd768_clean": {
+  "cos_min": 0.9998841285705566,
+  "cos_mean": 0.9999761581420898
+ },
+ "ssl960_clean": {
+  "cos_min": 0.9999823570251465,
+  "cos_mean": 0.9999873638153076
+ },
+ "ssl768p_clean": {
+  "cos_min": 0.9999836683273315,
+  "cos_mean": 0.9999883770942688
+ },
+ "teacher_clean": {
+  "cos_min": 0.9999973773956299,
+  "cos_mean": 0.9999986886978149
+ },
+ "kd768_deg": {
+  "cos_min": 0.9999122619628906,
+  "cos_mean": 0.9999762177467346
+ },
+ "ssl960_deg": {
+  "cos_min": 0.9999710917472839,
+  "cos_mean": 0.9999849796295166
+ },
+ "ssl768p_deg": {
+  "cos_min": 0.9999731779098511,
+  "cos_mean": 0.9999862909317017
+ },
+ "teacher_deg": {
+  "cos_min": 0.9999958276748657,
+  "cos_mean": 0.9999982118606567
+ }
+}
+cached 516 in 52s; raw sizes {(4288, 2848): 516}
+embedded degraded=False 100s
+embedded degraded=True 165s
+DONE 164.95159888267517

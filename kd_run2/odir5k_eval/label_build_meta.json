@@ -1,0 +1,30 @@
+{
+ "quality_keywords": [
+  "anterior segment image",
+  "image offset",
+  "lens dust",
+  "low image quality",
+  "no fundus image",
+  "optic disk photographically invisible"
+ ],
+ "patient_recon_agreement": {
+  "N": 0.9988571428571429,
+  "D": 1.0,
+  "G": 1.0,
+  "C": 1.0,
+  "A": 1.0,
+  "H": 1.0,
+  "M": 1.0,
+  "O": 1.0
+ },
+ "patient_recon_mismatches": {
+  "N": 4,
+  "D": 0,
+  "G": 0,
+  "C": 0,
+  "A": 0,
+  "H": 0,
+  "M": 0,
+  "O": 0
+ }
+}
