@@ -1,4 +1,4 @@
-# Argon review request — BYOL anatomy v4 results (ZEISS retina encoder)
+# Argon review request — BYOL anatomy v4 results (OFFIRST retina encoder)
 
 You are Argon. Think at the **highest / deepest reasoning level**. Be concrete and opinionated. We will paste your full answer back to Jeet.
 
@@ -55,7 +55,7 @@ Limiting factor = small RFMiD-train + overlong schedule (SSL overfit), not backb
 
 ## What we need from you
 1. Do you agree with the diagnosis? What are we missing?
-2. Rank the top 3 highest-EV next experiments for a ZEISS pitch (deadline ~Nov 15). Be ruthless about compute.
+2. Rank the top 3 highest-EV next experiments for the hackathon pitch (deadline ~Nov 15). Be ruthless about compute.
 3. Specifically: keep v4 ep20 as the story, or fix ARMD first? Should VICReg stay?
 4. How should we talk about “anatomy views help disc but hurt macula” without sounding like we failed?
 5. Any literature-backed tweak we skipped that still fits T4 + ~1.5k images?

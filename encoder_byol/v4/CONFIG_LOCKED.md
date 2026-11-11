@@ -2,7 +2,7 @@
 
 Status: **draft only**. No smoke / full run until OK.  
 Base: keep **BYOL + ConvNeXt-T + ImageNet** (same SSL family as A/B/v2).  
-Sources: Argon lit survey (`/workspace/zeiss/reports/argon_encoder_lit_survey.md`) + check1 numbers.
+Sources: Argon lit survey (`<workdir>/reports/argon_encoder_lit_survey.md`) + check1 numbers.
 
 ## Design intent vs v2
 | Knob | v2 | **v4** |

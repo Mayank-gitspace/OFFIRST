@@ -1,4 +1,4 @@
-[    0.0s] RUN_MODE=smoke  input=/workspace/rfmid_train_dl  out=/workspace/zeiss/encoder_byol/v4/localtest/out
+[    0.0s] RUN_MODE=smoke  input=/workspace/rfmid_train_dl  out=<workdir>/encoder_byol/v4/localtest/out
 [    0.1s] labels /workspace/rfmid_train_dl/Training_Set/RFMiD_Training_Labels.csv rows=1920  images /workspace/rfmid_train_dl/Training_Set/Training
 [    1.0s] split from recomputed(iterstrat); fold sizes [384, 384, 384, 384, 384]; eval fold 0 (excluded from SSL)
 [    1.0s] cache ready (1920, 512, 512, 3) in 0.0s
@@ -6,7 +6,7 @@
 [    3.1s] device cpu  torch 2.14.1+cpu timm 1.0.15
 [    3.1s] SSL images 16 (full run would use 1536); eval query (fold 0) 384
 [    3.1s] WARNING: supervised baseline embeddings not mounted; skipping reference (c)
-[    3.8s] crop grid -> /workspace/zeiss/encoder_byol/v4/localtest/out/local_views_grid.png
+[    3.8s] crop grid -> <workdir>/encoder_byol/v4/localtest/out/local_views_grid.png
 [    8.2s] === BYOL crop_mode=anatomy_v4: 16 imgs, bs 4, grad_ckpt False, 4 steps/ep, 2 ep
 [   41.3s]   new best kNN 0.6718 at ep 1 -> best.pth
 [   41.3s]   [anatomy_v4] ep 1/2 loss 2.0945 std_z 0.825 std_h 0.688 (byol 1.2376 var 0.651 cov 2.063) tau 0.9931 1.4 img/s (11s) | kNN mAUROC 0.672 DR-risk acc 0.792 (21s) anat 0.44 random=0.50 disc=0.22 macula=0.22 fallba=0.06

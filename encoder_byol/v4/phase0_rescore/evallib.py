@@ -3,7 +3,7 @@ from pathlib import Path
 from sklearn.metrics import roc_auc_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-V4=Path('/workspace/zeiss/encoder_byol/v4'); OUT4=V4/'full_out/out'
+V4=Path('encoder_byol/v4'); OUT4=V4/'full_out/out'
 src=open(V4/'kernels/full/team_offirst_encoder_byol_anatomy_v4.py').read().split('\n')
 def grab(n):
     i=[k for k,l in enumerate(src) if l.startswith(f'def {n}(')][0]; j=i+1

@@ -51,20 +51,20 @@ Fix: log both online and target-EMA linear probes at ep20 (and ep15/25/30 in v4.
 - Re-score v4 ep20 (plus ep15/ep30 if on disk), f_full only. Re-include LS so common-disease LP list matches A, B, v2. Record per-class Rare (ODC, ODP, ARMD) at 1/5/10-shot separately.
 - Multi-region readout comparison: f_full vs full-anchored L2-mean vs 3-region logit ensemble / shrinkage concat.
 - Optional (last priority, 5 min): Stage 3 (384-d) alone on ARMD 1/5/10-shot to see whether ARMD loss happened in Stage 4 or earlier. If < +0.015, drop.
-- Go/No-Go: even if v4 ep20 looks great (~0.935 LP), still run Phase 1 (45 min) because ZEISS will ask whether avoiding disc↔mac alignment recovers ARMD.
+- Go/No-Go: even if v4 ep20 looks great (~0.935 LP), still run Phase 1 (45 min) because the judges will ask whether avoiding disc↔mac alignment recovers ARMD.
 
 **Phase 1: ONE clean run — v4.1 (~45 min T4).** Lock every hyperparameter to v4 except:
 - Loss: pure BYOL (VICReg weight = 0).
 - Asymmetric view graph (local + global online → global target only): same 4 crops (1 disc, 1 macula, 2 wide random DD 2.5–3.2), same weak colour/blur/JPEG aug as v4. Target EMA forwards only wide_1, wide_2. Online forwards disc, mac, wide_1, wide_2. 6 directional predictions averaged equally: online(disc)→target(wide_1,wide_2); online(mac)→target(wide_1,wide_2); online(wide_1)→target(wide_2); online(wide_2)→target(wide_1). The 10% fallback to wide crop reduces to standard wide-to-wide BYOL with no code branching.
 - Schedule: T_max = 120 params identical to v4 (LR, warmup, EMA tau, batch 48 + grad checkpoint), halt at epoch 30. Save ckpts + kNN + locked-split LP/few-shot at ep10, 15, 20, 25, 30.
 
-**Phase 2: Rare/ARMD story to ZEISS (no spin).** In v4 ep20 the 3-class Rare 10-shot mean rose to 0.742 vs B's 0.734 (+0.008) and v2's 0.707 (+0.035), even though ARMD 10-shot dropped −0.06 vs B. For the mean to rise +0.008 with one class −0.060, ODC+ODP must have averaged +0.042 at 10-shot. Present Rare split into Rare-Disc (ODC/ODP) and Rare-Macula (ARMD).
+**Phase 2: Rare/ARMD story for the pitch (no spin).** In v4 ep20 the 3-class Rare 10-shot mean rose to 0.742 vs B's 0.734 (+0.008) and v2's 0.707 (+0.035), even though ARMD 10-shot dropped −0.06 vs B. For the mean to rise +0.008 with one class −0.060, ODC+ODP must have averaged +0.042 at 10-shot. Present Rare split into Rare-Disc (ODC/ODP) and Rare-Macula (ARMD).
 - Scenario A (v4.1 recovers ARMD, keeps Disc): "v4 showed naive anatomy views boost Optic Disc (+0.057 LP, +0.042 Rare-Disc 10-shot) but create cross-region false positives (disc↔macula) that hurt ARMD (−0.06). Making the target strictly global in v4.1 and stopping at the kNN peak (ep20) kept Disc gains and recovered ARMD."
 - Scenario B (v4.1 improves ARMD slightly, or v4 ep20 remains higher overall): "Anatomy-guided SSL trades a small margin on broad macular texture (ARMD, where standard random crops already work) for a +5.7% to +9.0% leap on the smallest anatomical structure in the fundus (Optic Disc: ODC/ODP/ODE), hitting our highest overall screening performance (0.928+ LP, 0.950 DiseaseRisk) in 40 minutes of T4 compute."
 
 ---
 ## USER 2
-Challenge time. The claim you state most confidently is Trap 2: that L2-mean(disc, mac) injects pure variance and costs up to √2 SNR, and that logit-averaging fixes it. That is asserted, not measured. A healthy macula is not a zero-signal input to a shared probe: the encoder is shared, so f_mac and f_disc live in the same learned space, and with a mean the probe can still use disc-specific directions. Your 0.50/0.25/0.25 weights and C grid are also made up. What evidence would show you are wrong, and how many probe configs can we try on 5 folds before we overfit the readout to the locked split? Also, 'ZEISS will ask' as the reason to run Phase 1 even if ep20 looks great is a hunch.
+Challenge time. The claim you state most confidently is Trap 2: that L2-mean(disc, mac) injects pure variance and costs up to √2 SNR, and that logit-averaging fixes it. That is asserted, not measured. A healthy macula is not a zero-signal input to a shared probe: the encoder is shared, so f_mac and f_disc live in the same learned space, and with a mean the probe can still use disc-specific directions. Your 0.50/0.25/0.25 weights and C grid are also made up. What evidence would show you are wrong, and how many probe configs can we try on 5 folds before we overfit the readout to the locked split? Also, 'the judges will ask' as the reason to run Phase 1 even if ep20 looks great is a hunch.
 Now force a single ordered checklist for the next 48 hours before Nov 15. One list, strictly ordered, every item tagged MUST / NICE / SKIP, with T4 time estimate and a stop/go rule after each MUST. Be willing to SKIP things you proposed above.
 
 ## ARGON 2
@@ -77,7 +77,7 @@ Falsifier (5 min): run unweighted L2(L2(f_full)+L2(f_disc)+L2(f_mac)) (768-d, ze
 **B. How many probe configs before overfitting Fold 0?** Fold 0 has ~384 eval images and only 13 positive ODP cases. Hanley-McNeil at AUROC 0.80 with n+ = 13, n− ≈ 371 gives SE ≈ ±0.074 on ODP AUROC and ±0.025–0.030 on the 3-class Rare mean. With K = 8 readout configs on Fold 0, expected max-selection bias (≈ sigma_diff·sqrt(2 ln K)) is +0.02 to +0.04 — fitting Fold-0 noise.
 Hard cap: at most 2 parameter-free readouts on Fold 0: (1) L2(f_full) (768-d); (2) equal-weight L2(L2(f_full)+L2(f_disc)+L2(f_mac)) (768-d, default C). All custom weights, C sweeps, logit ensembles, Stage 3+4 readouts are cut.
 
-**C. Dropping the "ZEISS will ask" hunch.** In v4, recomputing iterstrat Fold 0 shifted the ImageNet LP baseline by −0.013 (0.900 → 0.887). On rare classes like ARMD, which positives land in Fold 0 can swing 10-shot AUROC ±0.04–0.06. Running v4.1 unconditionally is wasteful if the ARMD dip was mostly split drift. v4.1 is now strictly gated on whether v4 ep20 still shows an ARMD deficit after re-scoring on split_5fold_seed42.csv.
+**C. Dropping the "judges will ask" hunch.** In v4, recomputing iterstrat Fold 0 shifted the ImageNet LP baseline by −0.013 (0.900 → 0.887). On rare classes like ARMD, which positives land in Fold 0 can swing 10-shot AUROC ±0.04–0.06. Running v4.1 unconditionally is wasteful if the ARMD dip was mostly split drift. v4.1 is now strictly gated on whether v4 ep20 still shows an ARMD deficit after re-scoring on split_5fold_seed42.csv.
 
 ### 2. Single ordered 48-hour checklist
 **1. [MUST] Re-score v4 ep20 (L2(f_full)) on locked split_5fold_seed42.csv** — 10 min T4.
@@ -96,7 +96,7 @@ Action: train on locked split train, 30 epochs, T_max = 120 constants preserved 
 - Promote v4.1 to headline only if it lifts ARMD 10-shot ≥ +0.030 over v4 ep20 while keeping Optic Disc LP within 0.015 of v4 ep20.
 - Else keep v4 ep20 as headline; show v4.1 as a 1-row ablation (disc↔mac pairing vs schedule length). Stop all training regardless.
 
-**4. [MUST] Lock the final ZEISS table (decomposed Rare + compute curve)** — 0 min T4 (~30 min table build).
+**4. [MUST] Lock the final pitch table (decomposed Rare + compute curve)** — 0 min T4 (~30 min table build).
 Master table on split_5fold_seed42.csv (Supervised, ImageNet, A, B, v2, v4 ep20, ep70, ep120, v4.1 if run). Split Rare into Rare-Disc (ODC/ODP) and Rare-Macula (ARMD) alongside the +0.04–0.06 Disc jump and the ep20→ep120 over-convergence curve. Freeze all RFMiD numbers for Nov 15; no further probes/reruns.
 
 **5. [NICE] Single-pass held-out IDRiD grading transfer check** — 10 min T4. If the deduplicated IDRiD eval script already works: one zero-tuning pass comparing ImageNet, B, and the winning checkpoint from item 1/3.

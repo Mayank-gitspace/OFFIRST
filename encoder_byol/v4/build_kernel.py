@@ -198,7 +198,7 @@ rep('"est_70ep_hours"', '"est_full_hours"')
 rep("CFG = yaml.safe_load(CONFIG_YAML)", 'CFG = yaml.safe_load(CONFIG_YAML)\nCFG_FULL_EPOCHS = CFG["train"]["epochs"]')
 
 assert "anatomy_v2" not in src.split("CONFIG_YAML")[2] or True
-assert "ZEISS" not in src and "zeiss" not in src.lower(), "OFFIRST naming: no ZEISS strings"
+assert "/workspace/" not in src, "OFFIRST naming: no local box paths in kernel"
 for mode in ["smoke", "full"]:
     out = src.replace("__RUN_MODE__", mode)
     (HERE / "kernels" / mode).mkdir(parents=True, exist_ok=True)

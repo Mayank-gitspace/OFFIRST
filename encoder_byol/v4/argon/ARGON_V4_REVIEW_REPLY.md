@@ -30,7 +30,7 @@ Recomputing iterstrat fold 0 lowered the ImageNet LP baseline by −0.013 (0.900
 |---|---|---|---|---|
 | 1 | Lock Split (split_5fold_seed42.csv) + Multi-Stage Feature Readout (Stage 3 + Stage 4) on v4 ep20 | 15–20 mins (Eval only) | +0.01 LP consistency; +0.04 to +0.07 on ARMD/DN few-shot | Eliminate split noise and recover fine macular texture without retraining |
 | 2 | v4.1 Short Run (25–30 ep): Asymmetric Local-to-Global View Routing + Drop VICReg + Freeze Stem | 40–45 mins (1 run) | Retain 0.868 Disc LP while recovering ARMD to B/v2 levels (0.75+ rare 10-shot) | Fix disc ↔ macula feature erasure and stop SSL over-convergence |
-| 3 | Dimensionality-Preserving Multi-Region Pooling (768-d Weighted/Max Pool vs. 1536-d Concat) | 15 mins (Eval only) | Fix the disc+mac concat regression on DN while keeping ODP ≈ 0.80 | Give ZEISS an inference recipe that wins across both disc and periphery |
+| 3 | Dimensionality-Preserving Multi-Region Pooling (768-d Weighted/Max Pool vs. 1536-d Concat) | 15 mins (Eval only) | Fix the disc+mac concat regression on DN while keeping ODP ≈ 0.80 | Give the hackathon judges an inference recipe that wins across both disc and periphery |
 
 ### Details on Rank 1 (Do this today — Zero Training Compute)
 
@@ -69,13 +69,13 @@ Look at your logs: std_z ≈ 0.99 (BYOL’s stop-gradient + predictor + EMA alre
 
 Why did cov hurt you? Your batch size is 48 (with 4 views per image, that is only 12 to 48 distinct crops per batch), while your projector dimension D is much larger than 48. An empirical covariance matrix computed on B=48 samples has rank at most 47. Penalizing off-diagonal covariance in a low-batch regime forces samples within the same mini-batch—including multiple views of the same eye or eyes sharing macular drusen—to become orthogonal across projector coordinates. That directly corrupts fine-grained cluster geometry for ARMD and DN.
 
-## 4. How to Frame "Anatomy Views Help Disc But Soften Macula" for the ZEISS Pitch
+## 4. How to Frame "Anatomy Views Help Disc But Soften Macula" for the Hackathon Pitch
 
 First, check the table: you did not fail on the macula.
 
 At v4 ep20, Macular Group LP is 0.963 (vs. Supervised ceiling 0.983). Considering the fold-0 split shift cost ImageNet −0.013 LP overall, 0.963 vs. B's 0.975 is virtually flat, whereas Optic Disc LP jumped by +0.057 (0.811 → 0.868) and DiseaseRisk reached 0.950.
 
-Frame the finding around two concrete principles that resonate with medical optics/imaging engineers at ZEISS:
+Frame the finding around two concrete principles that resonate with medical optics/imaging engineers judging the hackathon:
 
 **Solving the Spatial Area Bottleneck (Why Standard SSL Fails on the Optic Nerve Head):**
 
@@ -88,7 +88,7 @@ Frame the finding around two concrete principles that resonate with medical opti
 - Present the ep20 → ep70 → ep120 trajectory as a core scientific finding on small-cohort continual SSL (N ≈ 1.5k):
 - Optic disc pathologies (ODC, ODE, ODP) are geometric/structural (cup-to-disc ratio, rim elevation, pallor contour) and benefit from strong multi-view spatial alignment.
 - Macular pathologies (ARMD) are micro-textural/chromatic (drusen, RPE mottling) and rely on high-frequency filters already present in the pretrained backbone.
-- Stopping at the kNN peak (ep20, ~40 minutes on a single T4) captures the geometric adaptation for the optic disc before prolonged multi-view invariance smooths out micro-textural macular features. For ZEISS, this proves that online kNN validation accurately detects the optimal stopping point without downstream labels, cutting compute cost by 6x.
+- Stopping at the kNN peak (ep20, ~40 minutes on a single T4) captures the geometric adaptation for the optic disc before prolonged multi-view invariance smooths out micro-textural macular features. For the pitch, this proves that online kNN validation accurately detects the optimal stopping point without downstream labels, cutting compute cost by 6x.
 
 ## 5. Three Literature-Backed Tweaks for ConvNeXt-T + Small Fundus SSL (N ≈ 1.5k, 1x T4)
 

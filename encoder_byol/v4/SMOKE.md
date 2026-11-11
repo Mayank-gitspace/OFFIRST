@@ -2,7 +2,7 @@
 
 ## Build
 ```bash
-cd /workspace/zeiss/encoder_byol/v4
+cd <workdir>/encoder_byol/v4
 python3 build_kernel.py          # v2 kernel -> kernels/{smoke,full}/team_offirst_encoder_byol_anatomy_v4.py
 python3 -m py_compile kernels/*/team_offirst_encoder_byol_anatomy_v4.py
 /workspace/kenv/bin/python test_vicreg.py   # VICReg unit check
@@ -10,7 +10,7 @@ python3 -m py_compile kernels/*/team_offirst_encoder_byol_anatomy_v4.py
 
 ## Local CPU smoke (box; no CUDA) — 16 SSL imgs, 2 ep, bs 4, eval_epochs [1] exercised
 ```bash
-cd /workspace/zeiss/encoder_byol/v4
+cd <workdir>/encoder_byol/v4
 HF_HOME=/workspace/hfcache TOB_INPUT=/workspace/rfmid_train_dl TOB_OUT=$PWD/localtest/out \
 TOB_TMP=/workspace/byol_local/tmp TOB_SMOKE_N=16 TOB_SMOKE_EPOCHS=2 TOB_WORKERS=2 TOB_PRETRAINED=1 \
 /workspace/kenv/bin/python kernels/smoke/team_offirst_encoder_byol_anatomy_v4.py 2>&1 | tee localtest/smoke.log
@@ -25,6 +25,6 @@ Check in log: anchor_frac ≈ random 0.5 / disc+macula ≈ 0.4 / fallback ≈ 0.
 
 ## Kaggle GPU smoke (needs explicit OK — not launched)
 ```bash
-cd /workspace/zeiss/encoder_byol/v4/kernels/smoke && kaggle kernels push -p .
+cd <workdir>/encoder_byol/v4/kernels/smoke && kaggle kernels push -p .
 ```
 Full: `kernels/full` (120 ep; ~CONFIG estimate from smoke ESTIMATE line). **Do not push full without Jeet's OK.**

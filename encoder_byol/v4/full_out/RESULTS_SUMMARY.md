@@ -1,7 +1,7 @@
 # BYOL anatomy v4: full run results
 
 Collected 2026-11-05 19:50 IST. Kernel `teamoffirst/team-offirst-encoder-byol-anatomy-v4` v1 has status **COMPLETE**.
-Outputs: `/workspace/zeiss/encoder_byol/v4/full_out/` (`out/summary.json`, `out/run.log`, `out/byol_anatomy_v4/{report,history,epoch_evals}.json`, ckpts ep010–ep110 + last + best(ep20), embeddings, kernel log).
+Outputs: `<workdir>/encoder_byol/v4/full_out/` (`out/summary.json`, `out/run.log`, `out/byol_anatomy_v4/{report,history,epoch_evals}.json`, ckpts ep010–ep110 + last + best(ep20), embeddings, kernel log).
 
 Run: 120 epochs, bs **48 + grad-ckpt** (bs64 and bs48 without grad-ckpt hit OOM in the batch probe), 17.4 img/s, ~88 s/epoch, total wall 3.24 h (11,652 s).
 The view mix that actually ran was random 0.50, disc 0.20, macula 0.20, fallback-random 0.10, so anatomy views were 40%.

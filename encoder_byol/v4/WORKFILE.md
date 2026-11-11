@@ -7,11 +7,11 @@
 ## Paths
 - Config draft: `CONFIG_DRAFT.md` (this folder)
 - This workfile: `WORKFILE.md`
-- Argon survey: `/workspace/zeiss/reports/argon_encoder_lit_survey.md`
-- Prompt to Argon: `/workspace/zeiss/reports/argon_encoder_lit_prompt.txt`
-- Parent kernel: `/workspace/zeiss/encoder_byol/team_offirst_encoder_byol.py`
-- v2 reference: `/workspace/zeiss/encoder_byol/v2/`
-- Detector / boxes: `/workspace/zeiss/cropper_extension` (+ v2 `box_table.csv` / stage1)
+- Argon survey: `<workdir>/reports/argon_encoder_lit_survey.md`
+- Prompt to Argon: `<workdir>/reports/argon_encoder_lit_prompt.txt`
+- Parent kernel: `<workdir>/encoder_byol/team_offirst_encoder_byol.py`
+- v2 reference: `<workdir>/encoder_byol/v2/`
+- Detector / boxes: `<workdir>/cropper_extension` (+ v2 `box_table.csv` / stage1)
 
 ## Locked v4 knobs (vs v2)
 | Knob | v4 |
@@ -58,7 +58,7 @@ Unverified from Argon (do not cite until checked)
 - No SupCon on common labels
 - No tight DD crops under GAP-aligned BYOL
 - No heavy trained disc/lesion segmenter
-- No ZEISS name in public OFFIRST repo commits
+- No sponsor name in public OFFIRST repo commits
 
 ## Run log
 | When | What | Result |
