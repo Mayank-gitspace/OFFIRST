@@ -7,7 +7,7 @@ Direct self-supervised training of a phone-sized encoder: BYOL with the v4 anato
 - `degrade.py` (copy of `kd_imaging/degrade.py`), `test_degrade_equivalence.py`, `test_model_paths.py`, `bench_views.py` — unit checks / benchmarks.
 - `full_out/` — full-run logs, summary/report/history/epoch evals, embeddings (`.npy`, clean + degraded, online + target). `kaggle_smoke_out/` — Kaggle smoke. `localtest/` — CPU smoke / eval-mode outputs.
 - `locked_rescore/` — CPU re-score of ep40 on the locked A/B split (`rescore.py`, `evallib.py`).
-- `ARGON_*` — external code review prompt/reply.
+- `ARGON_*` — archived design review. The maintained kernel sources are in `src/`.
 
 ## Key results (from RESULTS.md)
 Selected checkpoint: **ep40 target** (pre-registered rule on fold 4). No collapse (std_z 0.95, erank 235/256).
@@ -21,7 +21,7 @@ Locked A/B split: MNV3 ep40 LP **0.917** vs v4 ep20 0.921 vs B 0.911; rare 10-sh
 
 ## Reproduce
 - Kaggle (T4, Internet on, dataset `awsaf49/rfmid-train-dataset` only — do not attach IDRiD; the data guard aborts): push `kernels/full` (`kaggle kernels push -p kernels/full`), or `python build_kernel.py` first to rebuild.
-- Locked re-score on CPU: `python locked_rescore/rescore.py` (run from the repo root; expects `encoder_byol/v4` outputs and these embeddings).
+- Locked re-score on CPU: `python encoder_mnv3_ssl/locked_rescore/rescore.py` (run from the repo root; expects `encoder_byol/v4` outputs and these embeddings).
 - Box-specific absolute paths in logs are shown as `<workdir>/...` (= repo root layout).
 
 Paths like `full_out/out/byol_mnv3_anatomy_v4/best.pth` refer to the release assets below (`.pth` files are not in git).
