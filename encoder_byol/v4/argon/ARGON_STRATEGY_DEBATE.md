@@ -1,6 +1,4 @@
 # Argon Strategy Debate — v4 BYOL review (Nov 5, 2026)
-Chat URL: https://gemini.google.com/app/dee4692d65612d1c
-Account: gaymerj2025@gmail.com (Pro) | Model: Argon, Thinking = High
 Note: Argon's math rendering was flattened to plain text/LaTeX-ish on capture; formulas lightly cleaned. Argon reply 1 is verbatim modulo math cleanup.
 
 ---

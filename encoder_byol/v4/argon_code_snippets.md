@@ -1,5 +1,4 @@
 # Argon (Gemini) reply — BYOL v4 snippets
-Chat: https://gemini.google.com/app/1d6be78f1da5693c  (account gaymerj2025@gmail.com, mode Argon)
 
 ```python
 # ==============================================================================
