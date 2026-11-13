@@ -2,7 +2,7 @@
 
 Asymmetric KD: frozen teacher = BYOL anatomy v4 ConvNeXt-T (ep20 target, 768-d) sees the **clean** view at 384; student = MobileNetV3-Large initialised from the SSL ep40 target (`encoder_mnv3_ssl/`), with a 960→768 head, sees the same view at 512 with the portable-camera degrader (`kd_imaging/`). Loss = (1 − cos) + λ·τ²·KL against a static clean anchor bank (self-entry masked → neighbour-only KL), two stages (head-only → joint), Procrustes head init, BN recalibration at the end. 40 epochs on one Kaggle T4 (45 min wall). Trained on RFMiD folds 1–3.
 
-- `WORKFILE.md` — design, Argon review fixes, all unit checks, Kaggle runs, results log (source of truth).
+- `WORKFILE.md` — design decisions, unit checks, Kaggle runs, and results.
 - `kernels/{full,smoke}` — Kaggle kernels (`build_kernel.py` + `src/header_config.py` + `src/kd_tail.py`); `kernels/probe` — GPU-queue probe.
 - `test_units.py`, `localtest/` — CPU unit checks, teacher reproduction, masked-KL bank stats, local end-to-end smoke.
 - `full_out/` — full-run logs, summary, history, embeddings (`kd768`, `kd960`, `ssl_ep40_960`, `ssl_ep40_768procrustes`, `teacher`, each clean + degraded) and `procrustes_W.npy`.
@@ -11,7 +11,7 @@ Asymmetric KD: frozen teacher = BYOL anatomy v4 ConvNeXt-T (ep20 target, 768-d) 
 - `idrid_grading_eval/` — IDRiD Disease Grading cross-domain eval (`REPORT.md`, `results.json`, `extract.py`, `evaluate.py`, embeddings).
 - `odir5k_eval/` — ODIR-5K cross-domain eval (`build_labels.py`, `extract.py`, `evaluate.py`, `results.json`, per-eye labels, embeddings, `samples/` with 5 example montages + `samples.md`).
 - `weights_ds/` — SHA256SUMS + Kaggle dataset metadata for the teacher / student-init weights (weights themselves in the release).
-- `argon/` — external review prompt/replies.
+- `argon/` — archived design review. The implemented training code is in `src/kd_tail.py`.
 
 ## Key results
 **RFMiD, locked A/B split, paired bootstrap KD768 − SSL ep40 960** (`locked_rescore/kd768_vs_ssl960.*`):
