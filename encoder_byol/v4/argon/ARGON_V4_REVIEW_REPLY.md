@@ -1,4 +1,4 @@
-<!-- Gemini Argon (High thinking), chat: https://gemini.google.com/app/dee4692d65612d1c ; account gaymerj2025@gmail.com. Math symbols were rendered as plain text by page extraction. -->
+<!-- Archived Gemini review. Page extraction converted the formulas to plain text. -->
 
 Executive Verdict (Numbers First)
 
