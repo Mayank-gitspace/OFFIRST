@@ -17,6 +17,59 @@ void main() {
 
   tearDown(() => root.deleteSync(recursive: true));
 
+  for (final failure in ['second image copy', 'metadata write']) {
+    test('$failure rolls back the visit and preserves previous visits',
+        () async {
+      final patient =
+          PatientRecord(id: recordId('OFF'), name: 'Demo', createdAt: date);
+      await store.addPatient(patient);
+      final directory = await store.directory;
+      final source = File('${root.path}/source')..writeAsBytesSync([42]);
+      ImageRecord image(Eye eye, String path) => ImageRecord(
+            id: recordId('IMG'),
+            eye: eye,
+            capturedAt: date,
+            path: path,
+            probability: .2,
+            threshold: .48,
+            modelVersion: 'test',
+          );
+      final completed = VisitRecord(
+          id: recordId('VIS'),
+          date: date,
+          images: [image(Eye.right, source.path)]);
+      await store.addVisit(patient.id, completed);
+      final metadata = File('${directory.path}/offirst_patients.json');
+      final previous = await metadata.readAsBytes();
+      final obstruction = Directory('${metadata.path}.staged');
+      if (failure == 'metadata write') await obstruction.create();
+      final missing = File('${root.path}/missing');
+      final pending = VisitRecord(id: recordId('VIS'), date: date, images: [
+        image(Eye.right, source.path),
+        image(Eye.left,
+            failure == 'second image copy' ? missing.path : source.path),
+      ]);
+
+      await expectLater(store.addVisit(patient.id, pending),
+          throwsA(isA<FileSystemException>()));
+      expect(await metadata.readAsBytes(), previous);
+      final visitDirectories =
+          await Directory('${directory.path}/visits').list().toList();
+      expect(
+          visitDirectories
+              .map((entry) => entry.path.split(Platform.pathSeparator).last),
+          [completed.id]);
+      final stored = (await store.load()).single.visits.single.images.single;
+      expect(await (await store.original(stored)).readAsBytes(), [42]);
+
+      if (await obstruction.exists()) await obstruction.delete();
+      await missing.writeAsBytes([17]);
+      await store.addVisit(patient.id, pending);
+      expect((await store.load()).single.visits.map((visit) => visit.id),
+          [pending.id, completed.id]);
+    });
+  }
+
   test(
       'new store instances recover both eyes, all visits and copied original bytes',
       () async {

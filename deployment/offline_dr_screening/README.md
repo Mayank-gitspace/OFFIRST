@@ -18,7 +18,9 @@ Patient and visit metadata lives in an app-private JSON file under application s
 - Preprocessing: decode as RGB, bilinear resize to exactly 512×512, convert each channel to float32 in `[0,1]`, normalize with ImageNet mean `[0.485, 0.456, 0.406]` and standard deviation `[0.229, 0.224, 0.225]`, then arrange as NCHW.
 - Decision: `DR_DETECTED` when probability `>= 0.48`; otherwise `DR_NOT_DETECTED`.
 
-The reference `inference.py` uses Pillow's `Image.Resampling.BILINEAR`. This app uses the `image` package's linear bilinear resampler on decoded 8-bit RGB pixels before normalization. Both use RGB, 512×512, `[0,1]` scaling and the same normalization constants. Different image decoders/resamplers can vary slightly at pixel boundaries; this Dart pipeline has not yet been numerically compared against Pillow on a shared mobile test corpus.
+The packaged reference `inference.py` keeps the encoded pixel orientation, converts to RGB, and uses Pillow's antialiased bilinear resize. The app now uses fixed-point separable resampling and float32 normalization to match that reference. JPEG decoding uses libjpeg-turbo 3.1.1, matching Pillow 11.3.0. See [Preprocessing audit](PREPROCESSING_AUDIT.md) for measured parity, fixtures, and reproducibility.
+
+This software is based in part on the work of the Independent JPEG Group. See the [libjpeg-turbo license](https://github.com/libjpeg-turbo/libjpeg-turbo/blob/3.1.1/LICENSE.md).
 
 ## ONNX Runtime choice and limits
 

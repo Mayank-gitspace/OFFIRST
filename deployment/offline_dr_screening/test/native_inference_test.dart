@@ -4,11 +4,32 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
+import 'package:offirst_dr_screening/model_contract.dart';
 import 'package:offirst_dr_screening/screening_service.dart';
 import 'package:onnxruntime/onnxruntime.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  final noNative =
+      !Platform.isWindows || Platform.environment['OFFIRST_NATIVE_TEST'] != '1';
+
+  test('rejects wrong output type, dimensions and probability values', () {
+    final wrongType =
+        OrtValueTensor.createTensorWithDataList(Int32List(1), [1, 1]);
+    final wrongShape =
+        OrtValueTensor.createTensorWithDataList(Float32List(1), [1]);
+    final outside = OrtValueTensor.createTensorWithDataList(
+        Float32List.fromList([1.5]), [1, 1]);
+    final good = OrtValueTensor.createTensorWithDataList(
+        Float32List.fromList([.5]), [1, 1]);
+    for (final tensor in [wrongType, wrongShape, outside, good]) {
+      addTearDown(tensor.release);
+    }
+    expect(() => readModelProbability(wrongType), throwsStateError);
+    expect(() => readModelProbability(wrongShape), throwsStateError);
+    expect(() => readModelProbability(outside), throwsStateError);
+    expect(readModelProbability(good), .5);
+  }, skip: noNative);
 
   test('background ONNX inference matches direct inference and reuses session',
       () async {
@@ -52,7 +73,5 @@ void main() {
       expect(result.probability, closeTo(probability, 1e-5));
       expect(result.detected, probability >= screeningThreshold);
     }
-  },
-      skip: !Platform.isWindows ||
-          Platform.environment['OFFIRST_NATIVE_TEST'] != '1');
+  }, skip: noNative);
 }

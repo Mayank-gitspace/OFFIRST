@@ -158,34 +158,61 @@ class PatientStore {
     return entries.map((entry) => PatientRecord.fromJson(entry)).toList();
   }
 
-  Future<void> addPatient(PatientRecord patient) => _update((patients) async {
+  Future<void> addPatient(PatientRecord patient) => _serialize(() async {
+        final patients = await load();
         patients.insert(0, patient);
+        await _writeMetadata(patients);
       });
 
   /// Copy only at finalization. Picker paths may disappear between launches.
   Future<void> addVisit(String patientId, VisitRecord visit) =>
-      _update((patients) async {
+      _serialize(() async {
+        final patients = await load();
         final patient =
             patients.singleWhere((record) => record.id == patientId);
         if (patient.visits.any((record) => record.id == visit.id)) return;
-        final root = await directory;
-        final saved = <ImageRecord>[];
-        for (final image in visit.images) {
-          final relative = 'visits/${visit.id}/${image.eye.code}/${image.id}';
-          final target = File('${root.path}/$relative');
-          await target.parent.create(recursive: true);
-          await File(image.path).copy(target.path);
-          saved.add(ImageRecord(
-              id: image.id,
-              eye: image.eye,
-              capturedAt: image.capturedAt,
-              path: relative,
-              probability: image.probability,
-              threshold: image.threshold,
-              modelVersion: image.modelVersion));
+        final safeId = RegExp(r'^[A-Za-z0-9-]{1,120}$');
+        final imageIds = visit.images.map((image) => image.id).toSet();
+        if (!safeId.hasMatch(visit.id) ||
+            imageIds.length != visit.images.length ||
+            !imageIds.every(safeId.hasMatch)) {
+          throw ArgumentError('Invalid or duplicate visit/image identifier.');
         }
-        patient.visits.insert(
-            0, VisitRecord(id: visit.id, date: visit.date, images: saved));
+        final root = await directory;
+        final visits = Directory('${root.path}/visits');
+        await visits.create(recursive: true);
+        final destination = '${visits.path}/${visit.id}';
+        if (await FileSystemEntity.type(destination, followLinks: false) !=
+            FileSystemEntityType.notFound) {
+          throw StateError('Visit image directory already exists.');
+        }
+
+        var staged = await visits.createTemp('.staged-');
+        var committed = false;
+        try {
+          final saved = <ImageRecord>[];
+          for (final image in visit.images) {
+            final imagePath = '${image.eye.code}/${image.id}';
+            final target = File('${staged.path}/$imagePath');
+            await target.parent.create(recursive: true);
+            await File(image.path).copy(target.path);
+            saved.add(ImageRecord(
+                id: image.id,
+                eye: image.eye,
+                capturedAt: image.capturedAt,
+                path: 'visits/${visit.id}/$imagePath',
+                probability: image.probability,
+                threshold: image.threshold,
+                modelVersion: image.modelVersion));
+          }
+          staged = await staged.rename(destination);
+          patient.visits.insert(
+              0, VisitRecord(id: visit.id, date: visit.date, images: saved));
+          await _writeMetadata(patients);
+          committed = true;
+        } finally {
+          if (!committed) await staged.delete(recursive: true);
+        }
       });
 
   Future<File> original(ImageRecord image) async {
@@ -193,18 +220,22 @@ class PatientStore {
     return File('${(await directory).path}/${image.path}');
   }
 
-  Future<void> _update(Future<void> Function(List<PatientRecord>) change) {
-    final operation = _pending.then((_) async {
-      final patients = await load();
-      await change(patients);
-      final file = await _file;
-      await file.parent.create(recursive: true);
-      final staged = File('${file.path}.staged');
+  Future<void> _writeMetadata(List<PatientRecord> patients) async {
+    final file = await _file;
+    await file.parent.create(recursive: true);
+    final staged = File('${file.path}.staged');
+    try {
       await staged.writeAsString(
           jsonEncode(patients.map((p) => p.toJson()).toList()),
           flush: true);
       await staged.rename(file.path);
-    });
+    } finally {
+      if (await staged.exists()) await staged.delete();
+    }
+  }
+
+  Future<void> _serialize(Future<void> Function() change) {
+    final operation = _pending.then((_) => change());
     _pending =
         operation.then<void>((_) {}, onError: (Object _, StackTrace __) {});
     return operation;
