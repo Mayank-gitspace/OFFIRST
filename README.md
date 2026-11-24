@@ -1,5 +1,18 @@
 # OFFIRST retinal encoder
 
+## Download OFFIRST for Android
+
+**[Download Android App (ARM64 APK, 24.43 MB)](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-android-prototype-v1.1/app-arm64-v8a-release.apk)** · [All GitHub Releases](https://github.com/Mayank-gitspace/OFFIRST/releases)
+
+The v1.1 pre-release requires an **ARM64 phone with Android 7.0 or newer and 4 KiB memory pages**. The release also includes an **ARMv7 APK for 32-bit ARM that has not been device-tested**. Compatibility with 16 KiB page-size devices is unverified.
+
+1. On the phone, tap **Download Android App** above and open the APK from **Downloads**. You can download it without signing in to GitHub.
+2. If Android prompts you, allow installs from the browser or file manager you used, then tap **Install**. Open **OFFIRST DR Screening**. No cloning, Flutter installation, or build tools are needed. The APK is **debug-signed** and intended for experimental demonstration. If Android reports a signing conflict with an existing installation, use a separate test phone or profile to preserve its data.
+
+OFFIRST can screen multiple right-eye and left-eye images offline, save visits locally, and generate PDFs. The embedded ONNX model produces an experimental diabetic retinopathy score using a 0.48 threshold. It is not a clinical diagnosis. **Physical-device validation and 85% held-out accuracy are not yet established.** Use only fictitious patient profiles and de-identified images. Exported PDFs leave the app’s private storage.
+
+See the [v1.1 release notes and checksums](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-android-prototype-v1.1).
+
 OFFIRST studies how well a small retinal image encoder can recognize multiple eye diseases from a few labeled fundus photographs. We first train on unlabeled images with BYOL, then distill a ConvNeXt-Tiny teacher into a MobileNetV3-Large student. The student produces a 768-dimensional feature vector. We evaluate it with disease-specific classifiers and similar-image retrieval.
 
 ## Training and weights
