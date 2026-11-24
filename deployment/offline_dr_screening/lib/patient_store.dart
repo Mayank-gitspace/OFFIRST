@@ -147,19 +147,29 @@ class PatientStore {
   final Future<Directory> Function() _directory;
   Future<Directory> get directory => _directory();
   static Future<void> _pending = Future.value();
+  static const _pendingVisitMarker = '.offirst-pending-visit';
+  static final _safeId = RegExp(r'^[A-Za-z0-9-]{1,120}$');
+  bool _reconciled = false;
 
   Future<File> get _file async =>
       File('${(await directory).path}/offirst_patients.json');
 
-  Future<List<PatientRecord>> load() async {
+  Future<List<PatientRecord>> load() => _serialize(_loadRecords);
+
+  Future<List<PatientRecord>> _loadRecords() async {
     final file = await _file;
     if (!await file.exists()) return [];
     final entries = jsonDecode(await file.readAsString()) as List;
-    return entries.map((entry) => PatientRecord.fromJson(entry)).toList();
+    final patients =
+        entries.map((entry) => PatientRecord.fromJson(entry)).toList();
+    // Only reconcile after successfully reading every record. A missing or
+    // corrupt database is never evidence that a visit may be removed.
+    if (!_reconciled) _reconciled = await _reconcile(file.parent, patients);
+    return patients;
   }
 
   Future<void> addPatient(PatientRecord patient) => _serialize(() async {
-        final patients = await load();
+        final patients = await _loadRecords();
         patients.insert(0, patient);
         await _writeMetadata(patients);
       });
@@ -167,15 +177,14 @@ class PatientStore {
   /// Copy only at finalization. Picker paths may disappear between launches.
   Future<void> addVisit(String patientId, VisitRecord visit) =>
       _serialize(() async {
-        final patients = await load();
+        final patients = await _loadRecords();
         final patient =
             patients.singleWhere((record) => record.id == patientId);
         if (patient.visits.any((record) => record.id == visit.id)) return;
-        final safeId = RegExp(r'^[A-Za-z0-9-]{1,120}$');
         final imageIds = visit.images.map((image) => image.id).toSet();
-        if (!safeId.hasMatch(visit.id) ||
+        if (!_safeId.hasMatch(visit.id) ||
             imageIds.length != visit.images.length ||
-            !imageIds.every(safeId.hasMatch)) {
+            !imageIds.every(_safeId.hasMatch)) {
           throw ArgumentError('Invalid or duplicate visit/image identifier.');
         }
         final root = await directory;
@@ -188,8 +197,11 @@ class PatientStore {
         }
 
         var staged = await visits.createTemp('.staged-');
-        var committed = false;
         try {
+          // Move the marker with the images so startup can identify an
+          // interrupted transaction on either side of the directory rename.
+          await File('${staged.path}/$_pendingVisitMarker')
+              .writeAsString(visit.id, flush: true);
           final saved = <ImageRecord>[];
           for (final image in visit.images) {
             final imagePath = '${image.eye.code}/${image.id}';
@@ -209,11 +221,84 @@ class PatientStore {
           patient.visits.insert(
               0, VisitRecord(id: visit.id, date: visit.date, images: saved));
           await _writeMetadata(patients);
-          committed = true;
-        } finally {
-          if (!committed) await staged.delete(recursive: true);
+        } catch (_) {
+          try {
+            await staged.delete(recursive: true);
+          } on FileSystemException {
+            // Preserve the original error. Leave the marker for a retry.
+            _reconciled = false;
+          }
+          rethrow;
+        }
+        try {
+          await File('${staged.path}/$_pendingVisitMarker').delete();
+        } on FileSystemException {
+          // Metadata is already committed. Recovery will preserve the images.
+          _reconciled = false;
         }
       });
+
+  Future<bool> _reconcile(Directory root, List<PatientRecord> patients) async {
+    final visits = Directory('${root.path}/visits');
+    String platformCase(String path) =>
+        Platform.isWindows ? path.toLowerCase() : path;
+    final prefix = platformCase(visits.absolute.uri.normalizePath().path);
+    final referenced = <String>{};
+    for (final patient in patients) {
+      for (final visit in patient.visits) {
+        referenced.add(platformCase(visit.id));
+        for (final image in visit.images) {
+          final file = image.path.startsWith('visits/')
+              ? File('${root.path}/${image.path}')
+              : File(image.path);
+          final path = platformCase(file.absolute.uri.normalizePath().path);
+          if (path.startsWith(prefix)) {
+            referenced.add(Uri.decodeComponent(
+                path.substring(prefix.length).split('/').first));
+          }
+        }
+      }
+    }
+
+    try {
+      if (await FileSystemEntity.type(visits.path, followLinks: false) !=
+          FileSystemEntityType.directory) {
+        return true;
+      }
+      var complete = true;
+      await for (final entry in visits.list(followLinks: false)) {
+        if (entry is! Directory) continue;
+        try {
+          final name =
+              entry.uri.pathSegments.where((part) => part.isNotEmpty).last;
+          final marker = File('${entry.path}/$_pendingVisitMarker');
+          if (await FileSystemEntity.type(marker.path, followLinks: false) !=
+                  FileSystemEntityType.file ||
+              await marker.length() > 120) {
+            continue;
+          }
+          final id = await marker.readAsString();
+          if (!_safeId.hasMatch(id) ||
+              (name != id && !name.startsWith('.staged-'))) {
+            continue;
+          }
+          if (referenced.contains(platformCase(name)) ||
+              referenced.contains(platformCase(id))) {
+            if (name == id) await marker.delete();
+          } else {
+            await entry.delete(recursive: true);
+          }
+        } on FileSystemException {
+          complete = false;
+        } on FormatException {
+          // A marker that cannot be decoded is not proof of ownership.
+        }
+      }
+      return complete;
+    } on FileSystemException {
+      return false;
+    }
+  }
 
   Future<File> original(ImageRecord image) async {
     if (!image.path.startsWith('visits/')) return File(image.path);
@@ -229,12 +314,17 @@ class PatientStore {
           jsonEncode(patients.map((p) => p.toJson()).toList()),
           flush: true);
       await staged.rename(file.path);
-    } finally {
-      if (await staged.exists()) await staged.delete();
+    } catch (_) {
+      try {
+        if (await staged.exists()) await staged.delete();
+      } on FileSystemException {
+        // Keep the failure from the metadata write, not its cleanup.
+      }
+      rethrow;
     }
   }
 
-  Future<void> _serialize(Future<void> Function() change) {
+  Future<T> _serialize<T>(Future<T> Function() change) {
     final operation = _pending.then((_) => change());
     _pending =
         operation.then<void>((_) {}, onError: (Object _, StackTrace __) {});

@@ -5,6 +5,10 @@
 #include <limits.h>
 #include <jpeglib.h>
 
+#define OFFIRST_JPEG_MAX_PIXELS 24000000u
+#define OFFIRST_JPEG_MAX_EDGE 12000u
+#define OFFIRST_JPEG_VIRTUAL_MEMORY (96L * 1024 * 1024)
+
 #ifdef _WIN32
 #define OFFIRST_EXPORT __declspec(dllexport)
 #else
@@ -46,10 +50,14 @@ OFFIRST_EXPORT uint8_t *offirst_decode_jpeg(
     if (setjmp(state->recovery)) goto fail;
     state->started = 1;
     jpeg_create_decompress(&state->jpeg);
+    // libjpeg's budget applies to its virtual arrays, not total process RSS.
+    state->jpeg.mem->max_memory_to_use = OFFIRST_JPEG_VIRTUAL_MEMORY;
     jpeg_mem_src(&state->jpeg, data, (unsigned long)length);
     if (jpeg_read_header(&state->jpeg, TRUE) != JPEG_HEADER_OK ||
         state->jpeg.data_precision != 8 ||
-        (uint64_t)state->jpeg.image_width * state->jpeg.image_height > 40000000) goto fail;
+        state->jpeg.image_width > OFFIRST_JPEG_MAX_EDGE ||
+        state->jpeg.image_height > OFFIRST_JPEG_MAX_EDGE ||
+        (uint64_t)state->jpeg.image_width * state->jpeg.image_height > OFFIRST_JPEG_MAX_PIXELS) goto fail;
     int cmyk = state->jpeg.jpeg_color_space == JCS_CMYK || state->jpeg.jpeg_color_space == JCS_YCCK;
     state->jpeg.out_color_space = cmyk ? JCS_CMYK : JCS_RGB;
     state->jpeg.do_fancy_upsampling = TRUE;

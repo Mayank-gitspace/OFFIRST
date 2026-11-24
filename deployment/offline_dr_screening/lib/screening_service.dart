@@ -75,7 +75,7 @@ Future<ScreeningResult> _predictOffThread(String path, int sessionAddress) =>
         debugName: 'OFFIRST inference');
 
 ScreeningResult _predict(String path, int sessionAddress) {
-  final input = prepareFundusTensor(File(path).readAsBytesSync());
+  final input = prepareFundusFile(File(path));
   final tensor =
       OrtValueTensor.createTensorWithDataList(input, modelInputShape);
   try {

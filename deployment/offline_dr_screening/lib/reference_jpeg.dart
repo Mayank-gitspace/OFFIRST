@@ -30,22 +30,26 @@ DynamicLibrary _openJpeg() {
       'Reference JPEG decoding is unavailable on this platform.');
 }
 
-/// Uses the same raw orientation, integer IDCT and chroma upsampling as Pillow.
-RgbPixels decodeReferenceJpeg(Uint8List encoded) {
-  return using((arena) {
+/// Borrows decoded pixels for a synchronous operation. The view must not
+/// escape [consume]. Only resized/normalized results should be returned.
+T withReferenceJpeg<T>(Uint8List encoded, T Function(RgbPixels) consume) {
+  final (rgb, width, height) = using((arena) {
     final data = arena<Uint8>(encoded.length);
     data.asTypedList(encoded.length).setAll(0, encoded);
     final width = arena<Int32>();
     final height = arena<Int32>();
     final rgb = _decode(data, encoded.length, width, height);
     if (rgb == nullptr) {
-      throw const FormatException('Unsupported or invalid JPEG.');
+      throw const FormatException('JPEG is invalid or exceeds decoder limits.');
     }
-    try {
-      return RgbPixels(width.value, height.value,
-          Uint8List.fromList(rgb.asTypedList(width.value * height.value * 3)));
-    } finally {
-      _free(rgb);
-    }
+    return (rgb, width.value, height.value);
   });
+  // The decoder has finished reading the encoded copy. The arena above has
+  // already freed it. Read native RGB directly without a second full image.
+  try {
+    return consume(
+        RgbPixels(width, height, rgb.asTypedList(width * height * 3)));
+  } finally {
+    _free(rgb);
+  }
 }

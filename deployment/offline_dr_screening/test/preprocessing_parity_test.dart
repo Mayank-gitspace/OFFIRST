@@ -18,6 +18,23 @@ void main() {
     expect(tensor.last, closeTo(-1.8044444, 1e-6));
   });
 
+  test('an oversized input file is rejected before preprocessing', () {
+    final folder =
+        Directory.systemTemp.createTempSync('offirst-encoded-limit-');
+    addTearDown(() => folder.deleteSync(recursive: true));
+    final file = File('${folder.path}/large.jpg');
+    final handle = file.openSync(mode: FileMode.write);
+    try {
+      handle.truncateSync(maxEncodedImageBytes + 1);
+    } finally {
+      handle.closeSync();
+    }
+    expect(
+        () => prepareFundusFile(file),
+        throwsA(isA<FormatException>()
+            .having((error) => error.message, 'message', contains('32 MiB'))));
+  });
+
   final fixtureDirectory = Platform.environment['OFFIRST_PARITY_DIR'];
   test('production Dart tensors match the shared Pillow goldens', () {
     final dir = fixtureDirectory!;
@@ -31,6 +48,7 @@ void main() {
         throwsFormatException);
     final fixtures =
         jsonDecode(File('$dir/fixtures.json').readAsStringSync()) as List;
+    expect(fixtures, hasLength(24));
     final mismatches = <String>[];
     for (final row in fixtures) {
       final name = row['name'] as String;

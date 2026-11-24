@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -6,20 +7,55 @@ import 'package:image/image.dart' as img;
 import 'reference_jpeg.dart';
 
 const modelImageSize = 512;
+const maxEncodedImageBytes = 32 * 1024 * 1024;
 
 final _normalization = _buildNormalization();
 
 /// Mirrors deployment inference.py: raw encoded orientation, RGB conversion,
 /// Pillow bilinear resize, and float32 normalization into planar RGB.
 Float32List prepareFundusTensor(Uint8List encoded) {
-  var pixels = decodeReferenceRgb(encoded);
+  if (encoded.length > maxEncodedImageBytes) {
+    throw const FormatException('Image file exceeds 32 MiB.');
+  }
+  final pixels = encoded.length >= 2 && encoded[0] == 0xff && encoded[1] == 0xd8
+      ? withReferenceJpeg(
+          encoded, (pixels) => _resizeFirstAxis(pixels, copyIdentity: true))
+      : _resizeFirstAxis(_decodeRgb(encoded));
+  return _normalize(pixels.height == modelImageSize
+      ? pixels
+      : _resizeAxis(pixels, horizontal: false));
+}
+
+Float32List prepareFundusFile(File file) {
+  final handle = file.openSync();
+  final Uint8List encoded;
+  try {
+    final length = handle.lengthSync();
+    if (length > maxEncodedImageBytes) {
+      throw const FormatException('Image file exceeds 32 MiB.');
+    }
+    encoded = handle.readSync(length + 1);
+  } finally {
+    handle.closeSync();
+  }
+  return prepareFundusTensor(encoded);
+}
+
+RgbPixels _resizeFirstAxis(RgbPixels pixels, {bool copyIdentity = false}) {
   if (pixels.width != modelImageSize) {
-    pixels = _resizeAxis(pixels, horizontal: true);
+    return _resizeAxis(pixels, horizontal: true);
   }
   if (pixels.height != modelImageSize) {
-    pixels = _resizeAxis(pixels, horizontal: false);
+    return _resizeAxis(pixels, horizontal: false);
   }
+  // A same-size JPEG still borrows native RGB. Only this small 512 x 512
+  // image needs a copy to leave the native scope safely.
+  return copyIdentity
+      ? RgbPixels(pixels.width, pixels.height, Uint8List.fromList(pixels.rgb))
+      : pixels;
+}
 
+Float32List _normalize(RgbPixels pixels) {
   const plane = modelImageSize * modelImageSize;
   final result = Float32List(3 * plane);
   final rgb = pixels.rgb;
@@ -31,10 +67,7 @@ Float32List prepareFundusTensor(Uint8List encoded) {
   return result;
 }
 
-RgbPixels decodeReferenceRgb(Uint8List encoded) {
-  if (encoded.length >= 2 && encoded[0] == 0xff && encoded[1] == 0xd8) {
-    return decodeReferenceJpeg(encoded);
-  }
+RgbPixels _decodeRgb(Uint8List encoded) {
   // Unlike the JPEG decoder, these Dart decoders leave pixel orientation alone.
   final decoded = img.decodeImage(encoded);
   if (decoded == null) {

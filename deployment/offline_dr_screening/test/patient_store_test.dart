@@ -17,6 +17,81 @@ void main() {
 
   tearDown(() => root.deleteSync(recursive: true));
 
+  test('startup removes only marked, unreferenced visit transactions',
+      () async {
+    const marker = '.offirst-pending-visit';
+    final patient = PatientRecord(id: 'patient', name: 'Demo', createdAt: date);
+    await store.addPatient(patient);
+    final source = File('${root.path}/source')..writeAsBytesSync([42]);
+    final completed = VisitRecord(id: recordId('VIS'), date: date, images: [
+      ImageRecord(
+          id: recordId('IMG'),
+          eye: Eye.right,
+          capturedAt: date,
+          path: source.path,
+          probability: .2,
+          threshold: .48,
+          modelVersion: 'test'),
+    ]);
+    await store.addVisit(patient.id, completed);
+    final private = await store.directory;
+    final visits = '${private.path}/visits';
+    final staged = Directory('$visits/.staged-interrupted')..createSync();
+    final renamed = Directory('$visits/renamed-interrupted')..createSync();
+    final older = Directory('$visits/unmarked-older-visit')..createSync();
+    final protectedByPath = Directory('$visits/referenced-by-path')
+      ..createSync();
+    File('${staged.path}/$marker').writeAsStringSync('staged-interrupted');
+    File('${renamed.path}/$marker').writeAsStringSync('renamed-interrupted');
+    File('${older.path}/original').writeAsBytesSync([11]);
+    File('${protectedByPath.path}/$marker')
+        .writeAsStringSync('referenced-by-path');
+    final legacyOriginal = File('${protectedByPath.path}/original')
+      ..writeAsBytesSync([12]);
+    final committedMarker = File('$visits/${completed.id}/$marker')
+      ..writeAsStringSync(completed.id);
+    final metadata = File('${private.path}/offirst_patients.json');
+    final records = jsonDecode(metadata.readAsStringSync()) as List;
+    (records.single['visits'] as List).add({
+      'date': date.toIso8601String(),
+      'eye': 'OS',
+      'imagePath': legacyOriginal.path,
+      'probability': .2,
+    });
+    metadata.writeAsStringSync(jsonEncode(records));
+    final before = metadata.readAsBytesSync();
+
+    final restarted = PatientStore(directory: () async => private);
+    final loaded = await restarted.load();
+    expect(loaded.single.visits, hasLength(2));
+    expect(metadata.readAsBytesSync(), before);
+    expect(staged.existsSync(), isFalse);
+    expect(renamed.existsSync(), isFalse);
+    expect(committedMarker.existsSync(), isFalse);
+    expect(File('${older.path}/original').readAsBytesSync(), [11]);
+    expect(legacyOriginal.readAsBytesSync(), [12]);
+    expect(
+        (await restarted.original(loaded.single.visits.first.images.single))
+            .readAsBytesSync(),
+        [42]);
+  });
+
+  test('startup leaves marked images alone if metadata is missing or corrupt',
+      () async {
+    final private = await store.directory;
+    final pending = Directory('${private.path}/visits/interrupted')
+      ..createSync(recursive: true);
+    File('${pending.path}/.offirst-pending-visit')
+        .writeAsStringSync('interrupted');
+    final image = File('${pending.path}/original')..writeAsBytesSync([7]);
+    expect(await store.load(), isEmpty);
+    expect(image.readAsBytesSync(), [7]);
+
+    File('${private.path}/offirst_patients.json').writeAsStringSync('{');
+    await expectLater(store.load(), throwsFormatException);
+    expect(image.readAsBytesSync(), [7]);
+  });
+
   for (final failure in ['second image copy', 'metadata write']) {
     test('$failure rolls back the visit and preserves previous visits',
         () async {
