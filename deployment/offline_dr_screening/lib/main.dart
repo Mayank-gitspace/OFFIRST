@@ -5,6 +5,7 @@ import 'offirst_theme.dart';
 import 'expert_page.dart';
 import 'patient_store.dart';
 import 'screening_page.dart';
+import 'screening_service.dart';
 import 'visit_page.dart';
 
 void main() => runApp(const OffirstScreeningApp());
@@ -533,7 +534,9 @@ class _AboutPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                  'The app uses the packaged OFFIRST v1.1 ONNX classifier with a fixed 0.48 threshold. It does not upload images or records and does not learn from patient images.'),
+                  useExperimentalV21
+                      ? 'Experimental build: packaged OFFIRST v2.1 ONNX candidate, development-selected 0.3675977844516245 threshold. The graph includes Platt calibration. It does not upload images or records.'
+                      : 'The app uses the packaged OFFIRST v1.1 ONNX classifier with a fixed 0.48 threshold. It does not upload images or records and does not learn from patient images.'),
             ),
           ),
         ],

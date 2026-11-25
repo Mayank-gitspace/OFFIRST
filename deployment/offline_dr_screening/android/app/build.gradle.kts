@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,15 +7,25 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val offirstV21Build = providers.gradleProperty("dart-defines").orNull
+    ?.split(",")
+    ?.any { encoded ->
+        runCatching {
+            String(Base64.getDecoder().decode(encoded), Charsets.UTF_8)
+        }.getOrNull() == "OFFIRST_EXPERIMENTAL_V21=true"
+    } == true
+
 android {
     namespace = "org.offirst.offline_dr_screening"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    externalNativeBuild {
-        cmake {
-            path = file("../../native/CMakeLists.txt")
-            version = "3.22.1"
+    if (!offirstV21Build) {
+        externalNativeBuild {
+            cmake {
+                path = file("../../native/CMakeLists.txt")
+                version = "3.22.1"
+            }
         }
     }
 
@@ -41,8 +53,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        externalNativeBuild {
-            cmake { targets += "offirst_jpeg" }
+        if (!offirstV21Build) {
+            externalNativeBuild {
+                cmake { targets += "offirst_jpeg" }
+            }
         }
         ndk {
             // Flutter supplies the filters for split APKs. AGP rejects both mechanisms together.
@@ -61,4 +75,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // OpenCV 4.12.0 mirrors the Python development pipeline used by v2.1.
+    // It is packaged in the APK; inference and preprocessing remain offline.
+    implementation("org.opencv:opencv:4.12.0")
 }

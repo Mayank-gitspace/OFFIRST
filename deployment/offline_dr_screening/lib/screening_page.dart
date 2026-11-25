@@ -56,8 +56,8 @@ class _ScreeningPageState extends State<ScreeningPage> {
                 capturedAt: DateTime.now().toUtc(),
                 path: photo.path,
                 probability: result.probability,
-                threshold: screeningThreshold,
-                modelVersion: screeningModelVersion,
+                threshold: activeScreeningThreshold,
+                modelVersion: activeScreeningModelVersion,
               )));
         } catch (_) {
           failures++;
