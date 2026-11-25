@@ -37,6 +37,7 @@ of clinical review. Records are not encrypted at the application layer.
 | Candidate APK | `build/app/outputs/flutter-apk/OFFIRST-v2.1-final-candidate.apk` (67,327,529 bytes) |
 | APK SHA-256 | `a73431d6054fa8725d0aead3006a50d5173bf345fb3d58f30db3ca27d3b14e55` |
 | Build command | `./scripts/build_v2_1_final_candidate.ps1` from this project directory |
+| Verified toolchain | Flutter 3.41.9, Dart 3.11.5, OpenJDK 17.0.12; Android min SDK 24, target/compile SDK 36 |
 | Signing | Android debug key; SHA-256 `08e09b07b3e9e052535d6e34219b4d50f3e320e41da40dcd764f60982d226bc7`, matches published prototype signer |
 
 The build script checks the frozen model hashes and threshold, builds with the
