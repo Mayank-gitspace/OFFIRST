@@ -10,8 +10,8 @@ import 'package:onnxruntime/onnxruntime.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  final noNative = !Platform.isWindows ||
-      Platform.environment['OFFIRST_NATIVE_TEST'] != '1';
+  final noNative =
+      !Platform.isWindows || Platform.environment['OFFIRST_NATIVE_TEST'] != '1';
   final noServiceNative = noNative || useExperimentalV21;
 
   test('rejects wrong output type, dimensions and probability values', () {
@@ -90,8 +90,8 @@ void main() {
     final tensor = OrtValueTensor.createTensorWithDataList(
         Float32List(3 * 512 * 512), modelInputShape);
     final runOptions = OrtRunOptions();
-    final outputs = session.run(
-        runOptions, {modelInput: tensor}, [modelOutput]);
+    final outputs =
+        session.run(runOptions, {modelInput: tensor}, [modelOutput]);
     addTearDown(() {
       for (final output in outputs) {
         output?.release();

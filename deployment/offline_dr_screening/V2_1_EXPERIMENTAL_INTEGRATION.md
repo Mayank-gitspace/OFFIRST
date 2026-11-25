@@ -3,8 +3,9 @@
 This is an isolated, opt-in candidate build. The default application remains
 OFFIRST v1.1 with its original ONNX file, preprocessing implementation, and
 0.48 threshold. Build this candidate with
-`--dart-define=OFFIRST_EXPERIMENTAL_V21=true`; do not promote it as a release
-without completing the Android and parity gates below.
+`--dart-define=OFFIRST_EXPERIMENTAL_V21=true`; the v2.1 application is a
+separate experimental candidate. Do not promote it as a public release without
+completing the Android and parity gates below.
 
 ## Frozen model evidence
 
@@ -54,36 +55,35 @@ shows a substantial false-negative limitation.
 
 ## Build
 
-From this directory, use the project's pinned Flutter/Gradle setup:
+The final candidate is built deterministically from this directory with:
 
 ```powershell
-flutter pub get
-flutter analyze
-flutter test
-flutter build apk --release --build-name=1.0.2 --build-number=2002 --target-platform android-arm64,android-arm --dart-define=OFFIRST_EXPERIMENTAL_V21=true
+./scripts/build_v2_1_final_candidate.ps1
 ```
 
-The candidate uses the existing Android application ID and debug signing
-configuration. The published ARM64 v1.1 APK has version code 2001; this
-candidate uses 2002 so Android can attempt an in-place upgrade. A successful build alone does not verify installation over an
-existing app, native preprocessing parity, app startup, or the screening/report
-workflow. Retain the v1.1 submission APK unless those checks pass on Android.
+The script verifies the frozen v1.1/v2.1 model hashes and v2.1 threshold,
+builds with `OFFIRST_EXPERIMENTAL_V21=true`, and checks the packaged asset,
+Dart build identity, package, label, version, ABIs and signing certificate. It
+also records APK and model hashes. The candidate retains the Android package
+ID and uses version 1.0.3 / version code 2003, greater than the v1.1 public
+APK's version code 2001 and the earlier 2002 candidate. The APK uses the
+Android debug signing certificate, whose SHA-256 is
+`08e09b07b3e9e052535d6e34219b4d50f3e320e41da40dcd764f60982d226bc7`.
 
-The built candidate is
-`build/app/outputs/flutter-apk/offirst-v2.1-experimental-arm64-arm.apk`.
-Its SHA-256 is
-`2bbf6710f3ec068cbd83acb7f4833aa8b99130e560ba4688816076bedd6c039d`.
-It contains ARM64 and ARMv7 code. The package name is
-`org.offirst.offline_dr_screening`; its signing certificate SHA-256 is
-`08e09b07b3e9e052535d6e34219b4d50f3e320e41da40dcd764f60982d226bc7`,
-matching the published v1.1 ARM64 APK. The APK's Dart snapshot contains the
-v2.1 build text and v2.1 model asset reference; the v1.1 build text and native
-JPEG helper are absent. Both ONNX assets remain packaged, and the build flag
-selects the v2.1 asset in `ScreeningService`.
+The verified local candidate is
+`build/app/outputs/flutter-apk/OFFIRST-v2.1-final-candidate.apk` (67,327,529
+bytes), SHA-256
+`a73431d6054fa8725d0aead3006a50d5173bf345fb3d58f30db3ca27d3b14e55`.
+It contains ARM64 and ARMv7 code and both model assets; the v2.1 build selects
+the v2.1 ONNX model. The v1.1 model, published APK and release remain intact.
+The APK signature and metadata were verified locally. This successful build
+does not verify device installation, Android preprocessing parity, startup or
+the screening/report workflow.
 
 ## Physical phone test procedure
 
-No Android device or emulator was attached during this publication check.
+No Android device or emulator was attached during this publication check
+(`adb devices -l` returned no devices and no available AVD was found).
 Use a test phone with synthetic patient records and de-identified retinal
 images. Before upgrading a phone that contains existing records, record a
 patient ID and a saved visit/report for the post-upgrade persistence check.
@@ -123,10 +123,14 @@ capture/instrumentation check is required before marking that gate passed.
 ## Current gate status
 
 - Python frozen-reference / ONNX probability parity: verified by the saved
-  141-image evidence bundle.
+  141-image evidence bundle (maximum error `1.8341754449702208e-06`, mean
+  error `2.470365740902819e-07`, zero threshold disagreements; closest sample
+  `0.0023771032404520387` from the cutoff).
 - Android OpenCV preprocessing parity against Python fixtures: not yet verified.
 - Candidate Flutter runtime probability parity: not yet verified.
 - Android install/startup and bilateral offline workflow: not yet verified.
 - Physical-device verification: not yet verified.
+- Final local APK: built and packaging/signature-verified; this is a draft
+  experimental candidate, not a public clinical release.
 - Public release promotion: NO-GO until the above Android gates pass and the
   user separately approves publication given the unmet performance targets.

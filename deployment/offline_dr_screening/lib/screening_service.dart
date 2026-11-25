@@ -89,8 +89,8 @@ Future<ScreeningResult> _predictV21(File file, int sessionAddress) async {
     throw const FormatException('Image file exceeds 32 MiB.');
   }
   final encoded = await file.readAsBytes();
-  final tensorBytes = await _v21Preprocessing.invokeMethod<Uint8List>(
-      'prepareTensor', encoded);
+  final tensorBytes =
+      await _v21Preprocessing.invokeMethod<Uint8List>('prepareTensor', encoded);
   if (tensorBytes == null || tensorBytes.length != 3 * 512 * 512 * 4) {
     throw StateError('v2.1 preprocessing returned an invalid tensor.');
   }

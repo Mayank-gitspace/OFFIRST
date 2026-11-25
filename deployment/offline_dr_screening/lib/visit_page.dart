@@ -27,6 +27,10 @@ class _VisitPageState extends State<VisitPage> {
     try {
       final patient = widget.patient;
       final visit = widget.visit;
+      final allExperts = await widget.store.loadExperts();
+      final assignedExperts = allExperts
+          .where((expert) => patient.expertIds.contains(expert.id))
+          .toList();
       final rows = <Map<String, String>>[];
       for (final eye in Eye.values) {
         final images = visit.forEye(eye);
@@ -55,6 +59,9 @@ class _VisitPageState extends State<VisitPage> {
           'Visit date: ${visit.date.toLocal().toString().split('.').first}',
           'Models recorded in this visit: ${widget.visit.images.map((image) => image.modelVersion).toSet().join(', ')}',
           'Recorded threshold(s): ${widget.visit.images.map((image) => image.threshold.toStringAsPrecision(16)).toSet().join(', ')}',
+          for (final expert in assignedExperts)
+            'Locally associated expert (not evidence of review): ${expert.name}${expert.specialty == null ? '' : ' · ${expert.specialty}'}${expert.clinic == null ? '' : ' · ${expert.clinic}'}${expert.phone == null ? '' : ' · ${expert.phone}'}${expert.email == null ? '' : ' · ${expert.email}'}',
+          'General guidance: seek qualified professional assessment for concerning findings or visual symptoms, regardless of the model score.',
           'Right eye (OD): ${visit.forEye(Eye.right).length} image(s)${visit.forEye(Eye.right).isEmpty ? ' — no model assessment performed' : ''}',
           'Left eye (OS): ${visit.forEye(Eye.left).length} image(s)${visit.forEye(Eye.left).isEmpty ? ' — no model assessment performed' : ''}',
           screeningNotice,

@@ -533,10 +533,9 @@ class _AboutPage extends StatelessWidget {
           const Card(
             child: Padding(
               padding: EdgeInsets.all(16),
-              child: Text(
-                  useExperimentalV21
-                      ? 'Experimental build: packaged OFFIRST v2.1 ONNX candidate, development-selected 0.3675977844516245 threshold. The graph includes Platt calibration. It does not upload images or records.'
-                      : 'The app uses the packaged OFFIRST v1.1 ONNX classifier with a fixed 0.48 threshold. It does not upload images or records and does not learn from patient images.'),
+              child: Text(useExperimentalV21
+                  ? 'Experimental build: packaged OFFIRST v2.1 ONNX candidate, development-selected 0.3675977844516245 threshold. The graph includes Platt calibration. It does not upload images or records.'
+                  : 'The app uses the packaged OFFIRST v1.1 ONNX classifier with a fixed 0.48 threshold. It does not upload images or records and does not learn from patient images.'),
             ),
           ),
         ],
