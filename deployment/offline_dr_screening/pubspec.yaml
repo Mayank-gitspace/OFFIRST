@@ -1,7 +1,7 @@
 name: offirst_dr_screening
 description: Offline experimental DR screening demo using the supplied OFFIRST ONNX export.
 publish_to: none
-version: 1.0.0+1
+version: 1.0.4+2004
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

@@ -11,7 +11,8 @@ import 'visit_page.dart';
 void main() => runApp(const OffirstScreeningApp());
 
 class OffirstScreeningApp extends StatelessWidget {
-  const OffirstScreeningApp({super.key, this.store});
+  const OffirstScreeningApp({super.key, this.store, this.screeningService});
+  final ScreeningService? screeningService;
   final PatientStore? store;
 
   @override
@@ -19,12 +20,14 @@ class OffirstScreeningApp extends StatelessWidget {
         title: 'OFFIRST',
         debugShowCheckedModeBanner: false,
         theme: buildOffirstTheme(),
-        home: OffirstHome(store: store ?? PatientStore()),
+        home: OffirstHome(
+            store: store ?? PatientStore(), service: screeningService),
       );
 }
 
 class OffirstHome extends StatefulWidget {
-  const OffirstHome({super.key, required this.store});
+  const OffirstHome({super.key, required this.store, this.service});
+  final ScreeningService? service;
   final PatientStore store;
 
   @override
@@ -32,6 +35,21 @@ class OffirstHome extends StatefulWidget {
 }
 
 class _OffirstHomeState extends State<OffirstHome> {
+  late final ScreeningService _service = widget.service ?? ScreeningService();
+  @override
+  void initState() {
+    super.initState();
+    _service
+        .initialize()
+        .catchError((Object _) {}); // Service exposes sanitized error state.
+  }
+
+  @override
+  void dispose() {
+    _service.dispose();
+    super.dispose();
+  }
+
   int _tab = 0;
   String _query = '';
   PatientStore get _store => widget.store;
@@ -235,12 +253,53 @@ class _OffirstHomeState extends State<OffirstHome> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('OFFIRST'),
-          actions: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Chip(
-                avatar: Icon(Icons.memory_outlined, size: 16),
-                label: Text('On-device AI'),
+          actions: [
+            ListenableBuilder(
+              listenable: _service,
+              builder: (context, _) => ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 220),
+                child: TextButton.icon(
+                  icon: Icon(
+                      _service.readiness == ModelReadiness.ready
+                          ? Icons.memory_outlined
+                          : Icons.info_outline,
+                      size: 18),
+                  label: Text(
+                      switch (_service.readiness) {
+                        ModelReadiness.initializing => 'Initializing model',
+                        ModelReadiness.ready => useExperimentalV21
+                            ? 'Model ready — OFFIRST v2.1'
+                            : 'Model ready — OFFIRST v1.1',
+                        ModelReadiness.unavailable =>
+                          'Model unavailable — details',
+                      },
+                      softWrap: true),
+                  onPressed: () => showDialog<void>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                            title: const Text('On-device model status'),
+                            content: Text(_service
+                                    .initializationError?.message ??
+                                (_service.readiness == ModelReadiness.ready
+                                    ? 'ONNX session initialized and input/output contract verified. This status does not indicate that an image has been screened.'
+                                    : 'Loading the packaged model and checking its input/output contract.')),
+                            actions: [
+                              if (_service.readiness ==
+                                  ModelReadiness.unavailable)
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      _service
+                                          .initialize()
+                                          .catchError((Object _) {});
+                                    },
+                                    child: const Text('Retry model loading')),
+                              TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close')),
+                            ],
+                          )),
+                ),
               ),
             ),
           ],
@@ -248,7 +307,11 @@ class _OffirstHomeState extends State<OffirstHome> {
         body: IndexedStack(index: _tab, children: [
           _dashboard(),
           _patientList(),
-          ScreeningPage(store: _store, patients: _patients, onSaved: _refresh),
+          ScreeningPage(
+              store: _store,
+              patients: _patients,
+              onSaved: _refresh,
+              service: _service),
           ExpertDirectoryPage(store: _store, onChanged: _refresh),
           const _AboutPage(),
         ]),

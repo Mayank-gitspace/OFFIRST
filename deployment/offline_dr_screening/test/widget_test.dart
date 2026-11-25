@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:offirst_dr_screening/main.dart';
 import 'package:offirst_dr_screening/patient_store.dart';
+import 'package:offirst_dr_screening/screening_service.dart';
 
 class _EmptyStore extends PatientStore {
   @override
@@ -11,7 +12,11 @@ class _EmptyStore extends PatientStore {
 void main() {
   testWidgets('opens offline bilateral screening from the dashboard',
       (tester) async {
-    await tester.pumpWidget(OffirstScreeningApp(store: _EmptyStore()));
+    await tester.pumpWidget(OffirstScreeningApp(
+        store: _EmptyStore(),
+        screeningService: ScreeningService.forTesting(
+            initializeModel: () async {},
+            runPrediction: (_) async => const ScreeningResult(.1))));
     await tester.tap(find.text('Start screening'));
     // The indexed Experts tab can be loading while Screening is selected, so
     // a perpetual progress animation in an inactive tab must not block settle.

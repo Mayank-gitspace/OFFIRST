@@ -52,6 +52,7 @@ android {
     }
 
     defaultConfig {
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         applicationId = "org.offirst.offline_dr_screening"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
@@ -70,6 +71,8 @@ android {
         }
     }
 
+    sourceSets.getByName("androidTest").assets.srcDir("../../build/v21-fixtures")
+
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
@@ -85,4 +88,6 @@ dependencies {
     // OpenCV 4.12.0 mirrors the Python development pipeline used by v2.1.
     // It is packaged in the APK; inference and preprocessing remain offline.
     implementation("org.opencv:opencv:4.12.0")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
 }

@@ -11,7 +11,11 @@ class ScreeningPage extends StatefulWidget {
       {super.key,
       required this.store,
       required this.patients,
-      required this.onSaved});
+      required this.onSaved,
+      this.service,
+      this.pickImages});
+  final ScreeningService? service;
+  final Future<List<XFile>> Function(bool camera)? pickImages;
   final PatientStore store;
   final Future<List<PatientRecord>> patients;
   final VoidCallback onSaved;
@@ -22,7 +26,8 @@ class ScreeningPage extends StatefulWidget {
 
 class _ScreeningPageState extends State<ScreeningPage> {
   final _picker = ImagePicker();
-  final _service = ScreeningService();
+  late final _service = widget.service ?? ScreeningService();
+  final _failed = <_PendingImage>[];
   final _images = <ImageRecord>[];
   String _visitId = recordId('VIS');
   String? _patientId;
@@ -30,7 +35,42 @@ class _ScreeningPageState extends State<ScreeningPage> {
   String? _message;
   bool _busy = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _service.initialize().catchError((Object _) {});
+  }
+
+  Future<void> _screen(List<_PendingImage> pending) async {
+    for (final image in pending) {
+      if (!mounted) break;
+      try {
+        final result = await _service.predict(File(image.file.path));
+        if (!mounted) break;
+        setState(() => _images.add(ImageRecord(
+              id: recordId('IMG'),
+              eye: image.eye,
+              capturedAt: image.capturedAt,
+              path: image.file.path,
+              probability: result.probability,
+              threshold: activeScreeningThreshold,
+              modelVersion: activeScreeningModelVersion,
+            )));
+      } catch (error, stack) {
+        if (!mounted) break;
+        final failure = error is ScreeningFailure
+            ? error
+            : const ScreeningFailure(ScreeningStage.inference,
+                'Inference failed. Retry this image.');
+        logScreeningFailure(failure.stage, error, stack);
+        image.failure = failure;
+        setState(() => _failed.add(image));
+      }
+    }
+  }
+
   Future<void> _add({required bool camera}) async {
+    if (_busy || _patientId == null) return;
     final eye = _eye;
     setState(() {
       _busy = true;
@@ -38,52 +78,46 @@ class _ScreeningPageState extends State<ScreeningPage> {
     });
     try {
       final List<XFile> files;
-      if (camera) {
+      if (widget.pickImages != null) {
+        files = await widget.pickImages!(camera);
+      } else if (camera) {
         final photo = await _picker.pickImage(source: ImageSource.camera);
         files = [if (photo != null) photo];
       } else {
         files = await _picker.pickMultiImage();
       }
-      var failures = 0;
-      for (final photo in files) {
-        if (!mounted) break;
-        try {
-          final result = await _service.predict(File(photo.path));
-          if (!mounted) break;
-          setState(() => _images.add(ImageRecord(
-                id: recordId('IMG'),
-                eye: eye,
-                capturedAt: DateTime.now().toUtc(),
-                path: photo.path,
-                probability: result.probability,
-                threshold: activeScreeningThreshold,
-                modelVersion: activeScreeningModelVersion,
-              )));
-        } catch (_) {
-          failures++;
-        }
-      }
-      if (mounted && failures > 0) {
-        setState(() => _message =
-            '$failures image(s) could not be screened. Check the files or try again if the model failed to load.');
-      }
-    } catch (_) {
+      await _screen(files.map((file) => _PendingImage(file, eye)).toList());
+    } catch (error, stack) {
+      logScreeningFailure(ScreeningStage.imageAccess, error, stack);
       if (mounted) {
-        setState(() =>
-            _message = 'Could not open the image source. Please try again.');
+        setState(() => _message =
+            'Image source could not be opened. Check gallery/camera permission and try again.');
       }
     } finally {
-      if (mounted) {
-        setState(() => _busy = false);
-      } else {
-        _service.dispose();
-      }
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _retry() async {
+    if (_busy || _patientId == null || _failed.isEmpty) return;
+    final pending = List<_PendingImage>.of(_failed);
+    setState(() {
+      _busy = true;
+      _failed.clear();
+      _message = null;
+    });
+    try {
+      await _screen(pending);
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _save() async {
     final patientId = _patientId;
-    if (patientId == null || _images.isEmpty || _busy) return;
+    if (patientId == null || _images.isEmpty || _failed.isNotEmpty || _busy) {
+      return;
+    }
     setState(() {
       _busy = true;
       _message = null;
@@ -112,15 +146,13 @@ class _ScreeningPageState extends State<ScreeningPage> {
     } finally {
       if (mounted) {
         setState(() => _busy = false);
-      } else {
-        _service.dispose();
       }
     }
   }
 
   @override
   void dispose() {
-    if (!_busy) _service.dispose();
+    if (widget.service == null) _service.dispose();
     super.dispose();
   }
 
@@ -146,7 +178,7 @@ class _ScreeningPageState extends State<ScreeningPage> {
                 final patients = snapshot.data ?? [];
                 if (patients.isEmpty) {
                   return const Text(
-                      'Register a patient to save a screening visit.');
+                      'Register a patient before starting a screening visit.');
                 }
                 return DropdownButtonFormField<String>(
                   isExpanded: true,
@@ -155,10 +187,12 @@ class _ScreeningPageState extends State<ScreeningPage> {
                   items: patients
                       .map((p) => DropdownMenuItem(
                           value: p.id,
-                          child: Text(p.name, overflow: TextOverflow.ellipsis)))
+                          child: Text('${p.name} · ${p.id}',
+                              overflow: TextOverflow.ellipsis)))
                       .toList(),
-                  onChanged:
-                      _busy ? null : (id) => setState(() => _patientId = id),
+                  onChanged: _busy || _images.isNotEmpty || _failed.isNotEmpty
+                      ? null
+                      : (id) => setState(() => _patientId = id),
                 );
               },
             ),
@@ -177,15 +211,37 @@ class _ScreeningPageState extends State<ScreeningPage> {
             const SizedBox(height: 12),
             Wrap(spacing: 8, runSpacing: 8, children: [
               FilledButton.icon(
-                  onPressed: _busy ? null : () => _add(camera: false),
+                  onPressed: _busy || _patientId == null
+                      ? null
+                      : () => _add(camera: false),
                   icon: const Icon(Icons.photo_library_outlined),
                   label: const Text('Add fundus images')),
               OutlinedButton.icon(
-                  onPressed: _busy ? null : () => _add(camera: true),
+                  onPressed: _busy || _patientId == null
+                      ? null
+                      : () => _add(camera: true),
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: const Text('Camera')),
             ]),
             if (_busy) const LinearProgressIndicator(),
+            if (_failed.isNotEmpty) ...[
+              const Text(
+                  'Unscreened images — retry or remove before saving. No score was recorded for these images.'),
+              for (final failed in _failed)
+                ListTile(
+                  title: Text('${failed.eye.code}: ${failed.failure!.message}'),
+                  subtitle: Text('Stage: ${failed.failure!.stage.name}'),
+                  trailing: IconButton(
+                      tooltip: 'Remove failed image',
+                      onPressed: _busy
+                          ? null
+                          : () => setState(() => _failed.remove(failed)),
+                      icon: const Icon(Icons.close)),
+                ),
+              OutlinedButton(
+                  onPressed: _busy ? null : _retry,
+                  child: const Text('Retry failed images')),
+            ],
             if (_message != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
@@ -203,8 +259,12 @@ class _ScreeningPageState extends State<ScreeningPage> {
               ),
             const SizedBox(height: 12),
             FilledButton.tonal(
-              onPressed:
-                  _busy || _patientId == null || _images.isEmpty ? null : _save,
+              onPressed: _busy ||
+                      _patientId == null ||
+                      _images.isEmpty ||
+                      _failed.isNotEmpty
+                  ? null
+                  : _save,
               child: const Text('Finalize and save visit'),
             ),
             const Padding(
@@ -293,4 +353,12 @@ class EyeResults extends StatelessWidget {
           ],
         ),
       );
+}
+
+class _PendingImage {
+  _PendingImage(this.file, this.eye) : capturedAt = DateTime.now().toUtc();
+  final XFile file;
+  final Eye eye;
+  final DateTime capturedAt;
+  ScreeningFailure? failure;
 }

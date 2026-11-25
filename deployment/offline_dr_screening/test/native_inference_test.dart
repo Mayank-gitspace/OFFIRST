@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -110,4 +111,46 @@ void main() {
     expect(const ScreeningResult(activeScreeningThreshold + 1e-9).detected,
         isTrue);
   });
+
+  final v21Fixtures = Platform.environment['OFFIRST_V21_FIXTURES'];
+  test(
+      'v2.1 service replays Python tensors through real ONNX and handles native errors',
+      () async {
+    final rows =
+        (jsonDecode(File('$v21Fixtures/manifest.json').readAsStringSync())
+            as Map)['fixtures'] as List;
+    final service = ScreeningService();
+    addTearDown(service.dispose);
+    const channel = MethodChannel('offirst/v2_1_preprocessing');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    for (final row in rows) {
+      final file = File('$v21Fixtures/${row['name']}');
+      final tensor = Uint8List.fromList(
+          gzip.decode(File('${file.path}.f32.gz').readAsBytesSync()));
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        expect(call.method, 'prepareTensor');
+        expect(call.arguments, file.readAsBytesSync());
+        return tensor; // Native preprocessing is mocked; actual ORT and service execute.
+      });
+      final result = await service.predict(file);
+      expect(result.probability, closeTo(row['probability'] as num, 1e-5));
+      expect(result.detected, row['at_or_above']);
+      expect(service.readiness, ModelReadiness.ready);
+    }
+    await expectLater(
+        service.predict(File('$v21Fixtures/missing.jpg')),
+        throwsA(isA<ScreeningFailure>()
+            .having((e) => e.stage, 'stage', ScreeningStage.imageAccess)));
+    messenger.setMockMethodCallHandler(channel, (_) async {
+      throw PlatformException(
+          code: 'image_decode', message: 'PRIVATE PATH MUST NOT ESCAPE');
+    });
+    await expectLater(
+        service.predict(File('$v21Fixtures/gallery.jpg')),
+        throwsA(isA<ScreeningFailure>()
+            .having((e) => e.stage, 'stage', ScreeningStage.imageDecode)
+            .having((e) => e.message, 'message', isNot(contains('PRIVATE')))));
+  }, skip: noNative || !useExperimentalV21 || v21Fixtures == null);
 }
