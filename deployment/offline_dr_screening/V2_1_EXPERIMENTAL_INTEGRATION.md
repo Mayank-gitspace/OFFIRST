@@ -1,11 +1,10 @@
 # OFFIRST v2.1 experimental Android candidate
 
-This is an isolated, opt-in candidate build. The default application remains
-OFFIRST v1.1 with its original ONNX file, preprocessing implementation, and
-0.48 threshold. Build this candidate with
-`--dart-define=OFFIRST_EXPERIMENTAL_V21=true`; the v2.1 application is a
-separate experimental candidate. Do not promote it as a public release without
-completing the Android and parity gates below.
+This document describes the selected OFFIRST v2.1 Android application. A
+normal release build selects v2.1 by default; pass
+`--dart-define=OFFIRST_EXPERIMENTAL_V21=false` only for a deliberate v1.1
+rollback build. v2.1 remains an experimental DR classifier. The Android
+device-only verification gaps below are disclosed in the final handoff.
 
 ## Frozen model evidence
 
@@ -62,7 +61,7 @@ The final candidate is built deterministically from this directory with:
 ```
 
 The script verifies the frozen v1.1/v2.1 model hashes and v2.1 threshold,
-builds with `OFFIRST_EXPERIMENTAL_V21=true`, and checks the packaged asset,
+builds without a Dart model-selection flag (v2.1 is the default), and checks the packaged asset,
 Dart build identity, package, label, version, ABIs and signing certificate. It
 also records APK and model hashes. The candidate retains the Android package
 ID and uses version 1.0.3 / version code 2003, greater than the v1.1 public
@@ -73,10 +72,10 @@ For a clean clone without that local debug key, add
 `-AllowDifferentSigner` to build a verifiable test APK with a new local debug
 signature; it will not upgrade an installation signed by the prototype key.
 
-The verified local candidate is
-`build/app/outputs/flutter-apk/OFFIRST-v2.1-final-candidate.apk` (67,327,529
+The rebuilt local candidate is
+`build/app/outputs/flutter-apk/OFFIRST-v2.1-final-candidate.apk` (67,327,505
 bytes), SHA-256
-`a73431d6054fa8725d0aead3006a50d5173bf345fb3d58f30db3ca27d3b14e55`.
+`c165bc145ce2fdf6115585594aa4048e728abd0422576f485d36be587c6c77e2`.
 It contains ARM64 and ARMv7 code and both model assets; the v2.1 build selects
 the v2.1 ONNX model. The v1.1 model, published APK and release remain intact.
 The APK signature and metadata were verified locally. This successful build
@@ -95,7 +94,7 @@ Do not uninstall the application or clear its data.
 From this directory in PowerShell:
 
 ```powershell
-$apk = 'build/app/outputs/flutter-apk/offirst-v2.1-experimental-arm64-arm.apk'
+$apk = 'build/app/outputs/flutter-apk/OFFIRST-v2.1-final-candidate.apk'
 Get-FileHash $apk -Algorithm SHA256
 adb devices -l
 adb install -r $apk
@@ -133,7 +132,9 @@ capture/instrumentation check is required before marking that gate passed.
 - Candidate Flutter runtime probability parity: not yet verified.
 - Android install/startup and bilateral offline workflow: not yet verified.
 - Physical-device verification: not yet verified.
-- Final local APK: built and packaging/signature-verified; this is a draft
-  experimental candidate, not a public clinical release.
-- Public release promotion: NO-GO until the above Android gates pass and the
-  user separately approves publication given the unmet performance targets.
+- Final local APK: rebuilt without a Dart model-selection define; v2.1 is the
+  default. APK package, model asset, threshold, ABIs, signature, and permission
+  manifest checks passed.
+- Android device-only checks remain unverified. The development model
+  performance gates are not met; public distribution is as an experimental
+  research prototype only, never as a clinical application.

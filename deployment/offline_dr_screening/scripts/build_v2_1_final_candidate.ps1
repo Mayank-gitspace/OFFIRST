@@ -19,6 +19,9 @@ try {
         throw 'The rollback v1.1 ONNX asset differs from its frozen SHA-256.'
     }
     $service = Get-Content -LiteralPath $servicePath -Raw
+    if (-not $service.Contains("defaultValue: true,")) {
+        throw 'The normal application build must select v2.1 by default.'
+    }
     if (-not $service.Contains("const v21Threshold = $threshold;")) {
         throw 'The configured v2.1 threshold differs from the frozen value.'
     }
@@ -27,8 +30,7 @@ try {
     }
 
     flutter build apk --release --build-name=1.0.3 --build-number=2003 `
-        --target-platform android-arm64,android-arm `
-        --dart-define=OFFIRST_EXPERIMENTAL_V21=true
+        --target-platform android-arm64,android-arm
     if ($LASTEXITCODE -ne 0) { throw 'Flutter Android candidate build failed.' }
 
     $outputDir = Join-Path $projectRoot 'build/app/outputs/flutter-apk'
@@ -59,7 +61,7 @@ try {
             if (-not $snapshotText.Contains('offirst_v2_1_experimental.onnx')) {
                 throw 'Packaged application does not reference the v2.1 model asset.'
             }
-            if (-not $snapshotText.Contains('Experimental build: packaged OFFIRST v2.1')) {
+            if (-not $snapshotText.Contains('Active model: OFFIRST v2.1 experimental DR classifier')) {
                 throw 'Packaged application does not contain the v2.1 build identity.'
             }
             if ($snapshotText.Contains('The app uses the packaged OFFIRST v1.1')) {

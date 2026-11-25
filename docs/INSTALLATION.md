@@ -1,25 +1,19 @@
-# Installation
+# Android installation
 
-## Android user installation
+## Install the application
 
-1. Download the [recommended ARM64 APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-android-prototype-v1.1/app-arm64-v8a-release.apk). The [ARMv7 APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-android-prototype-v1.1/app-armeabi-v7a-release.apk) is available for 32-bit ARM devices but has not been device-tested.
-2. On Android 7.0 or newer, open the APK from Downloads and allow installation from that browser/file manager if prompted.
-3. Launch **OFFIRST DR Screening**. No account or network connection is needed for local inference.
-4. Register a fictitious patient, start a visit, choose an eye, and select de-identified retinal photographs from local storage. Switch eyes to complete a bilateral visit.
-5. Review results and save the visit. Open the patient visit history to reopen the visit and generate a PDF. Use a local destination for export.
+Download the [OFFIRST v2.1 universal APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk). It contains ARM64 (`arm64-v8a`) and ARMv7 (`armeabi-v7a`) native libraries and requires Android 7.0 / API 24 or newer. Verify the [SHA-256 checksum manifest](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.sha256) before installing. The package ID is `org.offirst.offline_dr_screening`; the app label is **OFFIRST**.
 
-The ARM64 release is intended for 4 KiB page-size devices. 16 KiB support is unverified. The APKs use a debug certificate and are experimental research builds. Exported PDFs can include patient details and images; use synthetic data only.
+1. Download the APK to the Android device.
+2. Open it from Downloads or a file manager. If Android asks, allow that app to install this package.
+3. Launch **OFFIRST**.
+4. Register or select a synthetic demonstration patient, create a visit, and add locally available de-identified images for OD and/or OS.
+5. Review each image's separate result, save the visit, and open or export the PDF report.
 
-## Permissions and troubleshooting
+The v2.1 model and report generation run on-device; they do not require cloud inference. Android image providers may need connectivity to make a selected file available. Pre-install a PDF viewer if the device has none and test report export using synthetic data.
 
-The app uses Android's system picker for gallery/camera selection and Android's document picker/FileProvider flow for opening and exporting reports. If an image provider is unavailable offline, place a de-identified image on device storage and use the Files picker. A phone camera by itself is not a retinal fundus camera; appropriate acquisition hardware is required for retinal photos.
+The APK is a debug-signed research prototype. A physical-device installation, existing-data upgrade, offline inference, and report-open/export workflow were not verified in this release check. Do not uninstall an existing OFFIRST installation or clear application data for upgrade tests. A signer mismatch means this APK cannot update that installation; use a separate test device/profile and preserve the original data.
 
-If installation reports a signature conflict, preserve existing app data and install on a separate test device/profile. If a report cannot open, install an offline PDF viewer before disconnecting. Local inference requires an image file to be available on the device; the app itself does not call a cloud service.
+## Build from source
 
-## iOS status
-
-No distributable iOS app exists. A future build requires an Apple build/signing environment, iOS runtime and PDF-flow implementation, signing and provisioning, and testing on supported iOS devices. Do not use Android APK links for iOS.
-
-## Developer build
-
-See [development setup](DEVELOPMENT_SETUP.md) for Flutter, Android SDK, dependencies, analysis and build commands.
+See [development setup](DEVELOPMENT_SETUP.md). The normal Android release configuration selects v2.1 without a build flag. Use `--dart-define=OFFIRST_EXPERIMENTAL_V21=false` only when deliberately producing a v1.1 rollback build.

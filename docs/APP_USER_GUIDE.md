@@ -1,23 +1,25 @@
 # App user guide
 
-## Start a synthetic demonstration
+## Run a synthetic demonstration
 
-Use a test phone/profile, the ARM64 v1.1 APK, and de-identified fundus images stored locally. The app has no cloud inference; image availability through a picker is controlled by Android and its document providers.
+Install the v2.1 universal APK on an ARM64 or ARMv7 Android device running Android 7.0 or newer. Use a test profile, fictitious patient data, and de-identified fundus images already available on the device. The model runs locally; image availability through Android's picker depends on the chosen provider.
 
-1. Open **OFFIRST DR Screening** and register a fictitious patient such as “Demo Patient”.
-2. Start a screening visit and select the patient.
-3. Choose **Right eye (OD)** and add one or more retinal images. Switch to **Left eye (OS)** and add its images.
-4. Review each image result. Each image gets its own score; scores are not combined into one patient-level result.
-5. Finalize and save the visit. Open Patients and select the saved visit to review both eyes and original image copies.
-6. Generate a PDF locally. View it with an installed PDF reader or export it to a local folder.
-7. Close and reopen the app to inspect the saved visit.
+1. Open **OFFIRST** and register a synthetic patient, or select an existing local patient.
+2. Create a screening visit.
+3. Choose **Right eye (OD)** and add one or more retinal photographs. Choose **Left eye (OS)** separately if screening that eye.
+4. Review each image's own experimental DR probability and threshold outcome. Image scores are not combined into a patient-level result.
+5. Save the visit. Open the patient history to review the visit and its original image copies.
+6. Generate the PDF report, then choose to open or export it.
+7. Close and reopen the application to verify local visit history.
 
-The output is experimental DR screening only. It can miss disease and must not guide clinical decisions. A phone camera without suitable retinal imaging optics cannot produce a fundus photograph.
+Ordinary phone cameras are not fundus cameras; suitable retinal imaging optics are needed to obtain retinal photographs. A below-threshold score does not rule out disease and is not a diagnosis.
 
-## Data and reports
+## Local data and reports
 
-Patient metadata and visit files are stored in the app's private storage. The prototype does not add application-level encryption. Exported PDFs may include patient details and retinal photographs and can leave app-private storage. Use fictitious records and de-identified images. Removing an exported file is a separate action from clearing app data.
+Patient and expert information, visits, images, and generated reports are stored in app-private local storage. The app does not add application-level encryption. Exported PDFs can contain patient details and retinal photographs; they leave app-private storage when exported. Use synthetic records and de-identified images. Removing an exported file is separate from deleting app data.
 
-## Offline workflow
+## Offline use
 
-Inference and PDF generation execute locally. For a fully offline demonstration, store images on the phone and install a PDF viewer before switching to airplane mode. Some Android picker providers may themselves require connectivity.
+Inference and PDF generation execute locally and do not call a cloud inference service. For an offline demonstration, put de-identified image files on the device and install a PDF viewer before switching to airplane mode. Some Android picker providers may require connectivity.
+
+The v2.1 Android preprocessing and physical-device workflow were not verified on a connected device for this publication. See the [release handoff](../deployment/offline_dr_screening/FINAL_RELEASE_HANDOFF.md) for test scope.

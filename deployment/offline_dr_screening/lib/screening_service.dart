@@ -12,7 +12,12 @@ import 'model_preprocessing.dart';
 
 const screeningThreshold = 0.48;
 const screeningModelVersion = 'offirst-dr-onnx-b8fc1019';
-const useExperimentalV21 = bool.fromEnvironment('OFFIRST_EXPERIMENTAL_V21');
+// v2.1 is the selected application model. Set the define to false only when
+// deliberately building the v1.1 rollback candidate.
+const useExperimentalV21 = bool.fromEnvironment(
+  'OFFIRST_EXPERIMENTAL_V21',
+  defaultValue: true,
+);
 const v21Threshold = 0.3675977844516245;
 const v21ModelVersion = 'offirst-v2.1-experimental-43a87f05';
 const activeScreeningThreshold =

@@ -534,7 +534,7 @@ class _AboutPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(useExperimentalV21
-                  ? 'Experimental build: packaged OFFIRST v2.1 ONNX candidate, development-selected 0.3675977844516245 threshold. The graph includes Platt calibration. It does not upload images or records.'
+                  ? 'Active model: OFFIRST v2.1 experimental DR classifier, development-selected 0.3675977844516245 threshold. The graph includes Platt calibration. Images and records stay on this device.'
                   : 'The app uses the packaged OFFIRST v1.1 ONNX classifier with a fixed 0.48 threshold. It does not upload images or records and does not learn from patient images.'),
             ),
           ),

@@ -7,13 +7,17 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val offirstV21Build = providers.gradleProperty("dart-defines").orNull
+val v21BuildSelection = providers.gradleProperty("dart-defines").orNull
     ?.split(",")
-    ?.any { encoded ->
+    ?.mapNotNull { encoded ->
         runCatching {
             String(Base64.getDecoder().decode(encoded), Charsets.UTF_8)
-        }.getOrNull() == "OFFIRST_EXPERIMENTAL_V21=true"
-    } == true
+        }.getOrNull()
+    }
+    ?.firstOrNull { it.startsWith("OFFIRST_EXPERIMENTAL_V21=") }
+    ?.substringAfter('=')
+    ?.toBoolean()
+val offirstV21Build = v21BuildSelection ?: true
 
 android {
     namespace = "org.offirst.offline_dr_screening"
