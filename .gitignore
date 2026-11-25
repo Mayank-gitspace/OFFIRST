@@ -6,3 +6,23 @@ __pycache__/
 *.onnx
 kaggle.json
 .env
+!deployment/offline_dr_screening/assets/offirst_dr_model.onnx
+
+# Flutter / Android generated and local files
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.gradle/
+local.properties
+android/local.properties
+*.apk
+*.aab
+*.iml
+.idea/
+.env.*
+offirst_patients.json*
+visits/
+screening_reports/
+private/
