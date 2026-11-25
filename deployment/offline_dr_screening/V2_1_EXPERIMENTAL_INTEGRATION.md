@@ -60,13 +60,65 @@ From this directory, use the project's pinned Flutter/Gradle setup:
 flutter pub get
 flutter analyze
 flutter test
-flutter build apk --release --build-name=1.0.2 --build-number=3 --target-platform android-arm64,android-arm --dart-define=OFFIRST_EXPERIMENTAL_V21=true
+flutter build apk --release --build-name=1.0.2 --build-number=2002 --target-platform android-arm64,android-arm --dart-define=OFFIRST_EXPERIMENTAL_V21=true
 ```
 
 The candidate uses the existing Android application ID and debug signing
-configuration. A successful build alone does not verify installation over an
+configuration. The published ARM64 v1.1 APK has version code 2001; this
+candidate uses 2002 so Android can attempt an in-place upgrade. A successful build alone does not verify installation over an
 existing app, native preprocessing parity, app startup, or the screening/report
 workflow. Retain the v1.1 submission APK unless those checks pass on Android.
+
+The built candidate is
+`build/app/outputs/flutter-apk/offirst-v2.1-experimental-arm64-arm.apk`.
+Its SHA-256 is
+`2bbf6710f3ec068cbd83acb7f4833aa8b99130e560ba4688816076bedd6c039d`.
+It contains ARM64 and ARMv7 code. The package name is
+`org.offirst.offline_dr_screening`; its signing certificate SHA-256 is
+`08e09b07b3e9e052535d6e34219b4d50f3e320e41da40dcd764f60982d226bc7`,
+matching the published v1.1 ARM64 APK. The APK's Dart snapshot contains the
+v2.1 build text and v2.1 model asset reference; the v1.1 build text and native
+JPEG helper are absent. Both ONNX assets remain packaged, and the build flag
+selects the v2.1 asset in `ScreeningService`.
+
+## Physical phone test procedure
+
+No Android device or emulator was attached during this publication check.
+Use a test phone with synthetic patient records and de-identified retinal
+images. Before upgrading a phone that contains existing records, record a
+patient ID and a saved visit/report for the post-upgrade persistence check.
+Do not uninstall the application or clear its data.
+
+From this directory in PowerShell:
+
+```powershell
+$apk = 'build/app/outputs/flutter-apk/offirst-v2.1-experimental-arm64-arm.apk'
+Get-FileHash $apk -Algorithm SHA256
+adb devices -l
+adb install -r $apk
+adb shell dumpsys package org.offirst.offline_dr_screening | Select-String 'versionCode|versionName'
+adb shell monkey -p org.offirst.offline_dr_screening 1
+adb logcat -d -s AndroidRuntime:E flutter:E
+```
+
+`adb install -r` requests an in-place upgrade and retains app data if Android
+accepts the package/signature/version combination. A successful install is
+not proof that the pre-upgrade records survived; reopen the previously
+recorded patient and visit to check. If installation fails, keep the existing
+app installed and record the exact ADB error.
+
+On the phone, verify the About page identifies the experimental v2.1 build.
+Create a synthetic patient; screen one OD image and one different OS image;
+confirm each image has its own score and eye label. Turn on airplane mode and
+repeat an inference, then save the visit, force-close and reopen OFFIRST, and
+check the saved scores, model identifiers and report. Generate, open and export
+the PDF, checking that each image retains its original threshold. For an
+upgrade test, also reopen the pre-upgrade v1.1 visit and confirm its 0.48
+threshold and model identifier remain intact.
+
+The normal UI rounds displayed probabilities. It cannot establish exact
+Android-versus-Python tensor or probability parity. A device-side fixture
+capture/instrumentation check is required before marking that gate passed.
 
 ## Current gate status
 
