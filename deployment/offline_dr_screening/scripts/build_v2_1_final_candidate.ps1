@@ -1,3 +1,5 @@
+param([switch]$AllowDifferentSigner)
+
 $ErrorActionPreference = 'Stop'
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
@@ -88,7 +90,14 @@ try {
     $signerLine = $signature | Where-Object { $_ -match 'Signer #1 certificate SHA-256 digest:' } | Select-Object -First 1
     $signer = ($signerLine -replace '.*digest:\s*', '').Trim().ToLowerInvariant()
     $expectedSigner = '08e09b07b3e9e052535d6e34219b4d50f3e320e41da40dcd764f60982d226bc7'
-    if ($signer -ne $expectedSigner) { throw 'APK signer does not match the published prototype certificate.' }
+    if ($signer -ne $expectedSigner -and -not $AllowDifferentSigner) {
+        throw 'APK signer does not match the published prototype certificate. For an isolated clone build that is not intended to upgrade the published prototype, pass -AllowDifferentSigner.'
+    }
+    $permissions = & $aapt dump permissions $finalApk
+    if ($LASTEXITCODE -ne 0) { throw 'Could not inspect APK permissions.' }
+    if (($permissions -join "`n").Contains('android.permission.INTERNET')) {
+        throw 'The offline candidate unexpectedly declares INTERNET permission.'
+    }
     $apkHash = (Get-FileHash $finalApk -Algorithm SHA256).Hash.ToLowerInvariant()
     $manifestPath = Join-Path $outputDir 'OFFIRST-v2.1-final-candidate.sha256'
     @(
@@ -103,6 +112,10 @@ try {
     Write-Output "Build: OFFIRST 1.0.3 (2003), package org.offirst.offline_dr_screening"
     Write-Output "ABIs: arm64-v8a, armeabi-v7a"
     Write-Output "Threshold: $threshold"
+    Write-Output "Signer SHA-256: $signer"
+    if ($signer -ne $expectedSigner) {
+        Write-Warning 'This isolated clone build uses a different debug signer and cannot upgrade an installation signed with the published prototype key.'
+    }
     Write-Output "Checksum manifest: $manifestPath"
     Write-Output 'Signing verification:'
     $signature | Select-String 'Signer #1 certificate SHA-256 digest'

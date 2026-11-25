@@ -69,6 +69,9 @@ ID and uses version 1.0.3 / version code 2003, greater than the v1.1 public
 APK's version code 2001 and the earlier 2002 candidate. The APK uses the
 Android debug signing certificate, whose SHA-256 is
 `08e09b07b3e9e052535d6e34219b4d50f3e320e41da40dcd764f60982d226bc7`.
+For a clean clone without that local debug key, add
+`-AllowDifferentSigner` to build a verifiable test APK with a new local debug
+signature; it will not upgrade an installation signed by the prototype key.
 
 The verified local candidate is
 `build/app/outputs/flutter-apk/OFFIRST-v2.1-final-candidate.apk` (67,327,529

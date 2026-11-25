@@ -3,7 +3,10 @@
 This document describes the Android experimental candidate on
 `integration/offirst-v2.1-final-experimental` and PR #4. The PR remains draft
 and unmerged. It is not the repository's default application or a clinical
-release. The source commit for this handoff is the head of PR #4.
+release. The candidate application source and deterministic build script were
+built and committed at `397a083c205ba3a5bd2faad61922404bc0e6c2cb`. A later
+documentation commit records the uploaded draft release; the current PR head
+is authoritative for the latest handoff revision.
 
 ## Application
 
@@ -37,10 +40,13 @@ of clinical review. Records are not encrypted at the application layer.
 
 The build script checks the frozen model hashes and threshold, builds with the
 v2.1 Dart define, validates the packaged model reference, identity, version,
-ABIs and signer, then writes an APK/model checksum manifest. The normal build
-without the v2.1 Dart define retains the v1.1 path. A developer with another
-Android debug key will get a different signer and cannot upgrade an install
-signed with the published prototype key without matching that key.
+ABIs, signer and absence of Internet permission, then writes an APK/model
+checksum manifest. The normal build without the v2.1 Dart define retains the
+v1.1 path. The default script mode checks the prototype signing certificate.
+For a clean clone without the original local debug key, run
+`./scripts/build_v2_1_final_candidate.ps1 -AllowDifferentSigner`; this builds
+and verifies a locally signed test APK, but it cannot upgrade an install
+signed with the published prototype key. No private signing key is included.
 
 ## Model
 
@@ -154,5 +160,8 @@ security review and Android runtime audit were not performed.
 - PR: https://github.com/Mayank-gitspace/OFFIRST/pull/4
 - Merge state: open draft, unmerged
 - Public release state: v1.1 preserved; v2.1 candidate is not the default download
-- APK source changes: committed in the final PR head; see the GitHub handoff section below
-- Draft v2.1 release: `https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1-final-candidate` (draft; asset upload verification pending)
+- Candidate implementation/build commit: `397a083c205ba3a5bd2faad61922404bc0e6c2cb` (pushed to the PR branch)
+- Draft v2.1 release: [Unpublished draft release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/untagged-f8448b564c2e5a7ace84); intended tag `offirst-v2.1-final-candidate`; target commit `397a083c205ba3a5bd2faad61922404bc0e6c2cb`
+- Uploaded APK: [OFFIRST-v2.1-final-candidate.apk](https://github.com/Mayank-gitspace/OFFIRST/releases/download/untagged-f8448b564c2e5a7ace84/OFFIRST-v2.1-final-candidate.apk), 67,327,529 bytes; SHA-256 `a73431d6054fa8725d0aead3006a50d5173bf345fb3d58f30db3ca27d3b14e55`
+- Uploaded checksum manifest: [OFFIRST-v2.1-final-candidate.sha256](https://github.com/Mayank-gitspace/OFFIRST/releases/download/untagged-f8448b564c2e5a7ace84/OFFIRST-v2.1-final-candidate.sha256); GitHub asset state `uploaded` and size verified
+- Release state: draft and prerelease; not published. Both assets are attached to the draft.
