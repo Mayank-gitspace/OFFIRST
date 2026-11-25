@@ -216,6 +216,7 @@ void main() {
       }
     ]));
     final result = (await store.load()).single.visits.single.images.single;
+    expect((await store.load()).single.expertIds, isEmpty);
     expect(result.eye, Eye.left);
     expect(result.probability, .61);
     file.writeAsStringSync('invalid');
@@ -224,5 +225,105 @@ void main() {
             PatientRecord(id: 'new', name: 'Demo', createdAt: date)),
         throwsFormatException);
     expect(file.readAsStringSync(), 'invalid');
+  });
+
+  test('patient edits preserve IDs and visits; deletion isolates owned visits',
+      () async {
+    final first = PatientRecord(
+        id: recordId('OFF'), name: 'First', createdAt: date, age: 42);
+    final second =
+        PatientRecord(id: recordId('OFF'), name: 'Second', createdAt: date);
+    await store.addPatient(first);
+    await store.addPatient(second);
+    final source = File('${root.path}/image')..writeAsBytesSync([4, 5, 6]);
+    final firstVisit = VisitRecord(id: recordId('VIS'), date: date, images: [
+      ImageRecord(
+          id: recordId('IMG'),
+          eye: Eye.right,
+          capturedAt: date,
+          path: source.path,
+          probability: .4,
+          threshold: .48,
+          modelVersion: 'test'),
+    ]);
+    final secondVisit = VisitRecord(id: recordId('VIS'), date: date, images: [
+      ImageRecord(
+          id: recordId('IMG'),
+          eye: Eye.left,
+          capturedAt: date,
+          path: source.path,
+          probability: .6,
+          threshold: .48,
+          modelVersion: 'test'),
+    ]);
+    await store.addVisit(first.id, firstVisit);
+    await store.addVisit(second.id, secondVisit);
+    final reportFolder =
+        Directory('${(await store.directory).path}/screening_reports')
+          ..createSync(recursive: true);
+    final ownedReport =
+        File('${reportFolder.path}/OFFIRST-${firstVisit.id}-v2.pdf')
+          ..writeAsBytesSync([1]);
+    await store.updatePatient(PatientRecord(
+        id: first.id,
+        name: 'First edited',
+        createdAt: DateTime.utc(2000),
+        age: 43,
+        notes: 'Local note'));
+    var rows = await store.load();
+    final edited = rows.singleWhere((p) => p.id == first.id);
+    expect(edited.name, 'First edited');
+    expect(edited.createdAt, date);
+    expect(edited.visits.single.id, firstVisit.id);
+    expect(edited.age, 43);
+    expect(edited.notes, 'Local note');
+
+    await store.deletePatient(first.id);
+    rows = await store.load();
+    expect(rows.map((p) => p.id), [second.id]);
+    expect(
+        Directory('${(await store.directory).path}/visits/${firstVisit.id}')
+            .existsSync(),
+        isFalse);
+    expect(ownedReport.existsSync(), isFalse);
+    final retained = rows.single.visits.single.images.single;
+    expect(await (await store.original(retained)).readAsBytes(), [4, 5, 6]);
+  });
+
+  test('patient identifiers cannot collide', () async {
+    final patient = PatientRecord(id: 'OFF-fixed', name: 'A', createdAt: date);
+    await store.addPatient(patient);
+    await expectLater(
+        store.addPatient(
+            PatientRecord(id: patient.id, name: 'B', createdAt: date)),
+        throwsStateError);
+    expect((await store.load()).map((p) => p.name), ['A']);
+  });
+
+  test('expert records and patient associations persist and resolve safely',
+      () async {
+    final patient =
+        PatientRecord(id: recordId('OFF'), name: 'Demo', createdAt: date);
+    final expert = ExpertRecord(
+        id: recordId('EXP'),
+        name: 'Locally entered clinician',
+        updatedAt: date,
+        specialty: 'Ophthalmology');
+    await store.addPatient(patient);
+    await store.addExpert(expert);
+    await store.setPatientExperts(patient.id, [expert.id]);
+    await store.updatePatient(PatientRecord(
+        id: patient.id,
+        name: 'Demo updated',
+        createdAt: date,
+        notes: 'Updated'));
+    expect((await store.load()).single.expertIds, [expert.id]);
+    expect((await store.loadExperts()).single.id, expert.id);
+
+    await store.deleteExpert(expert.id);
+    expect((await store.loadExperts()), isEmpty);
+    final rows = await store.load();
+    expect(rows.single.name, 'Demo updated');
+    expect(rows.single.expertIds, isEmpty);
   });
 }

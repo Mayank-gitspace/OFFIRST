@@ -56,8 +56,8 @@ class _ScreeningPageState extends State<ScreeningPage> {
                 capturedAt: DateTime.now().toUtc(),
                 path: photo.path,
                 probability: result.probability,
-                threshold: screeningThreshold,
-                modelVersion: screeningModelVersion,
+                threshold: activeScreeningThreshold,
+                modelVersion: activeScreeningModelVersion,
               )));
         } catch (_) {
           failures++;
@@ -130,7 +130,8 @@ class _ScreeningPageState extends State<ScreeningPage> {
           padding: const EdgeInsets.all(20),
           children: [
             Text('Retinal image screening',
-                style: Theme.of(context).textTheme.headlineSmall),
+                style: Theme.of(context).textTheme.headlineSmall,
+                softWrap: true),
             const Text('Experimental DR screening runs on this device.'),
             const SizedBox(height: 16),
             FutureBuilder<List<PatientRecord>>(

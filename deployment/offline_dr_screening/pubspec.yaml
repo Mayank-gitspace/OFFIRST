@@ -24,3 +24,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/offirst_dr_model.onnx
+    - assets/offirst_v2_1_experimental.onnx
+    - assets/model_v2_1_evidence/

@@ -12,6 +12,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final noNative =
       !Platform.isWindows || Platform.environment['OFFIRST_NATIVE_TEST'] != '1';
+  final noServiceNative = noNative || useExperimentalV21;
 
   test('rejects wrong output type, dimensions and probability values', () {
     final wrongType =
@@ -33,7 +34,7 @@ void main() {
 
   test('background ONNX inference matches direct inference and reuses session',
       () async {
-    final model = await rootBundle.load('assets/offirst_dr_model.onnx');
+    final model = await rootBundle.load(activeModelAsset);
     final options = OrtSessionOptions();
     final session = OrtSession.fromBuffer(model.buffer.asUint8List(), options);
     final runOptions = OrtRunOptions();
@@ -73,5 +74,40 @@ void main() {
       expect(result.probability, closeTo(probability, 1e-5));
       expect(result.detected, probability >= screeningThreshold);
     }
+  }, skip: noServiceNative);
+
+  test('selected ONNX asset runs and returns a probability', () async {
+    final model = await rootBundle.load(activeModelAsset);
+    final options = OrtSessionOptions();
+    final session = OrtSession.fromBuffer(
+        model.buffer.asUint8List(model.offsetInBytes, model.lengthInBytes),
+        options);
+    addTearDown(() {
+      session.release();
+      options.release();
+    });
+    validateModelContract(session);
+    final tensor = OrtValueTensor.createTensorWithDataList(
+        Float32List(3 * 512 * 512), modelInputShape);
+    final runOptions = OrtRunOptions();
+    final outputs =
+        session.run(runOptions, {modelInput: tensor}, [modelOutput]);
+    addTearDown(() {
+      for (final output in outputs) {
+        output?.release();
+      }
+      tensor.release();
+      runOptions.release();
+    });
+    final probability = readModelProbability(outputs.single as OrtValueTensor);
+    expect(probability, inInclusiveRange(0.0, 1.0));
   }, skip: noNative);
+
+  test('uses the configured threshold at, below and above its boundary', () {
+    expect(const ScreeningResult(activeScreeningThreshold - 1e-9).detected,
+        isFalse);
+    expect(const ScreeningResult(activeScreeningThreshold).detected, isTrue);
+    expect(const ScreeningResult(activeScreeningThreshold + 1e-9).detected,
+        isTrue);
+  });
 }

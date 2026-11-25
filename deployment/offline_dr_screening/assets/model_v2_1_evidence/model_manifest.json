@@ -1,0 +1,42 @@
+{
+  "checkpoint_sha256": "8bc239d22ffc4e786820f2151c99380a754bef930e42edea65022e1246f2096d",
+  "onnx_sha256": "43a87f05df7adc6a231a679721e7f0b11b45a3fe6d1582aa4527ed738fa63b3f",
+  "bytes": 14888805,
+  "threshold": 0.3675977844516245,
+  "parity": {
+    "examples": 141,
+    "maximum_absolute_error": 1.8341754449702208e-06,
+    "mean_absolute_error": 2.470365740902819e-07,
+    "threshold_disagreements": 0,
+    "probability_range": [
+      0.002146393060684204,
+      0.999727725982666
+    ],
+    "closest_to_threshold": 0.0023771032404520387,
+    "latency_columns": [
+      "preprocess",
+      "inference",
+      "combined"
+    ],
+    "host_p50_ms": [
+      138.34590000624303,
+      25.687649991596118,
+      162.48904998064972
+    ],
+    "host_p95_ms": [
+      297.92733000358567,
+      28.671194994240068,
+      323.67978500697063
+    ],
+    "ort_threads": 4
+  },
+  "opset": 17,
+  "assessment_eligible_for_external_validation": false,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.9",
+  "pytorch": "2.12.0+cpu",
+  "onnx": "1.20.0",
+  "ort": "1.26.0",
+  "opencv": "4.12.0",
+  "scikit_learn": "1.7.2"
+}

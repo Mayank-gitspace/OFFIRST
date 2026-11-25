@@ -13,7 +13,9 @@ void main() {
       (tester) async {
     await tester.pumpWidget(OffirstScreeningApp(store: _EmptyStore()));
     await tester.tap(find.text('Start screening'));
-    await tester.pumpAndSettle();
+    // The indexed Experts tab can be loading while Screening is selected, so
+    // a perpetual progress animation in an inactive tab must not block settle.
+    await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('Retinal image screening'), findsOneWidget);
     expect(find.text('Add fundus images'), findsOneWidget);
     expect(find.text('Right eye (OD)'), findsWidgets);

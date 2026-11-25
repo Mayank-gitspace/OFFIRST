@@ -1,18 +1,13 @@
-# Demo guide
+# OFFIRST live demonstration guide
 
-## Recording status
+Use a test profile, a synthetic patient, and de-identified retinal images already stored on the Android device. Do not use real patient records or upload medical images to external services.
 
-**Demo video: unavailable.** The publication environment had no running emulator or connected Android device, and no existing real application recording was located. No fabricated video link is provided.
+1. Launch **OFFIRST** and open the patient directory.
+2. Register a demonstration patient and confirm its stable patient ID.
+3. Start a new screening visit and add one image for OD and one for OS.
+4. Show that each image has its own experimental DR probability and threshold outcome; the app does not calculate a combined patient score.
+5. Save the visit and reopen it from patient history.
+6. Generate and open the PDF report. Show the per-image model metadata and the experimental-use disclaimer.
+7. If demonstrating offline behavior, put the de-identified images on device storage first, switch to airplane mode, and repeat inference. The Android device workflow was not verified during the final publication check, so describe any live run as a demonstration rather than prior validation.
 
-**Application screenshots: unavailable.** Capture real screens on a device or emulator with a fictitious patient and de-identified images before adding them to the repository. Do not alter model outputs. Review screenshots for names, dates, identifiers, image metadata and PDF contents.
-
-## Suggested real-device recording sequence
-
-1. Show the app launch and state that inference is local.
-2. Register or select a fictitious demonstration patient.
-3. Start a visit and add right-eye and left-eye de-identified images from local storage.
-4. Show each experimental probability and the 0.48 cutoff without modifying the result.
-5. Finalize the visit, reopen it from patient history, and generate/view/export the PDF.
-6. If demonstrating offline use, show airplane mode and Wi-Fi disabled before inference. Avoid implying clinical validation.
-
-Use a 4 KiB ARM64 Android device for the currently documented release scope. Device testing on real hardware remains pending.
+The deployed threshold is `0.3675977844516245`. Do not alter, round, or re-label the model output. A score below threshold is not a confirmed negative diagnosis. Avoid claiming clinical validation, patient-independent performance, or a fused patient-level result.
