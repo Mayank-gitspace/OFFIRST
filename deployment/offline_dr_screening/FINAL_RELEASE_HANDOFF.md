@@ -3,10 +3,11 @@
 This document describes the Android experimental candidate on
 `integration/offirst-v2.1-final-experimental` and PR #4. The PR remains draft
 and unmerged. It is not the repository's default application or a clinical
-release. The candidate application source and deterministic build script were
-built and committed at `397a083c205ba3a5bd2faad61922404bc0e6c2cb`. A later
-documentation commit records the uploaded draft release; the current PR head
-is authoritative for the latest handoff revision.
+release. The candidate application source was committed at
+`397a083c205ba3a5bd2faad61922404bc0e6c2cb`; the final deterministic build
+script and release handoff were committed at
+`fc814135789c3482cabed9099556efacda605b4b`. The latest documentation revision
+is on the current PR #4 head.
 
 ## Application
 
@@ -160,8 +161,9 @@ security review and Android runtime audit were not performed.
 - PR: https://github.com/Mayank-gitspace/OFFIRST/pull/4
 - Merge state: open draft, unmerged
 - Public release state: v1.1 preserved; v2.1 candidate is not the default download
-- Candidate implementation/build commit: `397a083c205ba3a5bd2faad61922404bc0e6c2cb` (pushed to the PR branch)
-- Draft v2.1 release: [Unpublished draft release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/untagged-f8448b564c2e5a7ace84); intended tag `offirst-v2.1-final-candidate`; target commit `397a083c205ba3a5bd2faad61922404bc0e6c2cb`
-- Uploaded APK: [OFFIRST-v2.1-final-candidate.apk](https://github.com/Mayank-gitspace/OFFIRST/releases/download/untagged-f8448b564c2e5a7ace84/OFFIRST-v2.1-final-candidate.apk), 67,327,529 bytes; SHA-256 `a73431d6054fa8725d0aead3006a50d5173bf345fb3d58f30db3ca27d3b14e55`
-- Uploaded checksum manifest: [OFFIRST-v2.1-final-candidate.sha256](https://github.com/Mayank-gitspace/OFFIRST/releases/download/untagged-f8448b564c2e5a7ace84/OFFIRST-v2.1-final-candidate.sha256); GitHub asset state `uploaded` and size verified
+- Candidate implementation commit: `397a083c205ba3a5bd2faad61922404bc0e6c2cb` (pushed to the PR branch)
+- Deterministic build-script and release-target commit: `fc814135789c3482cabed9099556efacda605b4b`
+- Draft v2.1 release: [Unpublished draft release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/untagged-b5149a1608a3dbee6419); intended tag `offirst-v2.1-final-candidate`; target commit `fc814135789c3482cabed9099556efacda605b4b`
+- Uploaded APK: [OFFIRST-v2.1-final-candidate.apk](https://github.com/Mayank-gitspace/OFFIRST/releases/download/untagged-b5149a1608a3dbee6419/OFFIRST-v2.1-final-candidate.apk), 67,327,529 bytes; SHA-256 `a73431d6054fa8725d0aead3006a50d5173bf345fb3d58f30db3ca27d3b14e55`
+- Uploaded checksum manifest: [OFFIRST-v2.1-final-candidate.sha256](https://github.com/Mayank-gitspace/OFFIRST/releases/download/untagged-b5149a1608a3dbee6419/OFFIRST-v2.1-final-candidate.sha256); GitHub asset state `uploaded` and size verified
 - Release state: draft and prerelease; not published. Both assets are attached to the draft.
