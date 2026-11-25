@@ -12,7 +12,7 @@ Flutter package versions are pinned in `deployment/offline_dr_screening/pubspec.
 
 ## Build and inspect
 
-From repository root:
+The v1.1 ONNX model is checked into `deployment/offline_dr_screening/assets/offirst_dr_model.onnx`. Verify SHA-256 `b8fc10191f69faef16f1dc92d08bf9542ee7e26f885767942e28292c5201dd90` before building. From repository root:
 
 ```powershell
 cd deployment/offline_dr_screening

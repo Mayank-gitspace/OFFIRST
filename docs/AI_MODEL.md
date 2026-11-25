@@ -14,7 +14,7 @@
 | Runtime | ONNX Runtime 1.15.1 Android CPU libraries |
 | ONNX SHA-256 | `b8fc10191f69faef16f1dc92d08bf9542ee7e26f885767942e28292c5201dd90` |
 
-The model is included at `deployment/offline_dr_screening/assets/offirst_dr_model.onnx`. The app decodes to RGB, resizes to 512 × 512 with the audited Pillow-compatible bilinear sampling path, scales to `[0,1]`, applies ImageNet channel mean and standard deviation, then arranges NCHW float32 input. EXIF orientation is not applied to inference pixels, matching the reference inference contract.
+The model is checked into `deployment/offline_dr_screening/assets/offirst_dr_model.onnx` so the documented Flutter build works from a fresh checkout. The verified v1.1 release also provides the standalone [model asset](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-android-prototype-v1.1/offirst_dr_model.onnx). Verify the SHA-256 above. The app decodes to RGB, resizes to 512 × 512 with the audited Pillow-compatible bilinear sampling path, scales to `[0,1]`, applies ImageNet channel mean and standard deviation, then arranges NCHW float32 input. EXIF orientation is not applied to inference pixels, matching the reference inference contract.
 
 BYOL is non-contrastive self-supervised learning. Masked InfoNCE provides the explicit contrastive component. This description applies to the deployed encoder recipe; KD Run 2 is a separate teacher/student feature-distillation experiment and is not described as InfoNCE.
 

@@ -165,7 +165,7 @@ tools/                            shared research and quality tools
 docs/                             reviewer, user, model, and setup guides
 ```
 
-Research artifacts and historical commits are retained; datasets are not redistributed through the app package. The v1.1 ONNX asset is checked in so the documented Flutter build works from a clean checkout. Android APK downloads are release assets, not source-tree binaries.
+Research artifacts and historical commits are retained; datasets are not redistributed through the app package. The exact v1.1 ONNX asset is checked into the source tree and its checksum is documented in [the model guide](docs/AI_MODEL.md). Android APK downloads are release assets, not source-tree binaries.
 
 ## 12. Reproducibility
 
