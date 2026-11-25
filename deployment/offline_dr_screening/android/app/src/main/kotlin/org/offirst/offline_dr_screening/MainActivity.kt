@@ -93,7 +93,7 @@ class MainActivity : FlutterActivity() {
         val visit = requireNotNull(call.argument<String>("visit"))
         require(visit.matches(Regex("[A-Za-z0-9-]{1,120}")))
         val folder = File(filesDir, "screening_reports").apply { mkdirs() }
-        val file = File(folder, "OFFIRST-$visit.pdf")
+        val file = File(folder, "OFFIRST-$visit-v2.pdf")
         if (file.isFile) return file
         val heading = requireNotNull(call.argument<List<String>>("heading"))
         val images = requireNotNull(call.argument<List<Map<String, String>>>("images"))
@@ -105,11 +105,23 @@ class MainActivity : FlutterActivity() {
                     val page = pdf.startPage(PdfDocument.PageInfo.Builder(595, 842, number).create())
                     val canvas = page.canvas
                     val ink = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                        color = Color.rgb(20, 72, 124)
+                        color = Color.rgb(0, 51, 153)
                         typeface = Typeface.DEFAULT_BOLD
                         textSize = 24f
                     }
-                    canvas.drawText(title, 42f, 60f, ink)
+                    val header = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        color = Color.rgb(0, 51, 153)
+                    }
+                    canvas.drawRect(0f, 0f, 595f, 92f, header)
+                    val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        color = Color.WHITE
+                        typeface = Typeface.DEFAULT_BOLD
+                        textSize = 23f
+                    }
+                    canvas.drawText("OFFIRST", 42f, 39f, titlePaint)
+                    titlePaint.textSize = 15f
+                    titlePaint.typeface = Typeface.DEFAULT
+                    canvas.drawText(title, 42f, 68f, titlePaint)
                     val content = lines.joinToString("\n\n")
                     val text = StaticLayout.Builder.obtain(
                         content, 0, content.length,
@@ -119,7 +131,7 @@ class MainActivity : FlutterActivity() {
                         }, 511
                     ).setAlignment(Layout.Alignment.ALIGN_NORMAL).build()
                     canvas.save()
-                    canvas.translate(42f, 87f)
+                    canvas.translate(42f, 112f)
                     text.draw(canvas)
                     canvas.restore()
                     if (image != null) {
@@ -129,7 +141,7 @@ class MainActivity : FlutterActivity() {
                         while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 1024) sample *= 2
                         val bitmap = BitmapFactory.decodeFile(image,
                             BitmapFactory.Options().apply { inSampleSize = sample })
-                        val top = 100f + text.height
+                        val top = 124f + text.height
                         if (bitmap != null) {
                             val scale = minOf(511f / bitmap.width, (790f - top) / bitmap.height)
                             if (scale > 0) {

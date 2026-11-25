@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:label="OFFIRST DR Screening" android:name="${applicationName}" android:icon="@android:drawable/sym_def_app_icon"
+    <application android:label="OFFIRST" android:name="${applicationName}" android:icon="@drawable/offirst_launcher"
         android:allowBackup="false">
         <provider android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.reports"

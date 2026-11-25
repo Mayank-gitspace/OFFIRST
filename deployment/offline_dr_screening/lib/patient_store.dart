@@ -29,13 +29,16 @@ class PatientRecord {
       required this.createdAt,
       this.age,
       this.notes,
+      List<String>? expertIds,
       List<VisitRecord>? visits})
-      : visits = visits ?? [];
+      : visits = visits ?? [],
+        expertIds = expertIds ?? [];
   final String id;
   final String name;
   final DateTime createdAt;
   final int? age;
   final String? notes;
+  final List<String> expertIds;
   final List<VisitRecord> visits;
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +47,7 @@ class PatientRecord {
         'createdAt': createdAt.toIso8601String(),
         'age': age,
         'notes': notes,
+        'expertIds': expertIds,
         'visits': visits.map((v) => v.toJson()).toList(),
       };
 
@@ -53,6 +57,7 @@ class PatientRecord {
         createdAt: DateTime.parse(json['createdAt']),
         age: json['age'],
         notes: json['notes'],
+        expertIds: (json['expertIds'] as List?)?.cast<String>() ?? const [],
         visits: (json['visits'] as List)
             .indexed
             .map((entry) => VisitRecord.fromJson(entry.$2,
@@ -141,6 +146,65 @@ class VisitRecord {
   }
 }
 
+class ExpertRecord {
+  const ExpertRecord({
+    required this.id,
+    required this.name,
+    required this.updatedAt,
+    this.title,
+    this.specialty,
+    this.clinic,
+    this.phone,
+    this.email,
+    this.city,
+    this.address,
+    this.schedule,
+    this.notes,
+  });
+  final String id;
+  final String name;
+  final DateTime updatedAt;
+  final String? title;
+  final String? specialty;
+  final String? clinic;
+  final String? phone;
+  final String? email;
+  final String? city;
+  final String? address;
+  final String? schedule;
+  final String? notes;
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'updatedAt': updatedAt.toIso8601String(),
+        'title': title,
+        'specialty': specialty,
+        'clinic': clinic,
+        'phone': phone,
+        'email': email,
+        'city': city,
+        'address': address,
+        'schedule': schedule,
+        'notes': notes,
+      };
+
+  factory ExpertRecord.fromJson(Map<String, dynamic> json) => ExpertRecord(
+        id: json['id'],
+        name: json['name'],
+        updatedAt: DateTime.parse(json['updatedAt']),
+        title: json['title'],
+        specialty: json['specialty'],
+        clinic: json['clinic'],
+        phone: json['phone'],
+        email: json['email'],
+        city: json['city'],
+        address: json['address'],
+        schedule: json['schedule'],
+        notes: json['notes'],
+      );
+}
+
 class PatientStore {
   PatientStore({Future<Directory> Function()? directory})
       : _directory = directory ?? getApplicationSupportDirectory;
@@ -153,6 +217,8 @@ class PatientStore {
 
   Future<File> get _file async =>
       File('${(await directory).path}/offirst_patients.json');
+  Future<File> get _expertsFile async =>
+      File('${(await directory).path}/offirst_experts.json');
 
   Future<List<PatientRecord>> load() => _serialize(_loadRecords);
 
@@ -170,8 +236,174 @@ class PatientStore {
 
   Future<void> addPatient(PatientRecord patient) => _serialize(() async {
         final patients = await _loadRecords();
+        if (patients.any((record) => record.id == patient.id)) {
+          throw StateError('Patient identifier already exists.');
+        }
         patients.insert(0, patient);
         await _writeMetadata(patients);
+      });
+
+  Future<List<ExpertRecord>> loadExperts() => _serialize(() async {
+        final file = await _expertsFile;
+        if (!await file.exists()) return <ExpertRecord>[];
+        final data = jsonDecode(await file.readAsString()) as List;
+        return data
+            .map(
+                (entry) => ExpertRecord.fromJson(entry as Map<String, dynamic>))
+            .toList();
+      });
+
+  Future<void> addExpert(ExpertRecord expert) => _serialize(() async {
+        final experts = await _loadExperts();
+        if (experts.any((record) => record.id == expert.id)) {
+          throw StateError('Expert identifier already exists.');
+        }
+        experts.insert(0, expert);
+        await _writeExperts(experts);
+      });
+
+  Future<void> updateExpert(ExpertRecord expert) => _serialize(() async {
+        final experts = await _loadExperts();
+        final index = experts.indexWhere((record) => record.id == expert.id);
+        if (index < 0) throw StateError('Expert record does not exist.');
+        experts[index] = expert;
+        await _writeExperts(experts);
+      });
+
+  Future<void> deleteExpert(String expertId) => _serialize(() async {
+        final patients = await _loadRecords();
+        var associationsChanged = false;
+        for (var i = 0; i < patients.length; i++) {
+          final patient = patients[i];
+          if (!patient.expertIds.contains(expertId)) continue;
+          associationsChanged = true;
+          patients[i] = PatientRecord(
+            id: patient.id,
+            name: patient.name,
+            createdAt: patient.createdAt,
+            age: patient.age,
+            notes: patient.notes,
+            expertIds: patient.expertIds.where((id) => id != expertId).toList(),
+            visits: patient.visits,
+          );
+        }
+        final experts = await _loadExperts();
+        if (!experts.any((expert) => expert.id == expertId)) {
+          throw StateError('Expert record does not exist.');
+        }
+        if (associationsChanged) await _writeMetadata(patients);
+        await _writeExperts(
+            experts.where((expert) => expert.id != expertId).toList());
+      });
+
+  Future<void> setPatientExperts(String patientId, List<String> expertIds) =>
+      _serialize(() async {
+        if (expertIds.toSet().length != expertIds.length) {
+          throw ArgumentError('Duplicate expert association.');
+        }
+        final patients = await _loadRecords();
+        final index = patients.indexWhere((patient) => patient.id == patientId);
+        if (index < 0) throw StateError('Patient record does not exist.');
+        final known = (await _loadExperts()).map((expert) => expert.id).toSet();
+        if (!expertIds.every(known.contains)) {
+          throw StateError('Unknown expert in association.');
+        }
+        final patient = patients[index];
+        patients[index] = PatientRecord(
+          id: patient.id,
+          name: patient.name,
+          createdAt: patient.createdAt,
+          age: patient.age,
+          notes: patient.notes,
+          expertIds: List.unmodifiable(expertIds),
+          visits: patient.visits,
+        );
+        await _writeMetadata(patients);
+      });
+
+  Future<List<ExpertRecord>> _loadExperts() async {
+    final file = await _expertsFile;
+    if (!await file.exists()) return [];
+    final data = jsonDecode(await file.readAsString()) as List;
+    return data
+        .map((entry) => ExpertRecord.fromJson(entry as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> _writeExperts(List<ExpertRecord> experts) async {
+    final file = await _expertsFile;
+    await file.parent.create(recursive: true);
+    final staged = File('${file.path}.staged');
+    try {
+      await staged.writeAsString(
+          jsonEncode(experts.map((expert) => expert.toJson()).toList()),
+          flush: true);
+      await staged.rename(file.path);
+    } catch (_) {
+      try {
+        if (await staged.exists()) await staged.delete();
+      } on FileSystemException {
+        // Retain the underlying write failure.
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> updatePatient(PatientRecord updated) => _serialize(() async {
+        final patients = await _loadRecords();
+        final index = patients.indexWhere((record) => record.id == updated.id);
+        if (index < 0) throw StateError('Patient record does not exist.');
+        final existing = patients[index];
+        patients[index] = PatientRecord(
+          id: existing.id,
+          name: updated.name,
+          createdAt: existing.createdAt,
+          age: updated.age,
+          notes: updated.notes,
+          expertIds: existing.expertIds,
+          visits: existing.visits,
+        );
+        await _writeMetadata(patients);
+      });
+
+  /// Removes metadata first, then only visit directories referenced by the
+  /// deleted patient. A failed file cleanup leaves unreferenced private files,
+  /// but cannot damage another patient's records or report a false success.
+  Future<void> deletePatient(String patientId) => _serialize(() async {
+        final patients = await _loadRecords();
+        final index = patients.indexWhere((record) => record.id == patientId);
+        if (index < 0) throw StateError('Patient record does not exist.');
+        final removed = patients[index];
+        final remaining = List<PatientRecord>.of(patients)..removeAt(index);
+        await _writeMetadata(remaining);
+        final retainedVisitIds = remaining
+            .expand((patient) => patient.visits.map((visit) => visit.id))
+            .toSet();
+        final root = await directory;
+        final visitsRoot = Directory('${root.path}/visits');
+        for (final visit in removed.visits) {
+          if (!_safeId.hasMatch(visit.id) ||
+              retainedVisitIds.contains(visit.id)) {
+            continue;
+          }
+          final visitDirectory = Directory('${visitsRoot.path}/${visit.id}');
+          if (await FileSystemEntity.type(visitDirectory.path,
+                  followLinks: false) ==
+              FileSystemEntityType.directory) {
+            await visitDirectory.delete(recursive: true);
+          }
+          final reportFolder = Directory('${root.path}/screening_reports');
+          for (final reportName in [
+            'OFFIRST-${visit.id}.pdf',
+            'OFFIRST-${visit.id}-v2.pdf',
+          ]) {
+            final report = File('${reportFolder.path}/$reportName');
+            if (await FileSystemEntity.type(report.path, followLinks: false) ==
+                FileSystemEntityType.file) {
+              await report.delete();
+            }
+          }
+        }
       });
 
   /// Copy only at finalization. Picker paths may disappear between launches.

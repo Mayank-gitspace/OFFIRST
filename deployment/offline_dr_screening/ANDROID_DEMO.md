@@ -31,7 +31,7 @@ Compare the hash above, confirm the device reports `arm64-v8a`, and expect `Succ
 ## Demonstrate offline
 
 1. Put three cleared, de-identified sample fundus images in a local folder on the phone and install an offline PDF viewer before disconnecting. Use a fictitious profile such as **Demo Patient**.
-2. Enable airplane mode and turn Wi-Fi off. Launch **OFFIRST DR Screening**. Select **Register patient**, enter the demo name, and save.
+2. Enable airplane mode and turn Wi-Fi off. Launch **OFFIRST**. Select **Register patient**, enter the demo name, and save.
 3. Select **Start screening**, choose the demo patient and **Right eye (OD)**, then use **Add fundus images** to select two local files. Select **Left eye (OS)** and add the third file. An ordinary phone camera alone cannot acquire a fundus image. Use the gallery for this demo.
 4. Confirm each image has an experimental model score and threshold result. Select **Finalize and save visit**. Open **Patients**, expand the demo profile, and open the saved visit. Verify two OD images and one OS image.
 5. Select **Save PDF**, then **View PDF**. Verify the summary and each image page. Select **Export PDF**, choose a local Downloads folder, and reopen the exported file offline.
@@ -45,7 +45,7 @@ Compare the hash above, confirm the device reports `arm64-v8a`, and expect `Succ
 
 ## Storage and sharing audit
 
-Patient identifiers, scores, original images, and reports are stored in Android app-private files. Records are plain JSON within that sandbox. Android backup is disabled in the manifest. There is no app lock, application-level encryption, or individual record deletion. Use fictitious profiles and de-identified images for this prototype.
+Patient identifiers, scores, original images, expert directory records, associations, and reports are stored in Android app-private files. Records are plain JSON within that sandbox. Android backup is disabled in the manifest. There is no app lock or application-level encryption. Patient and expert deletion are available in the redesign candidate; delete only synthetic or appropriately authorized records in this prototype.
 
 The PDF viewer receives read access to a single app-private report via a non-exported FileProvider. Export moves a copy outside OFFIRST’s control. A document provider may sync it, and clearing OFFIRST data does not delete an exported copy. Camera files, gallery source files, and metadata can also survive independently. Choose local destinations for the demo and remove exports separately.
 

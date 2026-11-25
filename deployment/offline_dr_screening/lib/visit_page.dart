@@ -47,13 +47,15 @@ class _VisitPageState extends State<VisitPage> {
       final result = await _channel.invokeMethod<bool>(action, {
         'visit': visit.id,
         'heading': [
+          'Report ID: OFFIRST-${visit.id}-v2',
           'Patient: ${patient.name}',
           'Patient ID: ${patient.id}',
           if (patient.age != null) 'Recorded age: ${patient.age}',
           'Visit: ${visit.id}',
           'Visit date: ${visit.date.toLocal().toString().split('.').first}',
-          'Right eye (OD): ${visit.forEye(Eye.right).length} image(s)',
-          'Left eye (OS): ${visit.forEye(Eye.left).length} image(s)',
+          'App/model: OFFIRST 1.0.1 / offirst-dr-onnx-b8fc1019; threshold 0.48',
+          'Right eye (OD): ${visit.forEye(Eye.right).length} image(s)${visit.forEye(Eye.right).isEmpty ? ' — no model assessment performed' : ''}',
+          'Left eye (OS): ${visit.forEye(Eye.left).length} image(s)${visit.forEye(Eye.left).isEmpty ? ' — no model assessment performed' : ''}',
           screeningNotice,
         ],
         'images': rows,
