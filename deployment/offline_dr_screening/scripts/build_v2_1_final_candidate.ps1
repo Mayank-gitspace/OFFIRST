@@ -6,9 +6,9 @@ try {
     $modelPath = Join-Path $projectRoot 'assets/offirst_v2_1_experimental.onnx'
     $v1ModelPath = Join-Path $projectRoot 'assets/offirst_dr_model.onnx'
     $servicePath = Join-Path $projectRoot 'lib/screening_service.dart'
-    $expectedV21 = '43a87f05df7adc6a231a679721e7f0b11b45a3fe6d1582aa4527ed738fa63b3f'
+    $expectedV21 = 'b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b'
     $expectedV1 = 'b8fc10191f69faef16f1dc92d08bf9542ee7e26f885767942e28292c5201dd90'
-    $threshold = '0.3675977844516245'
+    $threshold = '0.524373471736908'
     if ((Get-FileHash $modelPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedV21) { throw 'v2.1 ONNX SHA-256 mismatch.' }
     if ((Get-FileHash $v1ModelPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedV1) { throw 'Rollback v1.1 ONNX changed.' }
     $service = Get-Content -LiteralPath $servicePath -Raw

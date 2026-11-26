@@ -17,8 +17,9 @@ const useExperimentalV21 = bool.fromEnvironment(
   'OFFIRST_EXPERIMENTAL_V21',
   defaultValue: true,
 );
-const v21Threshold = 0.3675977844516245;
-const v21ModelVersion = 'offirst-v2.1-experimental-43a87f05';
+// head_balanced.threshold_youden_cv in heads/kd768_lp_dr_rfmid_odir_aptos.json.
+const v21Threshold = 0.524373471736908;
+const v21ModelVersion = 'offirst-v2.1-experimental-b6bcb118';
 const activeScreeningThreshold =
     useExperimentalV21 ? v21Threshold : screeningThreshold;
 const activeScreeningModelVersion =
@@ -29,9 +30,13 @@ const activeModelAsset = useExperimentalV21
 const _v21Preprocessing = MethodChannel('offirst/v2_1_preprocessing');
 
 class ScreeningResult {
-  const ScreeningResult(this.probability);
+  const ScreeningResult(this.probability, {this.embedding});
 
   final double probability;
+
+  /// Cached L2-normalized 768-d KD768 embedding, when the v2.1 encoder ran.
+  /// Screening modes score this vector and do not run the encoder again.
+  final List<double>? embedding;
 
   bool get detected => probability >= activeScreeningThreshold;
 }
@@ -71,11 +76,6 @@ void logScreeningFailure(ScreeningStage stage, Object error, StackTrace stack) {
 
 class ScreeningService extends ChangeNotifier {
   ScreeningService() : _allowUnvalidatedTestInput = false;
-
-  /// No trained, permission-cleared fundus detector is packaged in this app.
-  /// The production service therefore treats every decodable image as
-  /// uncertain and never sends it to the DR classifier.
-  static const fundusDetectorAvailable = false;
 
   @visibleForTesting
   ScreeningService.withValidatedTestInput() : _allowUnvalidatedTestInput = true;
@@ -153,7 +153,7 @@ class ScreeningService extends ChangeNotifier {
           model.buffer.asUint8List(model.offsetInBytes, model.lengthInBytes),
           options);
       try {
-        validateModelContract(session);
+        validateModelContract(session, requireEmbedding: useExperimentalV21);
       } catch (error, stack) {
         session.release();
         logScreeningFailure(ScreeningStage.modelContract, error, stack);
@@ -179,11 +179,8 @@ class ScreeningService extends ChangeNotifier {
     _activePredictions++;
     try {
       if (!_allowUnvalidatedTestInput) {
+        // Decoding rejects corrupt files and images without a retinal field.
         await _verifyDecodableImage(file);
-        throw const ScreeningFailure(
-          ScreeningStage.inputValidation,
-          'Image status is uncertain because OFFIRST has no validated fundus detector. No DR classification was run; use a validated fundus camera/workflow or seek eye-care review.',
-        );
       }
       await initialize();
       if (_disposed) {
@@ -217,9 +214,8 @@ class ScreeningService extends ChangeNotifier {
 
   Future<void> _verifyDecodableImage(File file) async {
     try {
-      // Reuse the selected production decoder/preprocessor only to distinguish
-      // corrupt or unreadable files. Its tensor is discarded; it cannot
-      // establish that the input is a fundus photograph.
+      // The production preprocessor rejects corrupt files and images that
+      // lack a retinal disc on a black surround. Its tensor is discarded.
       if (useExperimentalV21) {
         await _prepareV21Tensor(file);
       } else {
@@ -255,6 +251,36 @@ class ScreeningService extends ChangeNotifier {
     if (_activePredictions == 0) _releaseSession();
     super.dispose();
   }
+}
+
+const notFundusMessage =
+    'This image does not look like a fundus photograph. Choose a retinal image.';
+
+/// Maps a native preprocess error onto a user-facing failure.
+/// Native messages are dropped so paths and file details cannot surface.
+ScreeningFailure failureForPrepare(PlatformException error) {
+  final stage = switch (error.code) {
+    'image_access' || 'image' => ScreeningStage.imageAccess,
+    'image_decode' || 'image_format' => ScreeningStage.imageDecode,
+    'not_fundus' => ScreeningStage.inputValidation,
+    _ => ScreeningStage.preprocessing,
+  };
+  final message = switch (error.code) {
+    'image_access' ||
+    'image' =>
+      'Image bytes could not be accessed. Select the image again.',
+    'image_decode' =>
+      'Image decoding failed. Select a valid JPEG or PNG image.',
+    'image_format' => 'Unsupported image format. Select a JPEG or PNG image.',
+    'image_size' =>
+      'Image exceeds available memory or the 24 megapixel limit. Select a smaller image.',
+    'not_fundus' => notFundusMessage,
+    'runtime' =>
+      'The OpenCV image runtime is unavailable. Restart OFFIRST or reinstall the verified APK.',
+    _ =>
+      'Image preprocessing failed. Retry this image or select another JPEG or PNG.',
+  };
+  return ScreeningFailure(stage, message);
 }
 
 /// StandardMethodCodec returns Uint8List views with no float-alignment guarantee.
@@ -305,27 +331,9 @@ Future<Float32List> _prepareV21Tensor(File file) async {
     tensorBytes = await _v21Preprocessing.invokeMethod<Uint8List>(
         'prepareTensor', encoded);
   } on PlatformException catch (error, stack) {
-    final stage = switch (error.code) {
-      'image_access' || 'image' => ScreeningStage.imageAccess,
-      'image_decode' || 'image_format' => ScreeningStage.imageDecode,
-      _ => ScreeningStage.preprocessing,
-    };
-    logScreeningFailure(stage, error, stack);
-    final message = switch (error.code) {
-      'image_access' ||
-      'image' =>
-        'Image bytes could not be accessed. Select the image again.',
-      'image_decode' =>
-        'Image decoding failed. Select a valid JPEG or PNG image.',
-      'image_format' => 'Unsupported image format. Select a JPEG or PNG image.',
-      'image_size' =>
-        'Image exceeds available memory or the 24 megapixel limit. Select a smaller image.',
-      'runtime' =>
-        'The OpenCV image runtime is unavailable. Restart OFFIRST or reinstall the verified APK.',
-      _ =>
-        'Image preprocessing failed. Retry this image or select another JPEG or PNG.',
-    };
-    throw ScreeningFailure(stage, message);
+    final failure = failureForPrepare(error);
+    logScreeningFailure(failure.stage, error, stack);
+    throw failure;
   } catch (error, stack) {
     logScreeningFailure(ScreeningStage.preprocessing, error, stack);
     throw const ScreeningFailure(ScreeningStage.preprocessing,
@@ -359,14 +367,27 @@ ScreeningResult _predictInput(Float32List input, int sessionAddress) {
       final outputs = OrtSession.fromAddress(sessionAddress).run(
         runOptions,
         {modelInput: tensor},
-        [modelOutput],
+        useExperimentalV21
+            ? const [modelOutput, modelEmbeddingOutput]
+            : const [modelOutput],
       );
       try {
-        final output = outputs.single;
+        final output = outputs[0];
         if (output is! OrtValueTensor) {
           throw StateError('Model returned a non-tensor output.');
         }
-        return ScreeningResult(readModelProbability(output));
+        List<double>? embedding;
+        if (useExperimentalV21) {
+          final embeddingOutput = outputs[1];
+          if (embeddingOutput is! OrtValueTensor) {
+            throw StateError('Model returned a non-tensor embedding.');
+          }
+          embedding = readEmbedding(embeddingOutput);
+          // The graph already applies z = emb / max(norm(emb), 1e-12).
+          assertL2Normalized(embedding);
+        }
+        return ScreeningResult(readModelProbability(output),
+            embedding: embedding);
       } finally {
         for (final output in outputs) {
           output?.release();

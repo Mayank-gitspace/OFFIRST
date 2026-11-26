@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'offirst_theme.dart';
 import 'expert_page.dart';
+import 'offirst_theme.dart';
+import 'onboarding_tour.dart';
 import 'patient_store.dart';
 import 'screening_page.dart';
 import 'screening_service.dart';
@@ -11,9 +14,11 @@ import 'visit_page.dart';
 void main() => runApp(const OffirstScreeningApp());
 
 class OffirstScreeningApp extends StatelessWidget {
-  const OffirstScreeningApp({super.key, this.store, this.screeningService});
+  const OffirstScreeningApp(
+      {super.key, this.store, this.screeningService, this.onboarding});
   final ScreeningService? screeningService;
   final PatientStore? store;
+  final OnboardingStore? onboarding;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -21,14 +26,19 @@ class OffirstScreeningApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: buildOffirstTheme(),
         home: OffirstHome(
-            store: store ?? PatientStore(), service: screeningService),
+          store: store ?? PatientStore(),
+          service: screeningService,
+          onboarding: onboarding ?? FileOnboardingStore(),
+        ),
       );
 }
 
 class OffirstHome extends StatefulWidget {
-  const OffirstHome({super.key, required this.store, this.service});
+  const OffirstHome(
+      {super.key, required this.store, this.service, required this.onboarding});
   final ScreeningService? service;
   final PatientStore store;
+  final OnboardingStore onboarding;
 
   @override
   State<OffirstHome> createState() => _OffirstHomeState();
@@ -39,27 +49,196 @@ class _OffirstHomeState extends State<OffirstHome> {
   @override
   void initState() {
     super.initState();
+    _patients = _trackPatients(_patients);
     _service
         .initialize()
         .catchError((Object _) {}); // Service exposes sanitized error state.
+    unawaited(_loadOnboarding());
   }
 
   @override
   void dispose() {
+    _tourNotifier.dispose();
     _service.dispose();
     super.dispose();
   }
 
   int _tab = 0;
+  int? _tourStep;
+  final _tourNotifier = ValueNotifier<int?>(null);
+  final _navigationKey = GlobalKey();
+  final _registerKey = GlobalKey();
+  final _patientKey = GlobalKey();
+  final _modeKey = GlobalKey();
+  final _imagesKey = GlobalKey();
+  final _saveKey = GlobalKey();
+  final _recentKey = GlobalKey();
+  final _expertKey = GlobalKey();
+  final _expertTile = ExpansionTileController();
   String _query = '';
   PatientStore get _store => widget.store;
   late Future<List<PatientRecord>> _patients = _store.load();
+  List<PatientRecord> _records = const [];
   late Future<List<ExpertRecord>> _experts = _store.loadExperts();
 
   void _refresh() => setState(() {
-        _patients = _store.load();
+        _patients = _trackPatients(_store.load());
         _experts = _store.loadExperts();
       });
+
+  Future<List<PatientRecord>> _trackPatients(
+      Future<List<PatientRecord>> future) {
+    future.then((rows) {
+      if (!mounted) return;
+      setState(() => _records = rows);
+      if (_tourStep != null) _revealTour();
+    });
+    return future;
+  }
+
+  Future<void> _loadOnboarding() async {
+    try {
+      final done = await widget.onboarding.isComplete();
+      if (!mounted || done) return;
+      _setTour(0);
+    } catch (_) {
+      // Leave the tour hidden if the completion flag cannot be read.
+    }
+  }
+
+  void _setTour(int? step, {int? tab, bool reveal = true}) {
+    setState(() {
+      _tourStep = step;
+      if (tab != null) _tab = tab;
+    });
+    _tourNotifier.value = step;
+    if (step != null && reveal) _revealTour();
+  }
+
+  bool _nextEnabled(OnboardingStep step) {
+    if (step.needsPatient && _records.isEmpty) return false;
+    if (step.needsVisit && !_records.any((patient) => patient.visits.isNotEmpty)) {
+      return false;
+    }
+    if (step.opensVisit && _latestVisit() == null) return false;
+    return true;
+  }
+
+  void _nextTourStep() {
+    final index = _tourStep;
+    if (index == null) return;
+    final step = onboardingSteps[index];
+    if (!_nextEnabled(step)) return;
+    if (index >= onboardingSteps.length - 1) {
+      unawaited(_finishTour());
+      return;
+    }
+    final next = index + 1;
+    if (step.opensVisit) {
+      final latest = _latestVisit();
+      if (latest == null) return;
+      _openVisit(latest.patient, latest.visit);
+      return;
+    }
+    _setTour(next, tab: onboardingSteps[next].tab);
+  }
+
+  void _revealTour() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _tourStep == null) return;
+      final step = onboardingSteps[_tourStep!];
+      if (step.expandsExpert) {
+        try {
+          if (!_expertTile.isExpanded) _expertTile.expand();
+        } catch (_) {}
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+      }
+      if (!mounted) return;
+      final target = _keyFor(step)?.currentContext;
+      if (target != null) {
+        await Scrollable.ensureVisible(target,
+            alignment: 0.3, duration: const Duration(milliseconds: 200));
+      }
+      if (mounted) setState(() {});
+    });
+  }
+
+  GlobalKey? _keyFor(OnboardingStep step) => switch (step.target) {
+        TourTarget.register => _registerKey,
+        TourTarget.patient => _patientKey,
+        TourTarget.mode => _modeKey,
+        TourTarget.images => _imagesKey,
+        TourTarget.save => _saveKey,
+        TourTarget.recent => _recentKey,
+        TourTarget.expert => _expertKey,
+        TourTarget.pdf || null => null,
+      };
+
+  Eye? _focusedEye() {
+    final step = _tourStep;
+    if (step == null) return null;
+    return switch (onboardingSteps[step].eye) {
+      TourEye.right => Eye.right,
+      TourEye.left => Eye.left,
+      null => null,
+    };
+  }
+
+  ({PatientRecord patient, VisitRecord visit})? _latestVisit() {
+    PatientRecord? patient;
+    VisitRecord? visit;
+    for (final record in _records) {
+      for (final item in record.visits) {
+        if (visit == null || item.date.isAfter(visit.date)) {
+          patient = record;
+          visit = item;
+        }
+      }
+    }
+    if (patient == null || visit == null) return null;
+    return (patient: patient, visit: visit);
+  }
+
+  String? _tourPatientId() => _latestVisit()?.patient.id ??
+      (_records.isEmpty ? null : _records.first.id);
+
+  void _openVisit(PatientRecord patient, VisitRecord visit) {
+    final fromTour =
+        _tourStep != null && onboardingSteps[_tourStep!].opensVisit;
+    if (fromTour) _setTour(tourIndex(TourTarget.pdf), reveal: false);
+    unawaited(_pushVisit(patient, visit));
+  }
+
+  Future<void> _pushVisit(PatientRecord patient, VisitRecord visit) async {
+    final pdf = tourIndex(TourTarget.pdf);
+    final recent =
+        onboardingSteps.indexWhere((step) => step.opensVisit);
+    await Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => VisitPage(
+        patient: patient,
+        visit: visit,
+        store: _store,
+        tourStep: _tourNotifier,
+        onTourNext: _finishReportCoach,
+        onTourSkip: () => unawaited(_finishTour()),
+      ),
+    ));
+    if (!mounted) return;
+    if (_tourStep == pdf) _setTour(recent);
+  }
+
+  void _finishReportCoach() {
+    final expert = tourIndex(TourTarget.expert);
+    _setTour(expert, tab: onboardingSteps[expert].tab);
+    if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+  }
+
+  Future<void> _finishTour() async {
+    try {
+      await widget.onboarding.markComplete();
+    } catch (_) {}
+    if (mounted) _setTour(null, reveal: false);
+  }
 
   Future<void> _editPatient([PatientRecord? existing]) async {
     final name = TextEditingController(text: existing?.name ?? '');
@@ -250,7 +429,11 @@ class _OffirstHomeState extends State<OffirstHome> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final tourStep = _tourStep;
+    final current = tourStep == null ? null : onboardingSteps[tourStep];
+    return Stack(children: [
+      Scaffold(
         appBar: AppBar(
           title: const Text('OFFIRST'),
           actions: [
@@ -267,12 +450,9 @@ class _OffirstHomeState extends State<OffirstHome> {
                   label: Text(
                       switch (_service.readiness) {
                         ModelReadiness.initializing => 'Initializing model',
-                        ModelReadiness.ready =>
-                          !ScreeningService.fundusDetectorAvailable
-                              ? 'Screening paused — validation unavailable'
-                              : useExperimentalV21
-                                  ? 'Model ready — OFFIRST v2.1'
-                                  : 'Model ready — OFFIRST v1.1',
+                        ModelReadiness.ready => useExperimentalV21
+                            ? 'Model ready — OFFIRST v2.1'
+                            : 'Model ready — OFFIRST v1.1',
                         ModelReadiness.unavailable =>
                           'Model unavailable — details',
                       },
@@ -284,9 +464,7 @@ class _OffirstHomeState extends State<OffirstHome> {
                             content: Text(_service
                                     .initializationError?.message ??
                                 (_service.readiness == ModelReadiness.ready
-                                    ? ScreeningService.fundusDetectorAvailable
-                                        ? 'ONNX session initialized and input/output contract verified. This status does not indicate that an image has been screened.'
-                                        : 'No validated fundus detector or image-quality model is packaged. Decodable inputs are treated as uncertain, so OFFIRST will not run DR classification or record a negative result.'
+                                    ? 'ONNX session initialized and input/output contract verified. This status does not indicate that an image has been screened.'
                                     : 'Loading the packaged model and checking its input/output contract.')),
                             actions: [
                               if (_service.readiness ==
@@ -316,11 +494,17 @@ class _OffirstHomeState extends State<OffirstHome> {
               store: _store,
               patients: _patients,
               onSaved: _refresh,
-              service: _service),
+              service: _service,
+              patientKey: _patientKey,
+              modeKey: _modeKey,
+              imagesKey: _imagesKey,
+              saveKey: _saveKey,
+              focusedEye: _focusedEye()),
           ExpertDirectoryPage(store: _store, onChanged: _refresh),
           const _AboutPage(),
         ]),
         bottomNavigationBar: NavigationBar(
+          key: _navigationKey,
           selectedIndex: _tab,
           onDestinationSelected: (value) => setState(() => _tab = value),
           destinations: const [
@@ -336,7 +520,25 @@ class _OffirstHomeState extends State<OffirstHome> {
                 icon: Icon(Icons.info_outline), label: 'About'),
           ],
         ),
-      );
+      ),
+      if (current != null && current.target != TourTarget.pdf)
+        OnboardingOverlay(
+          label: current.label,
+          message: current.message,
+          index: tourStep!,
+          count: onboardingSteps.length,
+          last: tourStep == onboardingSteps.length - 1,
+          nextEnabled: _nextEnabled(current),
+          targetKey: _keyFor(current),
+          navigationKey: _navigationKey,
+          navigationSlot: current.navSlot,
+          passHole: current.passHole,
+          allowPage: current.allowPage,
+          onNext: _nextTourStep,
+          onSkip: () => unawaited(_finishTour()),
+        ),
+    ]);
+  }
 
   Widget _dashboard() => FutureBuilder<List<PatientRecord>>(
         future: _patients,
@@ -418,29 +620,28 @@ class _OffirstHomeState extends State<OffirstHome> {
                   child: const Text('Patients')),
             ]),
             if (recent.isEmpty)
-              const Card(
-                  child: Padding(
-                      padding: EdgeInsets.all(18),
-                      child: Text('Saved screening visits will appear here.')))
+              Card(
+                key: _recentKey,
+                child: const Padding(
+                    padding: EdgeInsets.all(18),
+                    child: Text('Saved screening visits will appear here.')),
+              )
             else
-              ...recent.take(4).map((entry) => Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.history,
-                          color: OffirstColors.cobalt),
-                      title: Text(entry.patient.name),
-                      subtitle: Text(
-                          '${MaterialLocalizations.of(context).formatMediumDate(entry.visit.date.toLocal())} · ${entry.visit.images.length} image(s)'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => VisitPage(
-                              patient: entry.patient,
-                              visit: entry.visit,
-                              store: _store),
-                        ),
-                      ),
-                    ),
-                  )),
+              ...recent.take(4).toList().asMap().entries.map((slot) {
+                final entry = slot.value;
+                return Card(
+                  key: slot.key == 0 ? _recentKey : null,
+                  child: ListTile(
+                    leading: const Icon(Icons.history,
+                        color: OffirstColors.cobalt),
+                    title: Text(entry.patient.name),
+                    subtitle: Text(
+                        '${MaterialLocalizations.of(context).formatMediumDate(entry.visit.date.toLocal())} · ${entry.visit.images.length} image(s)'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _openVisit(entry.patient, entry.visit),
+                  ),
+                );
+              }),
             const SizedBox(height: 20),
             const _PrivacyNotice(),
           ]);
@@ -481,6 +682,7 @@ class _OffirstHomeState extends State<OffirstHome> {
               Text('Patients',
                   style: Theme.of(context).textTheme.headlineSmall),
               IconButton(
+                  key: _registerKey,
                   tooltip: 'Register patient',
                   onPressed: _editPatient,
                   icon: const Icon(Icons.person_add_alt_outlined)),
@@ -496,8 +698,12 @@ class _OffirstHomeState extends State<OffirstHome> {
               const Padding(
                   padding: EdgeInsets.all(24),
                   child: Text('No matching local patient records.')),
-            ...rows.map((patient) => Card(
+            ...rows.map((patient) {
+              final guided = patient.id == _tourPatientId();
+              return Card(
                   child: ExpansionTile(
+                    key: ValueKey(patient.id),
+                    controller: guided ? _expertTile : null,
                     leading: const CircleAvatar(child: Icon(Icons.person)),
                     title: Text(patient.name),
                     subtitle: Text(
@@ -522,15 +728,18 @@ class _OffirstHomeState extends State<OffirstHome> {
                                   patient.expertIds.contains(expert.id))
                               .map((expert) => expert.name)
                               .toList();
-                          return ListTile(
-                            title: const Text('Locally associated experts'),
-                            subtitle: Text(assigned.isEmpty
-                                ? 'None recorded'
-                                : assigned.join(', ')),
-                            trailing: IconButton(
-                              tooltip: 'Manage expert associations',
-                              onPressed: () => _assignExperts(patient),
-                              icon: const Icon(Icons.edit_outlined),
+                          return KeyedSubtree(
+                            key: guided ? _expertKey : null,
+                            child: ListTile(
+                              title: const Text('Locally associated experts'),
+                              subtitle: Text(assigned.isEmpty
+                                  ? 'None recorded'
+                                  : assigned.join(', ')),
+                              trailing: IconButton(
+                                tooltip: 'Manage expert associations',
+                                onPressed: () => _assignExperts(patient),
+                                icon: const Icon(Icons.edit_outlined),
+                              ),
                             ),
                           );
                         },
@@ -576,7 +785,8 @@ class _OffirstHomeState extends State<OffirstHome> {
                           )),
                     ],
                   ),
-                )),
+                );
+            }),
           ]);
         },
       );
@@ -602,7 +812,7 @@ class _AboutPage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(useExperimentalV21
-                  ? 'Active model: OFFIRST v2.1 experimental DR classifier, development-selected 0.3675977844516245 threshold. The graph includes Platt calibration. Images and records stay on this device.'
+                  ? 'Active model: OFFIRST v2.1 experimental screening. The default result is a 4-class diabetic retinopathy grade on the on-device embedding. Images and records stay on this device.'
                   : 'The app uses the packaged OFFIRST v1.1 ONNX classifier with a fixed 0.48 threshold. It does not upload images or records and does not learn from patient images.'),
             ),
           ),

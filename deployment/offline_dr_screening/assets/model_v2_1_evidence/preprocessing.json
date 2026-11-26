@@ -51,5 +51,5 @@
     ],
     "formula": "(uint8 - mean*255) / (std*255)"
   },
-  "feature_normalization": "x/(l2_norm(x)+1e-12); fitted train-only StandardScaler in graph"
+  "feature_normalization": "z = embedding / max(l2_norm(embedding), 1e-12); head is one Gemm on z using folded head_balanced weights. The same z is a graph output named embedding."
 }

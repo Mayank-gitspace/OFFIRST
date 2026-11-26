@@ -17,6 +17,23 @@ void main() {
 
   tearDown(() => root.deleteSync(recursive: true));
 
+  test('research-demonstration visit flag round trips in visit metadata', () {
+    final visit = VisitRecord(
+      id: 'research-visit',
+      date: date,
+      images: const [],
+      researchDemonstration: true,
+    );
+    final decoded = VisitRecord.fromJson(visit.toJson(), legacyId: 'legacy');
+    expect(decoded.researchDemonstration, isTrue);
+    expect(
+        VisitRecord.fromJson(
+                {...visit.toJson(), 'researchDemonstration': false},
+                legacyId: 'legacy')
+            .researchDemonstration,
+        isFalse);
+  });
+
   test('startup removes only marked, unreferenced visit transactions',
       () async {
     const marker = '.offirst-pending-visit';

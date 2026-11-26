@@ -74,7 +74,8 @@ class ImageRecord {
       required this.path,
       required this.probability,
       required this.threshold,
-      required this.modelVersion});
+      required this.modelVersion,
+      this.embedding});
   final String id;
   final Eye eye;
   final DateTime capturedAt;
@@ -82,6 +83,10 @@ class ImageRecord {
   final double probability;
   final double threshold;
   final String modelVersion;
+
+  /// Cached L2-normalized 768-d embedding. Null on records scored before it
+  /// was stored. Present records can change screening mode without inference.
+  final List<double>? embedding;
   bool get flagged => probability >= threshold;
 
   Map<String, dynamic> toJson() => {
@@ -92,6 +97,7 @@ class ImageRecord {
         'probability': probability,
         'threshold': threshold,
         'modelVersion': modelVersion,
+        if (embedding != null) 'embedding': embedding,
       };
 
   factory ImageRecord.fromJson(Map<String, dynamic> json) => ImageRecord(
@@ -102,6 +108,11 @@ class ImageRecord {
         probability: (json['probability'] as num).toDouble(),
         threshold: (json['threshold'] as num).toDouble(),
         modelVersion: json['modelVersion'],
+        embedding: json['embedding'] == null
+            ? null
+            : (json['embedding'] as List)
+                .map((value) => (value as num).toDouble())
+                .toList(growable: false),
       );
 }
 
@@ -111,12 +122,14 @@ class VisitRecord {
     required this.date,
     required List<ImageRecord> images,
     Set<Eye> unavailableEyes = const {},
+    this.researchDemonstration = false,
   })  : images = List.unmodifiable(images),
         unavailableEyes = Set.unmodifiable(unavailableEyes);
   final String id;
   final DateTime date;
   final List<ImageRecord> images;
   final Set<Eye> unavailableEyes;
+  final bool researchDemonstration;
 
   Iterable<ImageRecord> forEye(Eye eye) =>
       images.where((image) => image.eye == eye);
@@ -127,6 +140,7 @@ class VisitRecord {
         'images': images.map((image) => image.toJson()).toList(),
         'unavailableEyes': unavailableEyes.map((eye) => eye.code).toList()
           ..sort(),
+        'researchDemonstration': researchDemonstration,
       };
 
   factory VisitRecord.fromJson(Map<String, dynamic> json,
@@ -152,7 +166,8 @@ class VisitRecord {
             .toList(),
         unavailableEyes: ((json['unavailableEyes'] as List?) ?? const [])
             .map((code) => Eye.fromCode(code as String))
-            .toSet());
+            .toSet(),
+        researchDemonstration: json['researchDemonstration'] == true);
   }
 }
 
@@ -407,6 +422,9 @@ class PatientStore {
             'OFFIRST-${visit.id}.pdf',
             'OFFIRST-${visit.id}-v2.pdf',
             'OFFIRST-${visit.id}-v3.pdf',
+            'OFFIRST-${visit.id}-v4.pdf',
+            'OFFIRST-${visit.id}-v5.pdf',
+            'OFFIRST-${visit.id}-v6.pdf',
           ]) {
             final report = File('${reportFolder.path}/$reportName');
             if (await FileSystemEntity.type(report.path, followLinks: false) ==
@@ -462,7 +480,8 @@ class PatientStore {
                 path: 'visits/${visit.id}/$imagePath',
                 probability: image.probability,
                 threshold: image.threshold,
-                modelVersion: image.modelVersion));
+                modelVersion: image.modelVersion,
+                embedding: image.embedding));
           }
           staged = await staged.rename(destination);
           patient.visits.insert(
@@ -471,7 +490,8 @@ class PatientStore {
                   id: visit.id,
                   date: visit.date,
                   images: saved,
-                  unavailableEyes: visit.unavailableEyes));
+                  unavailableEyes: visit.unavailableEyes,
+                  researchDemonstration: visit.researchDemonstration));
           await _writeMetadata(patients);
         } catch (_) {
           try {

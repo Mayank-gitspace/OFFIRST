@@ -76,6 +76,9 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+            // R8 and resource shrinking. Flutter also applies its own ProGuard rules.
+            isMinifyEnabled = true
+            isShrinkResources = true
         }
     }
 }

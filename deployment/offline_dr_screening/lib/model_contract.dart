@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:math' as math;
 
 import 'package:ffi/ffi.dart';
 import 'package:onnxruntime/onnxruntime.dart';
@@ -9,24 +10,47 @@ import 'package:onnxruntime/src/bindings/onnxruntime_bindings_generated.dart'
 
 const modelInput = 'fundus_image';
 const modelOutput = 'dr_probability';
+const modelEmbeddingOutput = 'embedding';
 const modelInputShape = [1, 3, 512, 512];
 
 ort.OrtApi get _api => OrtEnv.instance.ortApiPtr.ref;
 
-void validateModelContract(OrtSession session) {
+void validateModelContract(OrtSession session,
+    {bool requireEmbedding = false}) {
+  final expectedOutputs = requireEmbedding
+      ? {modelOutput, modelEmbeddingOutput}
+      : {modelOutput};
   if (session.inputNames.length != 1 ||
       session.inputNames.single != modelInput ||
-      session.outputNames.length != 1 ||
-      session.outputNames.single != modelOutput) {
+      session.outputNames.length != expectedOutputs.length ||
+      !session.outputNames.toSet().containsAll(expectedOutputs)) {
     throw StateError('Unexpected ONNX model inputs or outputs.');
   }
 
-  _validateSessionTensor(session, input: true, dimensions: [-1, 3, 512, 512]);
-  _validateSessionTensor(session, input: false, dimensions: [-1, 1]);
+  _validateSessionTensor(session,
+      input: true,
+      index: 0,
+      dimensions: const [-1, 3, 512, 512],
+      name: modelInput);
+  _validateSessionTensor(session,
+      input: false,
+      index: session.outputNames.indexOf(modelOutput),
+      dimensions: const [-1, 1],
+      name: modelOutput);
+  if (requireEmbedding) {
+    _validateSessionTensor(session,
+        input: false,
+        index: session.outputNames.indexOf(modelEmbeddingOutput),
+        dimensions: const [-1, 768],
+        name: modelEmbeddingOutput);
+  }
 }
 
 void _validateSessionTensor(OrtSession session,
-    {required bool input, required List<int> dimensions}) {
+    {required bool input,
+    required int index,
+    required List<int> dimensions,
+    required String name}) {
   using((arena) {
     final info = arena<Pointer<ort.OrtTypeInfo>>();
     final read =
@@ -34,15 +58,14 @@ void _validateSessionTensor(OrtSession session,
     OrtStatus.checkOrtStatus(read.asFunction<
             ort.OrtStatusPtr Function(Pointer<ort.OrtSession>, int,
                 Pointer<Pointer<ort.OrtTypeInfo>>)>()(
-        Pointer<ort.OrtSession>.fromAddress(session.address), 0, info));
+        Pointer<ort.OrtSession>.fromAddress(session.address), index, info));
     try {
       final tensor = arena<Pointer<ort.OrtTensorTypeAndShapeInfo>>();
       OrtStatus.checkOrtStatus(_api.CastTypeInfoToTensorInfo.asFunction<
               ort.OrtStatusPtr Function(Pointer<ort.OrtTypeInfo>,
                   Pointer<Pointer<ort.OrtTensorTypeAndShapeInfo>>)>()(
           info.value, tensor));
-      _validateTensor(
-          tensor.value, dimensions, arena, input ? modelInput : modelOutput);
+      _validateTensor(tensor.value, dimensions, arena, name);
     } finally {
       // The cast only borrows the tensor information from the parent type.
       _api.ReleaseTypeInfo.asFunction<
@@ -74,6 +97,48 @@ double readModelProbability(OrtValueTensor tensor) {
           void Function(Pointer<ort.OrtTensorTypeAndShapeInfo>)>()(info.value);
     }
   });
+}
+
+/// Copies the L2-normalized 768-d embedding. The caller must not divide again.
+List<double> readEmbedding(OrtValueTensor tensor) {
+  return using((arena) {
+    final value = Pointer<ort.OrtValue>.fromAddress(tensor.address);
+    final info = arena<Pointer<ort.OrtTensorTypeAndShapeInfo>>();
+    OrtStatus.checkOrtStatus(_api.GetTensorTypeAndShape.asFunction<
+        ort.OrtStatusPtr Function(Pointer<ort.OrtValue>,
+            Pointer<Pointer<ort.OrtTensorTypeAndShapeInfo>>)>()(value, info));
+    try {
+      _validateTensor(info.value, const [1, 768], arena, modelEmbeddingOutput);
+      final data = arena<Pointer<Void>>();
+      OrtStatus.checkOrtStatus(_api.GetTensorMutableData.asFunction<
+          ort.OrtStatusPtr Function(
+              Pointer<ort.OrtValue>, Pointer<Pointer<Void>>)>()(value, data));
+      final view = data.value.cast<Float>().asTypedList(768);
+      return List<double>.generate(768, (index) {
+        final component = view[index];
+        if (!component.isFinite) {
+          throw StateError('Model returned a non-finite embedding.');
+        }
+        return component;
+      }, growable: false);
+    } finally {
+      _api.ReleaseTensorTypeAndShapeInfo.asFunction<
+          void Function(Pointer<ort.OrtTensorTypeAndShapeInfo>)>()(info.value);
+    }
+  });
+}
+
+void assertL2Normalized(List<double> embedding) {
+  if (embedding.length != 768) {
+    throw StateError('Embedding rank is not 768.');
+  }
+  var sum = 0.0;
+  for (final component in embedding) {
+    sum += component * component;
+  }
+  if ((math.sqrt(sum) - 1).abs() > 1e-3) {
+    throw StateError('Embedding is not L2-normalized.');
+  }
 }
 
 void _validateTensor(Pointer<ort.OrtTensorTypeAndShapeInfo> info,

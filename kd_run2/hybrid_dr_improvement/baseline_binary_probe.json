@@ -1,0 +1,81 @@
+{
+  "experiment": "KD epoch-40 frozen 768-D features + balanced logistic probe; any DR",
+  "classification": "grade 0 vs grades 1-4",
+  "source": "saved kd_run2/idrid_grading_eval/embeddings; no image files read",
+  "split": {
+    "train_images": 413,
+    "test_images": 103,
+    "train_positive": 279,
+    "train_negative": 134,
+    "test_positive": 69,
+    "test_negative": 34,
+    "patient_ids_available": false
+  },
+  "model": {
+    "encoder_feature_dim": 768,
+    "l2_normalized": true,
+    "scaler": "StandardScaler fit within CV folds and refit on all training rows",
+    "classifier": "LogisticRegression(class_weight='balanced')",
+    "c_grid": [
+      0.01,
+      0.1,
+      1.0
+    ],
+    "cv": "5-fold stratified on train only, shuffle=True, random_state=0",
+    "selection_metric": "ROC-AUC",
+    "selected_c": 0.01,
+    "selected_cv_auc": 0.959520202020202,
+    "decision_threshold": 0.5,
+    "threshold_selected_on_test": false
+  },
+  "test_metrics": {
+    "accuracy": 0.8155339805825242,
+    "sensitivity": 0.855072463768116,
+    "specificity": 0.7352941176470589,
+    "balanced_accuracy": 0.7951832907075874,
+    "f1_positive_dr": 0.8613138686131386,
+    "auroc": 0.8853367433930095,
+    "auprc": 0.9515660766698144,
+    "confusion_matrix_tn_fp_fn_tp": [
+      25,
+      9,
+      10,
+      59
+    ],
+    "grade_detail": {
+      "0": {
+        "n": 34,
+        "detected_at_fixed_threshold": 9,
+        "sensitivity_within_grade": null
+      },
+      "1": {
+        "n": 5,
+        "detected_at_fixed_threshold": 2,
+        "sensitivity_within_grade": 0.4
+      },
+      "2": {
+        "n": 32,
+        "detected_at_fixed_threshold": 28,
+        "sensitivity_within_grade": 0.875
+      },
+      "3": {
+        "n": 19,
+        "detected_at_fixed_threshold": 17,
+        "sensitivity_within_grade": 0.8947368421052632
+      },
+      "4": {
+        "n": 13,
+        "detected_at_fixed_threshold": 12,
+        "sensitivity_within_grade": 0.9230769230769231
+      }
+    }
+  },
+  "provenance": {
+    "features_sha256": "134edacd5f7ab083158b853ea90e786c622f13592db5ef2b3cc6de8b75605ac9",
+    "ids_sha256": "601db22ff8461d91e44fab4b62f3c6363fc6c335f5c9e0534a1d6260afeb6849",
+    "prior_scoring": "These same 103 IDRiD test images were already scored in the frozen-encoder grading report; this probe is development evidence, not independent validation.",
+    "no_deepdrid_used": true
+  },
+  "probe_fit_seconds": 0.794294399995124,
+  "interpretation": "Frozen-feature probe only; not experiment A, B, or C end-to-end fine-tuning."
+}

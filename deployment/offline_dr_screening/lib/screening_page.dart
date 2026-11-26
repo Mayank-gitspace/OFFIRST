@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'patient_store.dart';
+import 'screening_probes.dart';
 import 'screening_service.dart';
 
 class ScreeningPage extends StatefulWidget {
@@ -13,12 +15,22 @@ class ScreeningPage extends StatefulWidget {
       required this.patients,
       required this.onSaved,
       this.service,
-      this.pickImages});
+      this.pickImages,
+      this.patientKey,
+      this.modeKey,
+      this.imagesKey,
+      this.saveKey,
+      this.focusedEye});
   final ScreeningService? service;
   final Future<List<XFile>> Function(bool camera)? pickImages;
   final PatientStore store;
   final Future<List<PatientRecord>> patients;
   final VoidCallback onSaved;
+  final GlobalKey? patientKey;
+  final GlobalKey? modeKey;
+  final GlobalKey? imagesKey;
+  final GlobalKey? saveKey;
+  final Eye? focusedEye;
 
   @override
   State<ScreeningPage> createState() => _ScreeningPageState();
@@ -33,6 +45,9 @@ class _ScreeningPageState extends State<ScreeningPage> {
   String _visitId = recordId('VIS');
   String? _patientId;
   Eye _eye = Eye.right;
+  ScreeningMode _mode = ScreeningMode.severity;
+  ScreeningProbes? _probes;
+  Object? _probeError;
   String? _message;
   bool _busy = false;
 
@@ -42,7 +57,26 @@ class _ScreeningPageState extends State<ScreeningPage> {
   @override
   void initState() {
     super.initState();
+    final eye = widget.focusedEye;
+    if (eye != null) _eye = eye;
     _service.initialize().catchError((Object _) {});
+    unawaited(_loadProbes());
+  }
+
+  @override
+  void didUpdateWidget(covariant ScreeningPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final eye = widget.focusedEye;
+    if (eye != null && eye != _eye && !_busy) _eye = eye;
+  }
+
+  Future<void> _loadProbes() async {
+    try {
+      final probes = await ScreeningProbes.load();
+      if (mounted) setState(() => _probes = probes);
+    } catch (error) {
+      if (mounted) setState(() => _probeError = error);
+    }
   }
 
   Future<void> _screen(List<_PendingImage> pending) async {
@@ -59,6 +93,7 @@ class _ScreeningPageState extends State<ScreeningPage> {
               probability: result.probability,
               threshold: activeScreeningThreshold,
               modelVersion: activeScreeningModelVersion,
+              embedding: result.embedding,
             )));
       } catch (error, stack) {
         if (!mounted) break;
@@ -178,12 +213,21 @@ class _ScreeningPageState extends State<ScreeningPage> {
               child: Padding(
                 padding: EdgeInsets.all(12),
                 child: Text(
-                  'Screening is paused: this build has no validated fundus or image-quality detector. Decodable images are treated as uncertain and will not receive a DR classification.',
-                ),
+                    'Select a patient and add a retinal photograph. OFFIRST grades diabetic retinopathy on this phone. Switching screening mode reuses the saved embedding.'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            KeyedSubtree(
+              key: widget.modeKey,
+              child: ScreeningModeSelector(
+                mode: _mode,
+                onChanged: (mode) => setState(() => _mode = mode),
               ),
             ),
             const SizedBox(height: 16),
-            FutureBuilder<List<PatientRecord>>(
+            KeyedSubtree(
+              key: widget.patientKey,
+              child: FutureBuilder<List<PatientRecord>>(
               future: widget.patients,
               builder: (context, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {
@@ -213,7 +257,13 @@ class _ScreeningPageState extends State<ScreeningPage> {
                 );
               },
             ),
+            ),
             const SizedBox(height: 16),
+            KeyedSubtree(
+              key: widget.imagesKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             SegmentedButton<Eye>(
               segments: Eye.values
                   .map((eye) => ButtonSegment(
@@ -262,14 +312,13 @@ class _ScreeningPageState extends State<ScreeningPage> {
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: const Text('Camera')),
             ]),
+                ],
+              ),
+            ),
             if (_busy) const LinearProgressIndicator(),
             if (_failed.isNotEmpty) ...[
               const Text(
                   'Unscreened images — retry or remove before saving. No score was recorded for these images.'),
-              if (_failed.any((image) =>
-                  image.failure?.stage == ScreeningStage.inputValidation))
-                const Text(
-                    'Input validation is unavailable in this build. Remove these items; retry cannot enable DR classification.'),
               for (final failed in _failed)
                 ListTile(
                   title: Text('${failed.eye.code}: ${failed.failure!.message}'),
@@ -297,19 +346,25 @@ class _ScreeningPageState extends State<ScreeningPage> {
                 eye: eye,
                 images: _images.where((image) => image.eye == eye),
                 original: (image) async => File(image.path),
+                mode: _mode,
+                probes: _probes,
+                probesFailed: _probeError != null,
                 onRemove: _busy
                     ? null
                     : (image) => setState(() => _images.remove(image)),
               ),
             const SizedBox(height: 12),
-            FilledButton.tonal(
-              onPressed: _busy ||
-                      _patientId == null ||
-                      _images.isEmpty ||
-                      _failed.isNotEmpty
-                  ? null
-                  : _save,
-              child: const Text('Finalize and save visit'),
+            KeyedSubtree(
+              key: widget.saveKey,
+              child: FilledButton.tonal(
+                onPressed: _busy ||
+                        _patientId == null ||
+                        _images.isEmpty ||
+                        _failed.isNotEmpty
+                    ? null
+                    : _save,
+                child: const Text('Finalize and save visit'),
+              ),
             ),
             const Padding(
                 padding: EdgeInsets.only(top: 12),
@@ -322,16 +377,53 @@ class _ScreeningPageState extends State<ScreeningPage> {
 const screeningNotice =
     'Experimental AI screening only. A result below threshold does not rule out diabetic retinopathy. This output is not a diagnosis or a basis for treatment. Get a qualified eye-care assessment, regardless of the score.';
 
+class ScreeningModeSelector extends StatelessWidget {
+  const ScreeningModeSelector(
+      {super.key, required this.mode, required this.onChanged});
+  final ScreeningMode mode;
+  final ValueChanged<ScreeningMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Screening mode', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          SegmentedButton<ScreeningMode>(
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(
+                value: ScreeningMode.severity,
+                label: Text('DR severity'),
+              ),
+              ButtonSegment(
+                value: ScreeningMode.multidisease,
+                label: Text('Multi-disease'),
+              ),
+            ],
+            selected: {mode},
+            onSelectionChanged: (selected) => onChanged(selected.single),
+          ),
+        ],
+      );
+}
+
 class EyeResults extends StatelessWidget {
   const EyeResults(
       {super.key,
       required this.eye,
       required this.images,
       required this.original,
+      this.mode = ScreeningMode.severity,
+      this.probes,
+      this.probesFailed = false,
       this.onRemove});
   final Eye eye;
   final Iterable<ImageRecord> images;
   final Future<File> Function(ImageRecord) original;
+  final ScreeningMode mode;
+  final ScreeningProbes? probes;
+  final bool probesFailed;
   final ValueChanged<ImageRecord>? onRemove;
 
   @override
@@ -343,60 +435,241 @@ class EyeResults extends StatelessWidget {
               subtitle: Text('${images.length} screened image(s)'),
             ),
             for (final image in images)
-              ListTile(
-                leading: FutureBuilder<File>(
-                  future: original(image),
-                  builder: (context, snapshot) => snapshot.hasData
-                      ? Image(
-                          image: ResizeImage(FileImage(snapshot.data!),
-                              width: 96,
-                              height: 96,
-                              policy: ResizeImagePolicy.fit),
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.broken_image_outlined))
-                      : const Icon(Icons.image_outlined),
+              if (image.embedding == null)
+                ListTile(
+                  leading: _thumbnail(image),
+                  title: Text(
+                      '${(image.probability * 100).toStringAsFixed(1)}% DR model probability'),
+                  subtitle: Text(image.flagged
+                      ? 'At or above threshold'
+                      : 'Below threshold; DR not ruled out'),
+                  trailing: onRemove == null
+                      ? null
+                      : IconButton(
+                          tooltip: 'Remove image',
+                          onPressed: () => onRemove!(image),
+                          icon: const Icon(Icons.close),
+                        ),
+                  onTap: () => _open(context, image),
+                )
+              else
+                InkWell(
+                  onTap: () => _open(context, image),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 8, 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _thumbnail(image),
+                        const SizedBox(width: 12),
+                        Expanded(child: _score(image)),
+                        if (onRemove != null)
+                          IconButton(
+                            tooltip: 'Remove image',
+                            onPressed: () => onRemove!(image),
+                            icon: const Icon(Icons.close),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-                title: Text(
-                    '${(image.probability * 100).toStringAsFixed(1)}% DR model probability'),
-                subtitle: Text(image.flagged
-                    ? 'At or above threshold'
-                    : 'Below threshold; DR not ruled out'),
-                trailing: onRemove == null
-                    ? null
-                    : IconButton(
-                        tooltip: 'Remove image',
-                        onPressed: () => onRemove!(image),
-                        icon: const Icon(Icons.close),
-                      ),
-                onTap: () async {
-                  final file = await original(image);
-                  if (!context.mounted) return;
-                  await showDialog<void>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                            title: Text('${eye.label} image'),
-                            content: Image(
-                                image: ResizeImage(FileImage(file),
-                                    width: 1200,
-                                    height: 1200,
-                                    policy: ResizeImagePolicy.fit),
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) =>
-                                    const Text('Original image unavailable.')),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Close'))
-                            ],
-                          ));
-                },
-              ),
           ],
         ),
       );
+
+  Future<void> _open(BuildContext context, ImageRecord image) async {
+    final file = await original(image);
+    if (!context.mounted) return;
+    await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text('${eye.label} image'),
+              content: Image(
+                  image: ResizeImage(FileImage(file),
+                      width: 1200, height: 1200, policy: ResizeImagePolicy.fit),
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) =>
+                      const Text('Original image unavailable.')),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'))
+              ],
+            ));
+  }
+
+  Widget _thumbnail(ImageRecord image) => FutureBuilder<File>(
+        future: original(image),
+        builder: (context, snapshot) => snapshot.hasData
+            ? Image(
+                image: ResizeImage(FileImage(snapshot.data!),
+                    width: 96, height: 96, policy: ResizeImagePolicy.fit),
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    const Icon(Icons.broken_image_outlined))
+            : const Icon(Icons.image_outlined),
+      );
+
+  Widget _score(ImageRecord image) {
+    final embedding = image.embedding;
+    if (embedding == null) {
+      return const SizedBox.shrink();
+    }
+    final probes = this.probes;
+    if (probes == null) {
+      return Text(probesFailed
+          ? 'Grading heads could not be loaded.'
+          : 'Grading heads are loading.');
+    }
+    try {
+      if (mode == ScreeningMode.severity) {
+        return _SeverityGradeView(grade: probes.severity(embedding));
+      }
+      final report = probes.multiDisease(embedding);
+      return _DiseaseGradeList(
+          summary: report.summary, grades: report.diseases);
+    } catch (_) {
+      return const Text('Stored embedding could not be graded.');
+    }
+  }
+}
+
+class _SeverityGradeView extends StatelessWidget {
+  const _SeverityGradeView({required this.grade});
+  final SeverityGrade grade;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              GradeBadge(label: grade.label, color: grade.color),
+              Text(
+                  'Confidence ${(grade.confidence * 100).toStringAsFixed(1)}%'),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (var index = 0; index < grade.labels.length; index++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 84,
+                    child: Text(grade.labels[index],
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ),
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: grade.probabilities[index],
+                      minHeight: 8,
+                      color: grade.colors[index],
+                      backgroundColor:
+                          grade.colors[index].withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 52,
+                    child: Text(
+                      '${(grade.probabilities[index] * 100).toStringAsFixed(1)}%',
+                      textAlign: TextAlign.end,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Text(
+              'Any DR risk ${(grade.anyDrRisk * 100).toStringAsFixed(1)}%'),
+        ],
+      );
+}
+
+class _DiseaseGradeList extends StatelessWidget {
+  const _DiseaseGradeList({required this.summary, required this.grades});
+  final DiseaseGrade summary;
+  final List<DiseaseGrade> grades;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GradeBadge(label: summary.label, color: summary.color),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(summary.name),
+                    Text(
+                      '${(summary.risk * 100).toStringAsFixed(1)}%',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Divider(),
+          for (final disease in grades)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GradeBadge(label: disease.label, color: disease.color),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(disease.name),
+                        Text(
+                          disease.usesSeverityHead
+                              ? 'Any DR risk ${(disease.risk * 100).toStringAsFixed(1)}% · same 4-class grade'
+                              : '${(disease.risk * 100).toStringAsFixed(1)}%',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      );
+}
+
+class GradeBadge extends StatelessWidget {
+  const GradeBadge({super.key, required this.label, required this.color});
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = color.computeLuminance() > 0.45
+        ? const Color(0xFF111111)
+        : const Color(0xFFFFFFFF);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(label,
+          style: TextStyle(color: foreground, fontWeight: FontWeight.w700)),
+    );
+  }
 }
 
 class _PendingImage {

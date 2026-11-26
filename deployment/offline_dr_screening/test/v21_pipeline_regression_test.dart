@@ -21,6 +21,16 @@ class CaptureStore extends PatientStore {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('a non-fundus preprocess error stays an input rejection', () {
+    final failure = failureForPrepare(PlatformException(
+      code: 'not_fundus',
+      message: r'C:\private\patient.jpg',
+    ));
+    expect(failure.stage, ScreeningStage.inputValidation);
+    expect(failure.message, notFundusMessage);
+    expect(failure.message, isNot(contains('private')));
+  });
+
   test('real method codec payload is unaligned; decoder preserves every float',
       () {
     const count = 3 * 512 * 512;
@@ -212,7 +222,7 @@ void main() {
     expect(store.saved!.forEye(Eye.left), isEmpty);
   });
 
-  testWidgets('uncertain input has no retry action or saved negative result',
+  testWidgets('a screened image records the classifier score and can be saved',
       (tester) async {
     tester.view.physicalSize = const Size(900, 2000);
     tester.view.devicePixelRatio = 1;
@@ -220,10 +230,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final service = ScreeningService.forTesting(
       initializeModel: () async {},
-      runPrediction: (_) async => throw const ScreeningFailure(
-        ScreeningStage.inputValidation,
-        'Image status is uncertain. No DR classification was run.',
-      ),
+      runPrediction: (_) async => const ScreeningResult(.2),
     );
     addTearDown(service.dispose);
     final store = CaptureStore();
@@ -235,26 +242,73 @@ void main() {
       onSaved: () {},
       patients: Future.value([
         PatientRecord(
-            id: 'OFF-UNCERTAIN',
+            id: 'OFF-SCREEN',
             name: 'Synthetic',
             createdAt: DateTime.utc(2026))
       ]),
-      pickImages: (_) async => [XFile('uncertain.png')],
+      pickImages: (_) async => [XFile('fundus.png')],
     ))));
     await tester.pumpAndSettle();
+    expect(find.text('Research Demonstration Mode'), findsNothing);
+    expect(find.textContaining('fundus detector'), findsNothing);
     await tester.tap(find.byType(DropdownButtonFormField<String>));
     await tester.pumpAndSettle();
-    await tester.tap(find.textContaining('OFF-UNCERTAIN').last);
+    await tester.tap(find.textContaining('OFF-SCREEN').last);
     await tester.pumpAndSettle();
     final add = find.widgetWithText(FilledButton, 'Add fundus images');
     await tester.tap(add);
     await tester.pumpAndSettle();
 
-    expect(
-        find.textContaining('Input validation is unavailable'), findsOneWidget);
-    expect(find.text('Retry failed images'), findsNothing);
+    expect(find.textContaining('20.0% DR model probability'), findsOneWidget);
+    expect(find.textContaining('Below threshold'), findsOneWidget);
     final save = find.widgetWithText(FilledButton, 'Finalize and save visit');
     await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(store.saved, isNotNull);
+    expect(store.saved!.researchDemonstration, isFalse);
+    expect(store.saved!.images.single.probability, .2);
+    expect(store.saved!.images.single.threshold, activeScreeningThreshold);
+  });
+
+  testWidgets('a non-fundus photo is rejected and is not retried',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final service = ScreeningService.forTesting(
+      initializeModel: () async {},
+      runPrediction: (_) async => throw const ScreeningFailure(
+          ScreeningStage.inputValidation, notFundusMessage),
+    );
+    addTearDown(service.dispose);
+    final store = CaptureStore();
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: ScreeningPage(
+      store: store,
+      service: service,
+      onSaved: () {},
+      patients: Future.value([
+        PatientRecord(
+            id: 'OFF-PHOTO',
+            name: 'Synthetic',
+            createdAt: DateTime.utc(2026))
+      ]),
+      pickImages: (_) async => [XFile('room.jpg')],
+    ))));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('OFF-PHOTO').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Add fundus images'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining(notFundusMessage), findsOneWidget);
+    expect(find.text('Retry failed images'), findsNothing);
+    expect(find.textContaining('DR model probability'), findsNothing);
+    final save = find.widgetWithText(FilledButton, 'Finalize and save visit');
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
     expect(store.saved, isNull);
   });

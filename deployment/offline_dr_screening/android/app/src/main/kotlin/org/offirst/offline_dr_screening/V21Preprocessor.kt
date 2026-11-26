@@ -7,6 +7,7 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.math.abs
 
 class ImagePipelineFailure(val stage: String, message: String) : Exception(message)
 
@@ -57,6 +58,7 @@ object V21Preprocessor {
             Imgproc.threshold(maxChannel, mask, 15.0, 1.0, Imgproc.THRESH_BINARY)
             val kernel = own(Mat.ones(5, 5, CvType.CV_8U))
             Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel)
+            requireFundusField(maxChannel)
             if (Core.countNonZero(mask) >= 100) {
                 val points = own(MatOfPoint())
                 Core.findNonZero(mask, points)
@@ -101,4 +103,72 @@ object V21Preprocessor {
             owned.asReversed().forEach { it.release() }
         }
     }
+
+    /**
+     * Rejects a photo that has no retinal disc. The surround is measured from
+     * the corners, so a gray camera border still passes. One labeled corner is
+     * allowed. This does not change the crop mask, so an accepted image keeps
+     * the frozen tensor.
+     */
+    private fun requireFundusField(maxChannel: Mat) {
+        val owned = ArrayList<Mat>()
+        fun <T : Mat> own(mat: T): T {
+            owned.add(mat)
+            return mat
+        }
+        try {
+            val height = maxChannel.rows()
+            val width = maxChannel.cols()
+            val pixels = height.toLong() * width
+            if (pixels <= 0L) throw notFundus()
+            val shorter = minOf(height, width)
+            val patch = maxOf(1, minOf(shorter / 2, maxOf(1, shorter / 28)))
+            val cornerMeans = ArrayList<Double>(4)
+            for ((x, y) in listOf(
+                0 to 0,
+                width - patch to 0,
+                0 to height - patch,
+                width - patch to height - patch,
+            )) {
+                val roi = own(Mat(maxChannel, Rect(x, y, patch, patch)))
+                cornerMeans.add(Core.mean(roi).`val`[0])
+            }
+            val sorted = cornerMeans.sorted()
+            val surround = (sorted[1] + sorted[2]) / 2.0
+            val darkCorners = cornerMeans.count { it <= 110.0 }
+            val gate = own(Mat())
+            Imgproc.threshold(
+                maxChannel, gate, maxOf(18.0, surround + 8.0), 1.0, Imgproc.THRESH_BINARY)
+            val kernel = own(Mat.ones(5, 5, CvType.CV_8U))
+            Imgproc.morphologyEx(gate, gate, Imgproc.MORPH_OPEN, kernel)
+            val foreground = Core.countNonZero(gate)
+            val fraction = foreground.toDouble() / pixels
+            val interior = if (foreground > 0) Core.mean(maxChannel, gate).`val`[0] else 0.0
+            val moments = Imgproc.moments(gate, true)
+            val centered = moments.m00 > 0.0 &&
+                abs(moments.m10 / moments.m00 - width / 2.0) / width <= 0.34 &&
+                abs(moments.m01 / moments.m00 - height / 2.0) / height <= 0.34
+            val labels = own(Mat())
+            val stats = own(Mat())
+            val centroids = own(Mat())
+            val components = Imgproc.connectedComponentsWithStats(
+                gate, labels, stats, centroids, 8, CvType.CV_32S)
+            var largest = 0
+            for (label in 1 until components) {
+                largest = maxOf(largest, stats.get(label, Imgproc.CC_STAT_AREA)[0].toInt())
+            }
+            val dominant = foreground > 0 && largest.toDouble() / foreground >= 0.55
+            if (darkCorners < 3 || fraction !in 0.07..0.97 || interior < surround + 12.0 ||
+                !centered || !dominant) {
+                throw notFundus()
+            }
+        } finally {
+            owned.asReversed().forEach { it.release() }
+        }
+    }
+
+    private fun notFundus() = ImagePipelineFailure(
+        "not_fundus",
+        "This image does not look like a fundus photograph. Choose a retinal image.",
+    )
 }

@@ -1,25 +1,19 @@
 {
-  "threshold": 0.3675977844516245,
+  "threshold": 0.524373471736908,
   "positive_when": "dr_probability >= threshold",
-  "output_positive": "DR (IDRiD grades 1-4, RFMiD DR=1)",
-  "platt_slope": 0.5428962637583218,
-  "platt_intercept": -0.49103461599559345,
+  "output_positive": "binary DR",
   "selected_head": {
-    "kind": "mlp",
-    "regularization": 0.1,
-    "class_weight": null,
-    "status": "ok",
-    "reason": "",
-    "calibration": "Platt",
-    "threshold": 0.3675977844516245,
-    "gate_ratio": 0.9864406779661017,
-    "early_stop_epoch": 1,
-    "stopped_after": 19,
-    "accuracy": 0.8493150684931506,
-    "sensitivity": 0.8709677419354839,
-    "specificity": 0.8333333333333334,
-    "auroc": 0.9414362519201228,
-    "auprc": 0.9419072433425778
+    "kind": "linear",
+    "name": "head_balanced",
+    "source": "heads/kd768_lp_dr_rfmid_odir_aptos.json",
+    "weights": "w_folded",
+    "bias": "b_folded",
+    "hidden_units": 0,
+    "activation": "sigmoid",
+    "scaler": "folded into the Gemm weights; no StandardScaler node",
+    "calibration": "none",
+    "threshold": 0.524373471736908,
+    "threshold_field": "threshold_youden_cv"
   },
   "use": "development only"
 }

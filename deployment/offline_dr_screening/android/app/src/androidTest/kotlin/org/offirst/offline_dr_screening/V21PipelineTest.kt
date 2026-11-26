@@ -9,6 +9,12 @@ import org.junit.runner.RunWith
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.CvType
 import org.opencv.core.Mat
+import org.opencv.core.MatOfByte
+import org.opencv.core.Point
+import org.opencv.core.Scalar
+import org.opencv.core.Size
+import org.opencv.imgcodecs.Imgcodecs
+import org.opencv.imgproc.Imgproc
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.GZIPInputStream
@@ -33,6 +39,59 @@ class V21PipelineTest {
             byteArrayOf(0xff.toByte(),0xd8.toByte(),0xff.toByte(),0xd9.toByte()) to "image_decode")) {
             try { V21Preprocessor.prepare(bytes); fail("Expected image rejection") }
             catch (error: ImagePipelineFailure) { assertEquals(stage, error.stage) }
+        }
+    }
+
+    @Test fun retinalDiscPassesAndOrdinaryPhotosAreRejected() {
+        assertTrue(OpenCVLoader.initLocal())
+        for (encoded in listOf(
+            jpeg(1024, 768) { image ->
+                Imgproc.ellipse(image, Point(512.0, 384.0), Size(384.0, 307.2),
+                    0.0, 0.0, 360.0, Scalar(35.0, 65.0, 145.0), -1)
+            },
+            jpeg(1024, 768) { image ->
+                image.setTo(Scalar(70.0, 70.0, 70.0))
+                Imgproc.circle(image, Point(512.0, 384.0), 320, Scalar(40.0, 80.0, 160.0), -1)
+            },
+            jpeg(1000, 1000) { image ->
+                Imgproc.circle(image, Point(500.0, 500.0), 490, Scalar(30.0, 60.0, 140.0), -1)
+            },
+            jpeg(1024, 768) { image ->
+                Imgproc.circle(image, Point(512.0, 384.0), 340, Scalar(40.0, 80.0, 160.0), -1)
+                Imgproc.rectangle(image, Point(0.0, 0.0), Point(70.0, 36.0), Scalar(240.0, 240.0, 240.0), -1)
+            },
+        )) {
+            assertEquals(3 * 512 * 512 * 4, V21Preprocessor.prepare(encoded).size)
+        }
+        for (encoded in listOf(
+            jpeg(640, 480) { it.setTo(Scalar(60.0, 100.0, 180.0)) },
+            jpeg(800, 600) { it.setTo(Scalar(245.0, 245.0, 245.0)) },
+            jpeg(1024, 768) {
+                Imgproc.circle(it, Point(512.0, 384.0), 12, Scalar(40.0, 80.0, 200.0), -1)
+            },
+            jpeg(1024, 768) {
+                Imgproc.circle(it, Point(180.0, 140.0), 120, Scalar(40.0, 70.0, 160.0), -1)
+            },
+        )) {
+            try {
+                V21Preprocessor.prepare(encoded)
+                fail("Expected a non-fundus image to be rejected")
+            } catch (error: ImagePipelineFailure) {
+                assertEquals("not_fundus", error.stage)
+            }
+        }
+    }
+
+    private fun jpeg(width: Int, height: Int, draw: (Mat) -> Unit): ByteArray {
+        val image = Mat(height, width, CvType.CV_8UC3, Scalar(0.0, 0.0, 0.0))
+        val encoded = MatOfByte()
+        try {
+            draw(image)
+            assertTrue(Imgcodecs.imencode(".jpg", image, encoded))
+            return encoded.toArray()
+        } finally {
+            image.release()
+            encoded.release()
         }
     }
 

@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "build/v21-fixtures"
 MODEL = ROOT / "assets/offirst_v2_1_experimental.onnx"
-MODEL_SHA = "43a87f05df7adc6a231a679721e7f0b11b45a3fe6d1582aa4527ed738fa63b3f"
+MODEL_SHA = "b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b"
 MEAN = np.array([.485, .456, .406], np.float32)
 STD = np.array([.229, .224, .225], np.float32)
 
@@ -82,7 +82,7 @@ def main():
         (OUT/(path.name+'.f32.gz')).write_bytes(gzip.compress(tensor_bytes,mtime=0))
         rows.append(dict(name=path.name,image_sha256=hashlib.sha256(raw).hexdigest(),
             tensor_sha256=hashlib.sha256(tensor_bytes).hexdigest(),probability=probability,
-            threshold=0.3675977844516245,at_or_above=probability>=0.3675977844516245))
+            threshold=0.524373471736908,at_or_above=probability>=0.524373471736908))
     result=dict(synthetic=True,model_sha256=MODEL_SHA,opencv=cv2.__version__,onnxruntime=ort.__version__,
                 input='fundus_image float32 [1,3,512,512]',output='dr_probability float32 [1,1]',fixtures=rows)
     (OUT/'manifest.json').write_text(json.dumps(result,indent=2)+'\n')

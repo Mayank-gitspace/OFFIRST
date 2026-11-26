@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:offirst_dr_screening/main.dart';
+import 'package:offirst_dr_screening/onboarding_tour.dart';
 import 'package:offirst_dr_screening/patient_store.dart';
 import 'package:offirst_dr_screening/screening_service.dart';
 
@@ -14,6 +15,7 @@ void main() {
       (tester) async {
     await tester.pumpWidget(OffirstScreeningApp(
         store: _EmptyStore(),
+        onboarding: MemoryOnboardingStore(complete: true),
         screeningService: ScreeningService.forTesting(
             initializeModel: () async {},
             runPrediction: (_) async => const ScreeningResult(.1))));

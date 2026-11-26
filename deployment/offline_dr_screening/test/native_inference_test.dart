@@ -77,23 +77,20 @@ void main() {
     }
   }, skip: noServiceNative);
 
-  test(
-      'production service fails closed for decodable images without a detector',
-      () async {
-    _mockV21DecoderChannel();
-    final folder = Directory.systemTemp.createTempSync('offirst-input-gate-');
-    addTearDown(() => folder.deleteSync(recursive: true));
-    final valid = File('${folder.path}/valid.png')
-      ..writeAsBytesSync(img.encodePng(img.Image(width: 32, height: 32)));
-    final service = ScreeningService();
-    addTearDown(service.dispose);
-    await expectLater(
-      service.predict(valid),
-      throwsA(isA<ScreeningFailure>().having(
-          (failure) => failure.stage, 'stage', ScreeningStage.inputValidation)),
+  test('a decodable image is sent to the classifier', () async {
+    var predictions = 0;
+    final service = ScreeningService.forTesting(
+      initializeModel: () async {},
+      runPrediction: (_) async {
+        predictions++;
+        return const ScreeningResult(.2);
+      },
     );
-    expect(service.readiness, ModelReadiness.initializing,
-        reason: 'Unvalidated images must be rejected before model loading.');
+    addTearDown(service.dispose);
+    final result = await service.predict(File('fundus.png'));
+    expect(result.probability, .2);
+    expect(result.detected, isFalse);
+    expect(predictions, 1);
   });
 
   test('production service rejects corrupted image bytes before classification',
@@ -122,12 +119,16 @@ void main() {
       session.release();
       options.release();
     });
-    validateModelContract(session);
+    validateModelContract(session, requireEmbedding: useExperimentalV21);
     final tensor = OrtValueTensor.createTensorWithDataList(
         Float32List(3 * 512 * 512), modelInputShape);
     final runOptions = OrtRunOptions();
-    final outputs =
-        session.run(runOptions, {modelInput: tensor}, [modelOutput]);
+    final outputs = session.run(
+        runOptions,
+        {modelInput: tensor},
+        useExperimentalV21
+            ? const [modelOutput, modelEmbeddingOutput]
+            : const [modelOutput]);
     addTearDown(() {
       for (final output in outputs) {
         output?.release();
@@ -135,8 +136,13 @@ void main() {
       tensor.release();
       runOptions.release();
     });
-    final probability = readModelProbability(outputs.single as OrtValueTensor);
+    final probability = readModelProbability(outputs[0] as OrtValueTensor);
     expect(probability, inInclusiveRange(0.0, 1.0));
+    if (useExperimentalV21) {
+      final embedding = readEmbedding(outputs[1] as OrtValueTensor);
+      expect(embedding, hasLength(768));
+      assertL2Normalized(embedding);
+    }
   }, skip: noNative);
 
   test('uses the configured threshold at, below and above its boundary', () {
@@ -171,6 +177,8 @@ void main() {
       });
       final result = await service.predict(file);
       expect(result.probability, closeTo(row['probability'] as num, 1e-5));
+      expect(result.embedding, hasLength(768));
+      assertL2Normalized(result.embedding!);
       expect(result.detected, row['at_or_above']);
       expect(service.readiness, ModelReadiness.ready);
     }
