@@ -23,8 +23,12 @@ FIELDS = [
     "dr_label", "modality", "gradability", "quality_issue", "validation_outcome",
     "quality_outcome", "probability", "decision", "model_version",
     "threshold", "platform", "network_mode", "case_review", "run_id", "repeat_index",
+    "patient_eye_status",
 ]
 TOLERANCE = 1e-5
+DEFAULT_MINIMUMS = {"unique_patients": 30, "positive_patients": 15, "negative_patients": 15,
+                    "sites": 2, "devices": 2, "gradable_images": 30,
+                    "ungradable_images": 1}
 
 
 def fail(message: str) -> None:
@@ -72,7 +76,13 @@ def wilson(successes: int, total: int, z: float = 1.959963984540054) -> list[flo
 def rows_for(path: Path, root: Path, check_hashes: bool) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8-sig") as stream:
         reader = csv.DictReader(stream)
-        missing = set(FIELDS) - set(reader.fieldnames or [])
+        headers = reader.fieldnames or []
+        if len(headers) != len(set(headers)):
+            fail("manifest contains duplicate column names")
+        unknown = set(headers) - set(FIELDS)
+        if unknown:
+            fail("manifest has unknown columns: " + ", ".join(sorted(unknown)))
+        missing = set(FIELDS) - set(headers)
         if missing:
             fail("manifest missing columns: " + ", ".join(sorted(missing)))
         rows = list(reader)
@@ -82,7 +92,12 @@ def rows_for(path: Path, root: Path, check_hashes: bool) -> list[dict[str, str]]
     seen: dict[tuple[str, str], str] = {}
     digest_owner: dict[str, tuple[str, str]] = {}
     repeat_keys: set[tuple[str, str, str, str]] = set()
+    patient_partition: dict[str, str] = {}
+    sample_owner: dict[str, tuple[str, str]] = {}
+    sample_identity: dict[str, tuple[str, ...]] = {}
     for row in rows:
+        if None in row:
+            fail("manifest contains a row with more values than header columns")
         for key in FIELDS:
             row[key] = (row.get(key) or "").strip()
         sample, part = row["sample_id"], row["partition"]
@@ -92,6 +107,10 @@ def rows_for(path: Path, root: Path, check_hashes: bool) -> list[dict[str, str]]
         digest = row["image_sha256"].lower()
         if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
             fail(f"{sample}: image_sha256 must be a SHA-256 hex digest")
+        row["image_sha256"] = digest
+        row["tensor_sha256"] = row["tensor_sha256"].lower()
+        if not row["dataset"] or not row["site_group"]:
+            fail(f"{sample}: dataset and site_group are required")
         if key in seen and seen[key] != digest:
             fail(f"{sample}: repeated rows have different image hashes")
         seen[key] = digest
@@ -112,10 +131,27 @@ def rows_for(path: Path, root: Path, check_hashes: bool) -> list[dict[str, str]]
             fail(f"{sample}: ungradable fundus needs a documented quality issue")
         if row["modality"] == "fundus" and row["gradability"] == "gradable" and row["quality_issue"] != "none":
             fail(f"{sample}: gradable fundus must use quality_issue=none")
+        if row["modality"] == "fundus" and row["gradability"] == "gradable" and row["dr_severity"] in {"", "unspecified", "not_applicable"}:
+            fail(f"{sample}: gradable fundus requires adjudicated dr_severity")
         if row["dr_label"] not in {"positive", "negative", "not_applicable"}:
             fail(f"{sample}: invalid dr_label")
-        if row["partition"] == "test" and not row["patient_group_id"]:
-            fail(f"{sample}: test rows require a pseudonymous patient_group_id for CIs")
+        if row["partition"] in {"validation", "test"} and not row["patient_group_id"]:
+            fail(f"{sample}: all validation/test rows require a pseudonymous patient_group_id")
+        patient = row["patient_group_id"]
+        previous_partition = patient_partition.setdefault(patient, part)
+        if previous_partition != part:
+            fail(f"patient_group_id {patient} appears in both validation and test")
+        owner = sample_owner.setdefault(sample, (part, patient))
+        if owner != (part, patient):
+            fail(f"sample_id {sample} crosses partitions or patient groups")
+        identity_fields = ("image_sha256", "dataset", "site_group", "eye", "dr_severity", "dr_label",
+                           "modality", "gradability", "quality_issue", "patient_eye_status")
+        identity = tuple(row[field] for field in identity_fields)
+        previous_identity = sample_identity.setdefault(sample, identity)
+        if previous_identity != identity:
+            fail(f"{sample}: metadata differs across platforms or repeated rows")
+        if row["patient_eye_status"] not in {"bilateral", "unilateral", "missing_eye_record", "unknown"}:
+            fail(f"{sample}: invalid patient_eye_status")
         if row["decision"] not in {"positive", "negative", "not_classified", "error"}:
             fail(f"{sample}: invalid decision")
         if row["platform"] not in {"python", "android"}:
@@ -159,6 +195,8 @@ def rows_for(path: Path, root: Path, check_hashes: bool) -> list[dict[str, str]]
             expected = "positive" if score >= number(row, "threshold") else "negative"
             if row["decision"] != expected:
                 fail(f"{sample}: decision does not match probability >= recorded threshold")
+        elif row["decision"] in {"positive", "negative"}:
+            fail(f"{sample}: classified decision requires a model probability")
         if row["threshold"]:
             threshold = number(row, "threshold")
             if not 0 <= threshold <= 1:
@@ -168,6 +206,23 @@ def rows_for(path: Path, root: Path, check_hashes: bool) -> list[dict[str, str]]
         tensor_hash = row["tensor_sha256"].lower()
         if row["probability"] and (len(tensor_hash) != 64 or any(c not in "0123456789abcdef" for c in tensor_hash)):
             fail(f"{sample}: scored rows require a preprocessed tensor SHA-256")
+    # A patient's eye availability is a patient-level adjudication, repeated
+    # consistently on each image/run; bilateral declarations require both eyes.
+    by_patient: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for row in rows:
+        by_patient[row["patient_group_id"]].append(row)
+    for patient, patient_rows in by_patient.items():
+        statuses = {row["patient_eye_status"] for row in patient_rows}
+        if len(statuses) != 1:
+            fail(f"{patient}: patient_eye_status differs across records")
+        eyes = {row["eye"] for row in patient_rows if row["eye"] in {"OD", "OS"}}
+        status = next(iter(statuses))
+        if status == "bilateral" and eyes != {"OD", "OS"}:
+            fail(f"{patient}: bilateral status requires OD and OS records")
+        if status == "unilateral" and len(eyes) != 1:
+            fail(f"{patient}: unilateral status requires exactly one documented eye")
+        # missing_eye_record means at least one expected eye record is absent;
+        # the available eye may still be documented. The status is explicit.
     return rows
 
 
@@ -194,6 +249,7 @@ def audit_input(rows: list[dict[str, str]]) -> dict[str, object]:
                 failures.append(r["sample_id"])
             counts["non_fundus_correctly_rejected"] += int(good)
         elif r["gradability"] == "ungradable":
+            counts["ungradable_fundus_n"] += 1
             good = r["dr_label"] == "not_applicable" and r["validation_outcome"] == "accept" and r["quality_outcome"] == "retake" and not r["probability"] and r["decision"] == "not_classified"
             if not good:
                 failures.append(r["sample_id"])
@@ -287,36 +343,16 @@ def classification(rows: list[dict[str, str]], threshold: float, groups: set[str
     }
 
 
-def bootstrap_auc(rows: list[dict[str, str]], reps: int, seed: int) -> list[float] | None:
-    patients: dict[str, list[tuple[float, int]]] = defaultdict(list)
-    for r in rows:
-        if r["modality"] == "fundus" and r["gradability"] == "gradable" and r["validation_outcome"] == "accept" and r["quality_outcome"] == "gradable" and r["probability"] and r["decision"] in {"positive", "negative"}:
-            patients[r["patient_group_id"]].append((number(r, "probability"), int(r["dr_label"] == "positive")))
-    ids = sorted(patients)
-    if len(ids) < 2:
-        return None
-    rng = random.Random(seed)
-    values = []
-    for _ in range(reps):
-        sample = [rng.choice(ids) for _ in ids]
-        paired = [item for patient in sample for item in patients[patient]]
-        value = auc(paired)
-        if value is not None:
-            values.append(value)
-    if not values:
-        return None
-    values.sort()
-    return [values[int(0.025 * (len(values) - 1))], values[int(0.975 * (len(values) - 1))]]
-
-
-def bootstrap_metric_intervals(rows: list[dict[str, str]], threshold: float, reps: int, seed: int) -> dict[str, list[float] | None]:
+def bootstrap_metric_intervals(rows: list[dict[str, str]], threshold: float, reps: int, seed: int) -> dict[str, object]:
     patients: dict[str, list[dict[str, str]]] = defaultdict(list)
     for row in rows:
         patients[row["patient_group_id"]].append(row)
-    ids = sorted(patients)
+    ids = sorted(patient for patient, group in patients.items()
+                 if any(r["modality"] == "fundus" and r["gradability"] == "gradable" for r in group))
     values: dict[str, list[float]] = {name: [] for name in ("accuracy", "sensitivity", "specificity", "auroc_scored_cases_only")}
+    valid_replicates: Counter[str] = Counter()
     if len(ids) < 2:
-        return {name: None for name in values}
+        return {**{name: None for name in values}, "valid_replicates": {name: 0 for name in values}, "patient_clusters": len(ids)}
     rng = random.Random(seed + 1)
     for _ in range(reps):
         sample = [row for patient in (rng.choice(ids) for _ in ids) for row in patients[patient]]
@@ -325,11 +361,53 @@ def bootstrap_metric_intervals(rows: list[dict[str, str]], threshold: float, rep
             value = metrics[name]
             if value is not None:
                 values[name].append(value)
-    result: dict[str, list[float] | None] = {}
+                valid_replicates[name] += 1
+    result: dict[str, object] = {}
     for name, data in values.items():
         data.sort()
-        result[name] = [data[int(0.025 * (len(data) - 1))], data[int(0.975 * (len(data) - 1))]] if data else None
+        # Do not condition on draws that omit a class: any invalid draw makes
+        # that metric interval unavailable. Constant bootstrap distributions
+        # (notably all-correct/all-wrong boundary cases) are degenerate and do
+        # not provide a defensible uncertainty interval; fail closed instead.
+        result[name] = percentile_interval(data) if len(data) == reps and len(set(data)) > 1 else None
+    result["valid_replicates"] = {name: valid_replicates[name] for name in values}
+    result["patient_clusters"] = len(ids)
     return result
+
+
+def percentile_interval(values: list[float]) -> list[float] | None:
+    if not values:
+        return None
+    def quantile(p: float) -> float:
+        pos = (len(values) - 1) * p
+        lo = int(math.floor(pos)); hi = int(math.ceil(pos))
+        return values[lo] + (values[hi] - values[lo]) * (pos - lo)
+    return [quantile(0.025), quantile(0.975)]
+
+
+def cohort_counts(rows: list[dict[str, str]]) -> dict[str, int]:
+    images = {r["sample_id"]: r for r in rows if r["platform"] == "android" and r["repeat_index"] == "1"}
+    by_patient: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for row in images.values():
+        by_patient[row["patient_group_id"]].append(row)
+    positive_patients = sum(any(r["modality"] == "fundus" and r["gradability"] == "gradable" and r["dr_label"] == "positive" for r in group) for group in by_patient.values())
+    negative_patients = sum(any(r["modality"] == "fundus" and r["gradability"] == "gradable" and r["dr_label"] == "negative" for r in group) for group in by_patient.values())
+    gradable = [r for r in images.values() if r["modality"] == "fundus" and r["gradability"] == "gradable"]
+    ungradable = [r for r in images.values() if r["modality"] == "fundus" and r["gradability"] == "ungradable"]
+    bilateral = unilateral = missing_eye = unknown_eye = 0
+    for group in by_patient.values():
+        status = group[0]["patient_eye_status"]
+        if status == "bilateral": bilateral += 1
+        elif status == "unilateral": unilateral += 1
+        elif status == "missing_eye_record": missing_eye += 1
+        else: unknown_eye += 1
+    return {"unique_patients": len(by_patient), "positive_patients": positive_patients,
+            "negative_patients": negative_patients, "images": len(images),
+            "sites": len({r["site_group"] for r in images.values() if r["site_group"]}),
+            "devices": len({r["device_group"] for r in images.values() if r["device_group"]}),
+            "gradable_images": len(gradable), "ungradable_images": len(ungradable),
+            "bilateral_patients": bilateral, "unilateral_patients": unilateral,
+            "missing_eye_records": missing_eye, "unknown_eye_status": unknown_eye}
 
 
 def determinism(rows: list[dict[str, str]]) -> dict[str, object]:
@@ -368,9 +446,13 @@ def main() -> int:
     parser.add_argument("--check-image-hashes", action="store_true")
     parser.add_argument("--bootstrap-reps", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=20261126)
+    parser.add_argument("--external-site-evaluation", action="store_true", help="require validation/test sites to be disjoint")
+    for name, default in DEFAULT_MINIMUMS.items():
+        parser.add_argument(f"--min-{name.replace('_', '-')}", type=int, default=default)
     args = parser.parse_args()
-    if not 0 <= args.locked_threshold <= 1 or args.bootstrap_reps < 100:
-        parser.error("threshold must be in [0,1] and bootstrap reps at least 100")
+    if (not 0 <= args.locked_threshold <= 1 or args.bootstrap_reps < 100
+            or any(getattr(args, f"min_{key}") < default for key, default in DEFAULT_MINIMUMS.items())):
+        parser.error("threshold must be in [0,1], bootstrap reps at least 100, and minimums cannot be lowered below protocol defaults")
     try:
         all_rows = rows_for(args.manifest, args.image_root.resolve(), args.check_image_hashes)
         versions = {r["model_version"] for r in all_rows}
@@ -382,9 +464,14 @@ def main() -> int:
         validation_python = primary_rows(all_rows, "validation", "python")
         if not test or not validation:
             fail("both validation and untouched test partitions are required")
-        for r in (row for row in all_rows if row["partition"] == "test"):
+        for r in all_rows:
             if abs(number(r, "threshold") - args.locked_threshold) > 1e-15:
-                fail(f"{r['sample_id']}: test threshold differs from the prelocked threshold")
+                fail(f"{r['sample_id']}: {r['partition']} threshold differs from the predeclared threshold")
+        if args.external_site_evaluation:
+            val_sites = {r["site_group"] for r in all_rows if r["partition"] == "validation" and r["site_group"]}
+            test_sites = {r["site_group"] for r in all_rows if r["partition"] == "test" and r["site_group"]}
+            if not val_sites or not test_sites or val_sites & test_sites:
+                fail("external-site protocol requires non-empty, disjoint validation and test site groups")
         # Repeated runs for one image must preserve its partition and labels.
         for partition in ("validation", "test"):
             for rows in (r for r in all_rows if r["partition"] == partition):
@@ -409,14 +496,18 @@ def main() -> int:
             "test_python_input_audit": audit_input(test_python),
             "validation_metrics_descriptive_only": classification(validation, args.locked_threshold),
             "test_metrics": classification(test, args.locked_threshold),
-            "test_auroc_patient_bootstrap_95ci": bootstrap_auc(test, args.bootstrap_reps, args.seed),
+            "validation_cohort_counts": cohort_counts(validation),
+            "test_cohort_counts": cohort_counts(test),
             "test_patient_bootstrap_95ci": bootstrap_metric_intervals(test, args.locked_threshold, args.bootstrap_reps, args.seed),
             "test_subgroups": {key: classification(group, args.locked_threshold) for key, group in sorted(test_groups.items())},
             "determinism_test_partition": determinism([r for r in all_rows if r["partition"] == "test"]),
         }
+        report["test_auroc_patient_bootstrap_95ci"] = report["test_patient_bootstrap_95ci"]["auroc_scored_cases_only"]
         parity: dict[str, list[dict[str, str]]] = defaultdict(list)
         for r in all_rows:
-            if r["partition"] == "test" and r["repeat_index"] == "1" and r["probability"]:
+            should_score = (r["modality"] == "fundus" and r["gradability"] == "gradable"
+                            and r["validation_outcome"] == "accept" and r["quality_outcome"] == "gradable")
+            if r["partition"] == "test" and r["repeat_index"] == "1" and should_score:
                 parity[r["sample_id"]].append(r)
         parity_deltas = []
         parity_fail_ids = []
@@ -426,6 +517,9 @@ def main() -> int:
                 parity_fail_ids.append(sample)
                 continue
             py, android = by_platform["python"], by_platform["android"]
+            if not py["probability"] or not android["probability"]:
+                parity_fail_ids.append(sample)
+                continue
             if py["tensor_sha256"] != android["tensor_sha256"]:
                 parity_fail_ids.append(sample)
                 continue
@@ -473,25 +567,40 @@ def main() -> int:
         assert isinstance(python_input_audit, dict)
         det = report["determinism_test_partition"]
         assert isinstance(det, dict)
+        ci = report["test_patient_bootstrap_95ci"]
+        assert isinstance(ci, dict)
+        val_counts = report["validation_cohort_counts"]
+        test_counts = report["test_cohort_counts"]
+        assert isinstance(val_counts, dict) and isinstance(test_counts, dict)
+        minimums = {key: getattr(args, f"min_{key}") for key in DEFAULT_MINIMUMS}
+        min_failures = {key: test_counts[key] < minimums[key] for key in minimums}
+        validation_min_failures = {key: val_counts[key] < minimums[key] for key in minimums}
         gates = {
-            "accuracy_ge_0.85": (metrics["accuracy"] is not None and metrics["accuracy"] >= 0.85),
-            "sensitivity_ge_0.85": (metrics["sensitivity"] is not None and metrics["sensitivity"] >= 0.85),
-            "specificity_ge_0.80": (metrics["specificity"] is not None and metrics["specificity"] >= 0.80),
-            "auroc_ge_0.85": (metrics["auroc_scored_cases_only"] is not None and metrics["auroc_scored_cases_only"] >= 0.85),
+            "accuracy_lcb_ge_0.85": (ci["accuracy"] is not None and ci["accuracy"][0] >= 0.85),
+            "sensitivity_lcb_ge_0.85": (ci["sensitivity"] is not None and ci["sensitivity"][0] >= 0.85),
+            "specificity_lcb_ge_0.80": (ci["specificity"] is not None and ci["specificity"][0] >= 0.80),
+            "auroc_ge_0.85_supplementary": (metrics["auroc_scored_cases_only"] is not None and metrics["auroc_scored_cases_only"] >= 0.85),
+            "minimum_sample_sizes_met": not any(min_failures),
+            "validation_minimum_sample_sizes_met": not any(validation_min_failures),
             "non_fundus_never_classified": input_audit["non_fundus_rejection_pass"],
             "ungradable_fundus_retaken": input_audit["ungradable_retake_pass"],
             "python_non_fundus_and_ungradable_handling_matches": python_input_audit["non_fundus_rejection_pass"] and python_input_audit["ungradable_retake_pass"],
             "repeat_inference_deterministic": det["pass"],
-            "both_eyes_present": {r["eye"] for r in test} >= {"OD", "OS"},
+            "eye_status_explicitly_accounted": test_counts["bilateral_patients"] + test_counts["unilateral_patients"] + test_counts["missing_eye_records"] + test_counts["unknown_eye_status"] == test_counts["unique_patients"],
+            "od_and_os_workflows_present": {r["eye"] for r in test if r["eye"] in {"OD", "OS"}} >= {"OD", "OS"},
             "gradable_fundus_complete_coverage": metrics["n_scored"] == metrics["n_gradable_fundus"] and metrics["n_gradable_fundus"] > 0,
             "python_android_same_tensor_probability_parity": report["python_android_parity"]["pass"],
             "all_android_test_in_airplane_mode": all(r["network_mode"] == "airplane_mode" for r in test),
             "multiple_dr_severity_categories_present": len({r["dr_severity"] for r in test if r["modality"] == "fundus" and r["gradability"] == "gradable" and r["dr_severity"] not in {"", "unspecified", "not_applicable"}}) >= 3,
             "blur_dark_overexposed_ungradable_cases_present": {r["quality_issue"] for r in test if r["modality"] == "fundus" and r["gradability"] == "ungradable"} >= {"blur", "dark", "overexposed"},
             "python_android_test_case_sets_match": report["platform_case_set_parity"]["pass"],
+            "source_image_hashes_verified": args.check_image_hashes,
             "every_test_image_individually_reviewed": all(r["case_review"] == "reviewed" for r in test),
         }
         report["acceptance_gates"] = gates
+        report["minimum_sample_size_requirements"] = {"configured": minimums, "test_failures": min_failures,
+            "validation_failures": validation_min_failures,
+            "assumptions": "Predeclared engineering floors to prevent tiny cohorts from passing; not universal power guarantees. Patient counts count each pseudonymous patient once; positive/negative patient means at least one gradable image with that label. Sites/devices require non-empty manifest groups."}
         report["acceptance_pass"] = all(gates.values())
         report["limitations"] = [
             "AUROC is computed on gradable fundus cases that produced a probability; end-to-end coverage and abstentions remain visible in confusion counts.",
