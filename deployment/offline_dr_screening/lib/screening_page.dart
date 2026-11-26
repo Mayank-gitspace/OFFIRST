@@ -276,7 +276,7 @@ class _ScreeningPageState extends State<ScreeningPage> {
 }
 
 const screeningNotice =
-    'Experimental AI screening only. This output is not a medical diagnosis or a basis for treatment.';
+    'Experimental AI screening only. A result below threshold does not rule out diabetic retinopathy. This output is not a diagnosis or a basis for treatment. Get a qualified eye-care assessment, regardless of the score.';
 
 class EyeResults extends StatelessWidget {
   const EyeResults(
@@ -319,7 +319,7 @@ class EyeResults extends StatelessWidget {
                     '${(image.probability * 100).toStringAsFixed(1)}% DR model probability'),
                 subtitle: Text(image.flagged
                     ? 'At or above threshold'
-                    : 'Below threshold'),
+                    : 'Below threshold; DR not ruled out'),
                 trailing: onRemove == null
                     ? null
                     : IconButton(
