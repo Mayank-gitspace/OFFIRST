@@ -1,0 +1,5 @@
+record_scope,dataset,model_version,assessment_n,aggregate_false_negative_count,image_id,image_sha256,ground_truth_severity,probability,quality_assessment,preprocessing_match,other_model_decision,evidence_status,notes
+aggregate_summary,RFMiD,v1.1,69,0,,,,,,,unknown,aggregate_only,"FN count derived from rounded matched metrics; no individual rows or source images recovered."
+aggregate_summary,RFMiD,v2.1,69,5,,,,,,,unknown,aggregate_only,"FN count from reported confusion matrix; no individual rows or source images recovered."
+aggregate_summary,IDRiD,v1.1,72,20,,,,,,,unknown,aggregate_only,"FN count derived from rounded matched metrics; no individual rows or source images recovered."
+aggregate_summary,IDRiD,v2.1,72,6,,,,,,,unknown,aggregate_only,"FN count from reported confusion matrix; no individual rows or source images recovered."

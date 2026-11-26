@@ -1,0 +1,5 @@
+record_scope,dataset,model_version,assessment_n,threshold,threshold_comparator,tn,fp,fn,tp,confusion_evidence,accuracy,sensitivity,specificity,auroc,auprc,performance_targets_met,source
+aggregate_summary,RFMiD,v1.1,69,0.48,>=,49,9,0,11,derived_from_reported_rounded_metrics_and_matched_denominators,0.8696,1.0000,0.8448,0.967,0.853,true,docs/RESEARCH_RESULTS.md
+aggregate_summary,RFMiD,v2.1,69,0.3675977844516245,>=,50,8,5,6,reported_aggregate_confusion_matrix,0.8116,0.5455,0.8621,0.875,0.640,false,docs/RESEARCH_RESULTS.md
+aggregate_summary,IDRiD,v1.1,72,0.48,>=,24,1,20,27,derived_from_reported_rounded_metrics_and_matched_denominators,0.7083,0.5745,0.9600,0.846,0.932,false,docs/RESEARCH_RESULTS.md
+aggregate_summary,IDRiD,v2.1,72,0.3675977844516245,>=,16,9,6,41,reported_aggregate_confusion_matrix,0.7917,0.8723,0.6400,0.874,0.944,false,docs/RESEARCH_RESULTS.md
