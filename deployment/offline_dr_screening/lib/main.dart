@@ -267,9 +267,12 @@ class _OffirstHomeState extends State<OffirstHome> {
                   label: Text(
                       switch (_service.readiness) {
                         ModelReadiness.initializing => 'Initializing model',
-                        ModelReadiness.ready => useExperimentalV21
-                            ? 'Model ready — OFFIRST v2.1'
-                            : 'Model ready — OFFIRST v1.1',
+                        ModelReadiness.ready =>
+                          !ScreeningService.fundusDetectorAvailable
+                              ? 'Screening paused — validation unavailable'
+                              : useExperimentalV21
+                                  ? 'Model ready — OFFIRST v2.1'
+                                  : 'Model ready — OFFIRST v1.1',
                         ModelReadiness.unavailable =>
                           'Model unavailable — details',
                       },
@@ -281,7 +284,9 @@ class _OffirstHomeState extends State<OffirstHome> {
                             content: Text(_service
                                     .initializationError?.message ??
                                 (_service.readiness == ModelReadiness.ready
-                                    ? 'ONNX session initialized and input/output contract verified. This status does not indicate that an image has been screened.'
+                                    ? ScreeningService.fundusDetectorAvailable
+                                        ? 'ONNX session initialized and input/output contract verified. This status does not indicate that an image has been screened.'
+                                        : 'No validated fundus detector or image-quality model is packaged. Decodable inputs are treated as uncertain, so OFFIRST will not run DR classification or record a negative result.'
                                     : 'Loading the packaged model and checking its input/output contract.')),
                             actions: [
                               if (_service.readiness ==

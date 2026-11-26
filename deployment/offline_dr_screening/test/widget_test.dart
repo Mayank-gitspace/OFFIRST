@@ -25,8 +25,11 @@ void main() {
     expect(find.text('Add fundus images'), findsOneWidget);
     expect(find.text('Right eye (OD)'), findsWidgets);
     expect(find.text('Left eye (OS)'), findsWidgets);
-    final save = tester.widget<FilledButton>(
-        find.widgetWithText(FilledButton, 'Finalize and save visit'));
+    final saveFinder =
+        find.widgetWithText(FilledButton, 'Finalize and save visit');
+    await tester.scrollUntilVisible(saveFinder, 160,
+        scrollable: find.byType(Scrollable).last);
+    final save = tester.widget<FilledButton>(saveFinder);
     expect(save.onPressed, isNull);
   });
 }

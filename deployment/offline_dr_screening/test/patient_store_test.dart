@@ -173,7 +173,10 @@ void main() {
     await store.addVisit(
         patient.id,
         VisitRecord(
-            id: recordId('VIS'), date: date, images: [image(Eye.left, .2)]));
+            id: recordId('VIS'),
+            date: date,
+            images: [image(Eye.right, .2)],
+            unavailableEyes: {Eye.left}));
     input.deleteSync();
 
     final restarted =
@@ -188,6 +191,10 @@ void main() {
     expect(
         saved.forEye(Eye.right).map((image) => image.probability), [.48, .65]);
     expect(saved.forEye(Eye.left).single.flagged, isFalse);
+    final unilateral = visits.singleWhere((visit) => visit.id != bilateral.id);
+    expect(unilateral.forEye(Eye.right), hasLength(1));
+    expect(unilateral.forEye(Eye.left), isEmpty);
+    expect(unilateral.unavailableEyes, {Eye.left});
     for (final image in saved.images) {
       expect(image.path, contains('/${image.eye.code}/'));
       expect(await (await restarted.original(image)).readAsBytes(), [1, 2, 3]);

@@ -156,4 +156,106 @@ void main() {
             i.threshold == activeScreeningThreshold),
         isTrue);
   });
+
+  testWidgets(
+      'one-eye visit records the unavailable fellow eye without a score',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = CaptureStore();
+    final service = ScreeningService.forTesting(
+      initializeModel: () async {},
+      runPrediction: (_) async => const ScreeningResult(.2),
+    );
+    addTearDown(service.dispose);
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: ScreeningPage(
+      store: store,
+      service: service,
+      onSaved: () {},
+      patients: Future.value([
+        PatientRecord(
+            id: 'OFF-UNILATERAL',
+            name: 'Synthetic',
+            createdAt: DateTime.utc(2026))
+      ]),
+      pickImages: (_) async => [XFile('right.png')],
+    ))));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('OFF-UNILATERAL').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Left eye (OS)').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Left eye unavailable for this visit'));
+    await tester.pumpAndSettle();
+    final add = find.widgetWithText(FilledButton, 'Add fundus images');
+    expect(tester.widget<FilledButton>(add).onPressed, isNull);
+
+    await tester.tap(find.text('Right eye (OD)').first);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    final save = find.widgetWithText(FilledButton, 'Finalize and save visit');
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+
+    expect(store.saved!.images.map((image) => image.eye), [Eye.right]);
+    expect(store.saved!.unavailableEyes, {Eye.left});
+    expect(store.saved!.forEye(Eye.left), isEmpty);
+  });
+
+  testWidgets('uncertain input has no retry action or saved negative result',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final service = ScreeningService.forTesting(
+      initializeModel: () async {},
+      runPrediction: (_) async => throw const ScreeningFailure(
+        ScreeningStage.inputValidation,
+        'Image status is uncertain. No DR classification was run.',
+      ),
+    );
+    addTearDown(service.dispose);
+    final store = CaptureStore();
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: ScreeningPage(
+      store: store,
+      service: service,
+      onSaved: () {},
+      patients: Future.value([
+        PatientRecord(
+            id: 'OFF-UNCERTAIN',
+            name: 'Synthetic',
+            createdAt: DateTime.utc(2026))
+      ]),
+      pickImages: (_) async => [XFile('uncertain.png')],
+    ))));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('OFF-UNCERTAIN').last);
+    await tester.pumpAndSettle();
+    final add = find.widgetWithText(FilledButton, 'Add fundus images');
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+
+    expect(
+        find.textContaining('Input validation is unavailable'), findsOneWidget);
+    expect(find.text('Retry failed images'), findsNothing);
+    final save = find.widgetWithText(FilledButton, 'Finalize and save visit');
+    await tester.ensureVisible(save);
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    expect(store.saved, isNull);
+  });
 }

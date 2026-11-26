@@ -67,7 +67,7 @@ void main() {
     addTearDown(() => folder.deleteSync(recursive: true));
     final file = File('${folder.path}/black.png')
       ..writeAsBytesSync(img.encodePng(img.Image(width: 512, height: 512)));
-    final service = ScreeningService();
+    final service = ScreeningService.withValidatedTestInput();
     addTearDown(service.dispose);
 
     for (var run = 0; run < 2; run++) {
@@ -76,6 +76,41 @@ void main() {
       expect(result.detected, probability >= screeningThreshold);
     }
   }, skip: noServiceNative);
+
+  test(
+      'production service fails closed for decodable images without a detector',
+      () async {
+    _mockV21DecoderChannel();
+    final folder = Directory.systemTemp.createTempSync('offirst-input-gate-');
+    addTearDown(() => folder.deleteSync(recursive: true));
+    final valid = File('${folder.path}/valid.png')
+      ..writeAsBytesSync(img.encodePng(img.Image(width: 32, height: 32)));
+    final service = ScreeningService();
+    addTearDown(service.dispose);
+    await expectLater(
+      service.predict(valid),
+      throwsA(isA<ScreeningFailure>().having(
+          (failure) => failure.stage, 'stage', ScreeningStage.inputValidation)),
+    );
+    expect(service.readiness, ModelReadiness.initializing,
+        reason: 'Unvalidated images must be rejected before model loading.');
+  });
+
+  test('production service rejects corrupted image bytes before classification',
+      () async {
+    _mockV21DecoderChannel();
+    final folder = Directory.systemTemp.createTempSync('offirst-corrupt-');
+    addTearDown(() => folder.deleteSync(recursive: true));
+    final file = File('${folder.path}/corrupt.png')
+      ..writeAsBytesSync([0x89, 0x50, 0x4e, 0x47, 0, 0, 0]);
+    final service = ScreeningService();
+    addTearDown(service.dispose);
+    await expectLater(
+      service.predict(file),
+      throwsA(isA<ScreeningFailure>().having(
+          (failure) => failure.stage, 'stage', ScreeningStage.imageDecode)),
+    );
+  });
 
   test('selected ONNX asset runs and returns a probability', () async {
     final model = await rootBundle.load(activeModelAsset);
@@ -153,4 +188,18 @@ void main() {
             .having((e) => e.stage, 'stage', ScreeningStage.imageDecode)
             .having((e) => e.message, 'message', isNot(contains('PRIVATE')))));
   }, skip: noNative || !useExperimentalV21 || v21Fixtures == null);
+}
+
+void _mockV21DecoderChannel() {
+  const channel = MethodChannel('offirst/v2_1_preprocessing');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(channel, (call) async {
+    final encoded = call.arguments as Uint8List;
+    if (img.decodeImage(encoded) == null) {
+      throw PlatformException(code: 'image_decode');
+    }
+    return Uint8List(3 * 512 * 512 * Float32List.bytesPerElement);
+  });
+  addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
 }

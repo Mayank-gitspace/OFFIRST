@@ -106,12 +106,17 @@ class ImageRecord {
 }
 
 class VisitRecord {
-  VisitRecord(
-      {required this.id, required this.date, required List<ImageRecord> images})
-      : images = List.unmodifiable(images);
+  VisitRecord({
+    required this.id,
+    required this.date,
+    required List<ImageRecord> images,
+    Set<Eye> unavailableEyes = const {},
+  })  : images = List.unmodifiable(images),
+        unavailableEyes = Set.unmodifiable(unavailableEyes);
   final String id;
   final DateTime date;
   final List<ImageRecord> images;
+  final Set<Eye> unavailableEyes;
 
   Iterable<ImageRecord> forEye(Eye eye) =>
       images.where((image) => image.eye == eye);
@@ -120,6 +125,8 @@ class VisitRecord {
         'id': id,
         'date': date.toIso8601String(),
         'images': images.map((image) => image.toJson()).toList(),
+        'unavailableEyes': unavailableEyes.map((eye) => eye.code).toList()
+          ..sort(),
       };
 
   factory VisitRecord.fromJson(Map<String, dynamic> json,
@@ -142,7 +149,10 @@ class VisitRecord {
         date: date,
         images: (json['images'] as List)
             .map((image) => ImageRecord.fromJson(image))
-            .toList());
+            .toList(),
+        unavailableEyes: ((json['unavailableEyes'] as List?) ?? const [])
+            .map((code) => Eye.fromCode(code as String))
+            .toSet());
   }
 }
 
@@ -396,6 +406,7 @@ class PatientStore {
           for (final reportName in [
             'OFFIRST-${visit.id}.pdf',
             'OFFIRST-${visit.id}-v2.pdf',
+            'OFFIRST-${visit.id}-v3.pdf',
           ]) {
             final report = File('${reportFolder.path}/$reportName');
             if (await FileSystemEntity.type(report.path, followLinks: false) ==
@@ -413,6 +424,10 @@ class PatientStore {
         final patient =
             patients.singleWhere((record) => record.id == patientId);
         if (patient.visits.any((record) => record.id == visit.id)) return;
+        if (visit.unavailableEyes.any((eye) => visit.forEye(eye).isNotEmpty)) {
+          throw ArgumentError(
+              'An eye with recorded images cannot also be marked unavailable.');
+        }
         final imageIds = visit.images.map((image) => image.id).toSet();
         if (!_safeId.hasMatch(visit.id) ||
             imageIds.length != visit.images.length ||
@@ -451,7 +466,12 @@ class PatientStore {
           }
           staged = await staged.rename(destination);
           patient.visits.insert(
-              0, VisitRecord(id: visit.id, date: visit.date, images: saved));
+              0,
+              VisitRecord(
+                  id: visit.id,
+                  date: visit.date,
+                  images: saved,
+                  unavailableEyes: visit.unavailableEyes));
           await _writeMetadata(patients);
         } catch (_) {
           try {

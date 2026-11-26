@@ -29,11 +29,15 @@ class _ScreeningPageState extends State<ScreeningPage> {
   late final _service = widget.service ?? ScreeningService();
   final _failed = <_PendingImage>[];
   final _images = <ImageRecord>[];
+  final _unavailableEyes = <Eye>{};
   String _visitId = recordId('VIS');
   String? _patientId;
   Eye _eye = Eye.right;
   String? _message;
   bool _busy = false;
+
+  bool get _hasRetryableFailures => _failed
+      .any((image) => image.failure?.stage != ScreeningStage.inputValidation);
 
   @override
   void initState() {
@@ -99,11 +103,15 @@ class _ScreeningPageState extends State<ScreeningPage> {
   }
 
   Future<void> _retry() async {
-    if (_busy || _patientId == null || _failed.isEmpty) return;
-    final pending = List<_PendingImage>.of(_failed);
+    if (_busy || _patientId == null || !_hasRetryableFailures) return;
+    final pending = _failed
+        .where(
+            (image) => image.failure?.stage != ScreeningStage.inputValidation)
+        .toList();
     setState(() {
       _busy = true;
-      _failed.clear();
+      _failed.removeWhere(
+          (image) => image.failure?.stage != ScreeningStage.inputValidation);
       _message = null;
     });
     try {
@@ -129,11 +137,13 @@ class _ScreeningPageState extends State<ScreeningPage> {
             id: _visitId,
             date: DateTime.now().toUtc(),
             images: _images,
+            unavailableEyes: _unavailableEyes,
           ));
       if (!mounted) return;
       widget.onSaved();
       setState(() {
         _images.clear();
+        _unavailableEyes.clear();
         _visitId = recordId('VIS');
         _message =
             'Visit saved. Open Patients to view the visit or create a PDF.';
@@ -164,7 +174,14 @@ class _ScreeningPageState extends State<ScreeningPage> {
             Text('Retinal image screening',
                 style: Theme.of(context).textTheme.headlineSmall,
                 softWrap: true),
-            const Text('Experimental DR screening runs on this device.'),
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Text(
+                  'Screening is paused: this build has no validated fundus or image-quality detector. Decodable images are treated as uncertain and will not receive a DR classification.',
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             FutureBuilder<List<PatientRecord>>(
               future: widget.patients,
@@ -208,16 +225,38 @@ class _ScreeningPageState extends State<ScreeningPage> {
               onSelectionChanged:
                   _busy ? null : (eyes) => setState(() => _eye = eyes.single),
             ),
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _unavailableEyes.contains(_eye),
+              title: Text('${_eye.label} unavailable for this visit'),
+              subtitle: const Text(
+                  'Optional record only; it does not infer a cause or disability.'),
+              onChanged: _busy ||
+                      _images.any((image) => image.eye == _eye) ||
+                      _failed.any((image) => image.eye == _eye)
+                  ? null
+                  : (value) => setState(() {
+                        if (value == true) {
+                          _unavailableEyes.add(_eye);
+                        } else {
+                          _unavailableEyes.remove(_eye);
+                        }
+                      }),
+            ),
             const SizedBox(height: 12),
             Wrap(spacing: 8, runSpacing: 8, children: [
               FilledButton.icon(
-                  onPressed: _busy || _patientId == null
+                  onPressed: _busy ||
+                          _patientId == null ||
+                          _unavailableEyes.contains(_eye)
                       ? null
                       : () => _add(camera: false),
                   icon: const Icon(Icons.photo_library_outlined),
                   label: const Text('Add fundus images')),
               OutlinedButton.icon(
-                  onPressed: _busy || _patientId == null
+                  onPressed: _busy ||
+                          _patientId == null ||
+                          _unavailableEyes.contains(_eye)
                       ? null
                       : () => _add(camera: true),
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -227,6 +266,10 @@ class _ScreeningPageState extends State<ScreeningPage> {
             if (_failed.isNotEmpty) ...[
               const Text(
                   'Unscreened images — retry or remove before saving. No score was recorded for these images.'),
+              if (_failed.any((image) =>
+                  image.failure?.stage == ScreeningStage.inputValidation))
+                const Text(
+                    'Input validation is unavailable in this build. Remove these items; retry cannot enable DR classification.'),
               for (final failed in _failed)
                 ListTile(
                   title: Text('${failed.eye.code}: ${failed.failure!.message}'),
@@ -238,9 +281,10 @@ class _ScreeningPageState extends State<ScreeningPage> {
                           : () => setState(() => _failed.remove(failed)),
                       icon: const Icon(Icons.close)),
                 ),
-              OutlinedButton(
-                  onPressed: _busy ? null : _retry,
-                  child: const Text('Retry failed images')),
+              if (_hasRetryableFailures)
+                OutlinedButton(
+                    onPressed: _busy ? null : _retry,
+                    child: const Text('Retry failed images')),
             ],
             if (_message != null)
               Padding(

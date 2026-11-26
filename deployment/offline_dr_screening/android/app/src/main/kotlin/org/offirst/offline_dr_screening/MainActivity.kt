@@ -130,7 +130,7 @@ class MainActivity : FlutterActivity() {
         val visit = requireNotNull(call.argument<String>("visit"))
         require(visit.matches(Regex("[A-Za-z0-9-]{1,120}")))
         val folder = File(filesDir, "screening_reports").apply { mkdirs() }
-        val file = File(folder, "OFFIRST-$visit-v2.pdf")
+        val file = File(folder, "OFFIRST-$visit-v3.pdf")
         if (file.isFile) return file
         val heading = requireNotNull(call.argument<List<String>>("heading"))
         val images = requireNotNull(call.argument<List<Map<String, String>>>("images"))
@@ -200,6 +200,8 @@ class MainActivity : FlutterActivity() {
                         "Image: ${row.getValue("id")}",
                         "Recorded: ${row.getValue("date")}",
                         "AI output: ${row.getValue("result")}",
+                        "Classification: ${row.getValue("classification")}",
+                        "Image quality: ${row.getValue("quality")}",
                         "Model: ${row.getValue("model")}"
                     ), row["path"])
                 }

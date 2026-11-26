@@ -42,6 +42,7 @@ enum ScreeningStage {
   imageAccess,
   imageDecode,
   preprocessing,
+  inputValidation,
   modelLoad,
   modelContract,
   inference,
@@ -69,13 +70,22 @@ void logScreeningFailure(ScreeningStage stage, Object error, StackTrace stack) {
 }
 
 class ScreeningService extends ChangeNotifier {
-  ScreeningService();
+  ScreeningService() : _allowUnvalidatedTestInput = false;
+
+  /// No trained, permission-cleared fundus detector is packaged in this app.
+  /// The production service therefore treats every decodable image as
+  /// uncertain and never sends it to the DR classifier.
+  static const fundusDetectorAvailable = false;
+
+  @visibleForTesting
+  ScreeningService.withValidatedTestInput() : _allowUnvalidatedTestInput = true;
 
   @visibleForTesting
   ScreeningService.forTesting({
     required Future<void> Function() initializeModel,
     required Future<ScreeningResult> Function(File) runPrediction,
-  })  : _testInitialize = initializeModel,
+  })  : _allowUnvalidatedTestInput = true,
+        _testInitialize = initializeModel,
         _testPredict = runPrediction;
 
   Future<void> Function()? _testInitialize;
@@ -85,6 +95,7 @@ class ScreeningService extends ChangeNotifier {
   ModelReadiness _readiness = ModelReadiness.initializing;
   ScreeningFailure? _initializationError;
   bool _disposed = false;
+  final bool _allowUnvalidatedTestInput;
   int _activePredictions = 0;
 
   ModelReadiness get readiness => _readiness;
@@ -167,6 +178,13 @@ class ScreeningService extends ChangeNotifier {
     }
     _activePredictions++;
     try {
+      if (!_allowUnvalidatedTestInput) {
+        await _verifyDecodableImage(file);
+        throw const ScreeningFailure(
+          ScreeningStage.inputValidation,
+          'Image status is uncertain because OFFIRST has no validated fundus detector. No DR classification was run; use a validated fundus camera/workflow or seek eye-care review.',
+        );
+      }
       await initialize();
       if (_disposed) {
         throw const ScreeningFailure(
@@ -194,6 +212,34 @@ class ScreeningService extends ChangeNotifier {
     } finally {
       _activePredictions--;
       if (_disposed && _activePredictions == 0) _releaseSession();
+    }
+  }
+
+  Future<void> _verifyDecodableImage(File file) async {
+    try {
+      // Reuse the selected production decoder/preprocessor only to distinguish
+      // corrupt or unreadable files. Its tensor is discarded; it cannot
+      // establish that the input is a fundus photograph.
+      if (useExperimentalV21) {
+        await _prepareV21Tensor(file);
+      } else {
+        await Isolate.run(() => prepareFundusFile(File(file.path)),
+            debugName: 'OFFIRST image decode validation');
+      }
+    } on ScreeningFailure {
+      rethrow;
+    } on FileSystemException catch (error, stack) {
+      logScreeningFailure(ScreeningStage.imageAccess, error, stack);
+      throw const ScreeningFailure(ScreeningStage.imageAccess,
+          'Image file could not be accessed. Select it again.');
+    } on FormatException catch (error, stack) {
+      logScreeningFailure(ScreeningStage.imageDecode, error, stack);
+      throw const ScreeningFailure(ScreeningStage.imageDecode,
+          'Image is corrupted or has an unsupported format. Select a valid JPEG or PNG.');
+    } catch (error, stack) {
+      logScreeningFailure(ScreeningStage.imageDecode, error, stack);
+      throw const ScreeningFailure(ScreeningStage.imageDecode,
+          'Image could not be decoded. Select another image.');
     }
   }
 
@@ -233,6 +279,12 @@ Float32List decodeV21Tensor(Uint8List bytes) {
 }
 
 Future<ScreeningResult> _predictV21(File file, int sessionAddress) async {
+  final input = await _prepareV21Tensor(file);
+  return Isolate.run(() => _predictInput(input, sessionAddress),
+      debugName: 'OFFIRST v2.1 inference');
+}
+
+Future<Float32List> _prepareV21Tensor(File file) async {
   final Uint8List encoded;
   try {
     final size = await file.length();
@@ -284,8 +336,7 @@ Future<ScreeningResult> _predictV21(File file, int sessionAddress) async {
         'Image preprocessing returned no tensor.');
   }
   final input = decodeV21Tensor(tensorBytes);
-  return Isolate.run(() => _predictInput(input, sessionAddress),
-      debugName: 'OFFIRST v2.1 inference');
+  return input;
 }
 
 Future<ScreeningResult> _predictOffThread(String path, int sessionAddress) =>

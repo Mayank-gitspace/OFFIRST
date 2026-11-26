@@ -66,8 +66,13 @@ void main() {
     expect(find.text('Left eye (OS)'), findsOneWidget);
     for (final label in ['Save PDF', 'View PDF', 'Export PDF']) {
       final button = find.text(label);
-      await tester.ensureVisible(button);
+      await tester.scrollUntilVisible(button, 120,
+          scrollable: find.byType(Scrollable).last);
       await tester.tap(button);
+      await tester.pumpAndSettle();
+      // Save and export confirmation snackbars overlay the lower action row.
+      // Let the transient message expire before tapping the next report action.
+      await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
     }
 
@@ -75,8 +80,13 @@ void main() {
     for (final call in seen) {
       final args = call.arguments as Map;
       final headings = args['heading'] as List;
-      expect(headings, contains('Right eye (OD): 1 image(s)'));
-      expect(headings, contains('Left eye (OS): 1 image(s)'));
+      expect(headings, contains('Right eye (OD): 1 image(s) recorded'));
+      expect(headings, contains('Left eye (OS): 1 image(s) recorded'));
+      expect(headings, contains('Screening scope: Bilateral (OD + OS)'));
+      expect(
+          headings,
+          contains(
+              'Image-quality status: Not assessed; no validated quality model is available in this build.'));
       expect(
           headings.any((line) =>
               line.toString().startsWith('Models recorded in this visit: ')),
@@ -102,8 +112,114 @@ void main() {
       expect(rows[1]['result'], contains('at or above'));
       expect(rows[0]['model'], 'offirst-dr-onnx-b8fc1019');
       expect(rows[0]['result'], contains('48% threshold'));
+      expect(rows[0]['classification'], contains('DR is not ruled out'));
+      expect(rows[1]['classification'], contains('not a diagnosis'));
+      expect(rows[0]['quality'], contains('Not assessed'));
       expect(rows[1]['model'], 'offirst-v2.1-experimental-43a87f05');
       expect(rows[1]['result'], contains('37% threshold'));
     }
+  });
+
+  testWidgets('unilateral report records an unavailable eye without a result',
+      (tester) async {
+    const channel = MethodChannel('offirst/reports');
+    final seen = <MethodCall>[];
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      seen.add(call);
+      return true;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+
+    final date = DateTime.utc(2026, 1, 1);
+    final right = ImageRecord(
+      id: 'image-right',
+      eye: Eye.right,
+      capturedAt: date,
+      path: 'right.png',
+      probability: .2,
+      threshold: .48,
+      modelVersion: 'v1.1-test',
+    );
+    await tester.pumpWidget(MaterialApp(
+      home: VisitPage(
+        patient: PatientRecord(id: 'demo', name: 'Demo', createdAt: date),
+        visit: VisitRecord(
+          id: 'unilateral-visit',
+          date: date,
+          images: [right],
+          unavailableEyes: {Eye.left},
+        ),
+        store: _ReportStore([]),
+      ),
+    ));
+    final save = find.text('Save PDF');
+    await tester.scrollUntilVisible(save, 120,
+        scrollable: find.byType(Scrollable).last);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+
+    final args = seen.single.arguments as Map;
+    final headings = args['heading'] as List;
+    final images = args['images'] as List;
+    expect(headings, contains('Screening scope: Unilateral (OD only)'));
+    expect(
+        headings,
+        contains(
+            'Left eye (OS): Unavailable (recorded for this visit; no image supplied)'));
+    expect(images, hasLength(1));
+    expect(images.single['eye'], 'Right eye (OD)');
+    expect(images.single['classification'], contains('DR is not ruled out'));
+  });
+
+  testWidgets('OS-only report does not invent a right-eye result',
+      (tester) async {
+    const channel = MethodChannel('offirst/reports');
+    final seen = <MethodCall>[];
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      seen.add(call);
+      return true;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+
+    final date = DateTime.utc(2026, 1, 1);
+    final left = ImageRecord(
+      id: 'image-left',
+      eye: Eye.left,
+      capturedAt: date,
+      path: 'left.png',
+      probability: .6,
+      threshold: .48,
+      modelVersion: 'v1.1-test',
+    );
+    await tester.pumpWidget(MaterialApp(
+      home: VisitPage(
+        patient: PatientRecord(id: 'demo', name: 'Demo', createdAt: date),
+        visit: VisitRecord(
+          id: 'os-only-visit',
+          date: date,
+          images: [left],
+          unavailableEyes: {Eye.right},
+        ),
+        store: _ReportStore([]),
+      ),
+    ));
+    final save = find.text('Save PDF');
+    await tester.scrollUntilVisible(save, 120,
+        scrollable: find.byType(Scrollable).last);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+
+    final args = seen.single.arguments as Map;
+    final headings = args['heading'] as List;
+    final images = args['images'] as List;
+    expect(headings, contains('Screening scope: Unilateral (OS only)'));
+    expect(
+        headings,
+        contains(
+            'Right eye (OD): Unavailable (recorded for this visit; no image supplied)'));
+    expect(images, hasLength(1));
+    expect(images.single['eye'], 'Left eye (OS)');
   });
 }
