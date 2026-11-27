@@ -47,6 +47,7 @@ The previous public download remains [OFFIRST 1.0.3](https://github.com/Mayank-g
 - [Download OFFIRST 1.0.5](#download-offirst-105)
 - [What this build does](#what-this-build-does)
 - [Screening modes](#screening-modes)
+- [Cross-validated AUROC](#cross-validated-auroc)
 - [Model in this build](#model-in-this-build)
 - [Image check and preprocessing](#image-check-and-preprocessing)
 - [Visit PDF](#visit-pdf)
@@ -79,6 +80,30 @@ On the multi-disease screen, Hypertension uses its prevalence-matched cutoff. Ev
 **MH is Media Haze.** The fifteen labels are Any Disease Risk, Diabetic Retinopathy, Age-Related Macular Degeneration, Pathological Myopia, Glaucoma, Cataract, Hypertensive Retinopathy, Media Haze, Drusen, Branch Retinal Vein Occlusion, Tessellation (Tigroid Fundus), Laser Scars, Optic Disc Cupping, Optic Disc Pallor, and Optic Disc Edema. These labels are exploratory probe outputs.
 
 The binary `dr_probability` is still stored for each image. With the current model, positive means `dr_probability >= 0.524373471736908`. When an embedding is present, the tile shows the grade view.
+
+### Cross-validated AUROC
+
+Each multi-disease head stores a 3-fold cross-validated AUROC. The folds are the same training rows used to choose the regularization strength. This is not accuracy, and it is not a held-out test. The 4-class severity head stores no AUROC. The DR row is the same linear head as the binary classifier. **MH is Media Haze.**
+
+| Finding | Training rows | Cross-validated AUROC |
+| --- | ---: | ---: |
+| Any Disease Risk | 6,119 | 0.838 |
+| Diabetic Retinopathy | 9,048 | 0.931 |
+| Age-Related Macular Degeneration | 6,119 | 0.927 |
+| Pathological Myopia | 6,119 | 0.989 |
+| Glaucoma | 4,583 | 0.882 |
+| Cataract | 4,583 | 0.988 |
+| Hypertensive Retinopathy | 4,583 | 0.820 |
+| Media Haze | 1,536 | 0.961 |
+| Drusen | 6,119 | 0.822 |
+| Branch Retinal Vein Occlusion | 1,536 | 0.937 |
+| Tessellation (Tigroid Fundus) | 1,536 | 0.971 |
+| Laser Scars | 6,119 | 0.948 |
+| Optic Disc Cupping | 1,536 | 0.890 |
+| Optic Disc Pallor | 1,536 | 0.705 |
+| Optic Disc Edema | 1,536 | 0.969 |
+
+Values are rounded from `cv_auroc` in [kd768_lp_multidisease_rfmid_odir.json](deployment/offline_dr_screening/assets/heads/kd768_lp_multidisease_rfmid_odir.json).
 
 ## Model in this build
 
