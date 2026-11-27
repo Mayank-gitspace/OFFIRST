@@ -1,5 +1,7 @@
 # OFFIRST v2.1 Android release handoff
 
+> **Historical handoff.** This document is the earlier submission record. The published reviewer build is [OFFIRST 1.0.5](../../README.md), version code 4005, with a folded linear head and separate probes. Do not replace the numbers in this file; they describe that earlier package.
+
 This document describes the Android application selected for the ZEISS BeyondCode 2026 submission. It is an experimental academic research prototype, not a clinical release.
 
 ## A. Application

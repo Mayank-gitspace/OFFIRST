@@ -1,5 +1,7 @@
 # Research results and reproducibility
 
+> **Scope.** The application-level table records earlier binary classifiers. It does not measure the 1.0.5 folded linear head or the JSON probes. Representation AUROCs are a separate table. The current app contract is on the [front page](../README.md).
+
 ## Application-level DR classification
 
 The following are development assessment results at the models' recorded operating thresholds. They are not independent clinical validation. Exact patient/exam identifiers are not available for a verified patient-grouped assessment; patient independence is unverified, prior dataset exposure exists, and IDRiD and RFMiD use different label protocols. Interpret metrics per dataset rather than pooling them.

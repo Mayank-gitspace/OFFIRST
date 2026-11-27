@@ -1,5 +1,7 @@
 # Deployed AI model
 
+> **Historical contract.** This page describes the earlier packaged classifier: a 16-unit MLP, Platt calibration, threshold `0.3675977844516245`, and ONNX `43a87f05…`. The current reviewer build is [OFFIRST 1.0.5](../README.md). Its binary head is a folded 768-to-1 map with threshold `0.524373471736908`, plus separate severity and multi-disease probes.
+
 ## OFFIRST v2.1 application model
 
 The Android release configuration selects the v2.1 experimental, DR-only classifier by default.

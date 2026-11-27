@@ -1,175 +1,177 @@
 <div align="center">
-  <h1>OFFIRST</h1>
-  <h2>Offline retinal screening for Android</h2>
-  <h3>Learn More From Less Data</h3>
+  <h1>OFFIRST — Offline AI-Powered Retinal Disease Screening</h1>
+  <h2>Learn More From Less Data</h2>
   <p><strong>Team OFFIRST | ZEISS BeyondCode 2026</strong></p>
   <p>
-    <img alt="Source version 1.0.5+2005" src="https://img.shields.io/badge/source-1.0.5%2B2005-blue">
-    <img alt="Android application" src="https://img.shields.io/badge/platform-Android-green">
-    <img alt="Research prototype" src="https://img.shields.io/badge/status-research%20prototype-orange">
+    <img alt="Source version 1.0.5+2005" src="https://img.shields.io/badge/source-1.0.5%2B2005-0F172A">
+    <img alt="Android application" src="https://img.shields.io/badge/platform-Android-166534">
+    <img alt="ARM64 APK" src="https://img.shields.io/badge/ABI-arm64--v8a-1D4ED8">
+    <img alt="Research prototype" src="https://img.shields.io/badge/status-research%20prototype-9A3412">
   </p>
 </div>
 
-OFFIRST 1.0.5 is an offline Android research prototype. On the phone it registers patients, screens retinal photographs, stores visits, and writes a two-page PDF. Inference stays on the device.
-
-The current source is version **1.0.5+2005**, package `org.offirst.offline_dr_screening`, app label **OFFIRST**. It runs a frozen FP32 KD768 encoder and scores the same L2-normalized 768-d embedding with a binary DR head, a 4-class severity probe, and 15 exploratory disease probes.
+OFFIRST is an offline Android research prototype. A phone can register a patient, screen retinal photographs, store the visit, and write a two-page PDF. The model runs on the device.
 
 > **Research use only.** OFFIRST is not a certified medical device and has not been clinically validated. Do not use it to diagnose or rule out disease, determine referrals, or guide treatment. A score below a threshold does not rule out diabetic retinopathy.
 
-## Download OFFIRST 1.0.5
+## Download
 
-Reviewers can install the published build from [OFFIRST 1.0.5](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5).
+**OFFIRST Android v1.0.5 (Build 2005)**
 
-| Phone | Download |
+[Download the ARM64 APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.apk) · [Release notes](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5) · [SHA-256 file](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.sha256) · [Install steps](docs/INSTALLATION.md)
+
+| Item | Verified value |
 | --- | --- |
-| ARM64 (`arm64-v8a`) | [OFFIRST-1.0.5-arm64-v8a.apk](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.apk) |
-
-[Release notes](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5) · [SHA-256 manifest](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.sha256) · [Installation guide](docs/INSTALLATION.md)
-
-| Item | Published APK |
-| --- | --- |
-| Version | **1.0.5**, version code **4005** |
+| Release | [offirst-1.0.5](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5) |
+| Version name | 1.0.5 |
+| Flutter build number | 2005 (`1.0.5+2005` in [pubspec.yaml](deployment/offline_dr_screening/pubspec.yaml)) |
+| Android version code | **4005**. The ARM64 split uses `2 × 1000 + 2005`. |
 | Package | `org.offirst.offline_dr_screening`, label **OFFIRST** |
-| Android | 7.0 / API 24 or newer |
-| ABI | `arm64-v8a` only. An ARMv7-only phone cannot install this file. |
+| Android | 7.0 / API 24 through target API 36 |
+| ABI | `arm64-v8a` only |
 | Size | 48,185,982 bytes |
 | APK SHA-256 | `62f319ef5978a13fa645a619cdc05802b6020ebfa085ac882fd9647c0e125a2d` |
-| ONNX SHA-256 | `b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b` |
-| Binary threshold | `0.524373471736908` |
-| Signing | Debug-signed research prototype |
+| Signing | Debug certificate, `CN=Android Debug`. Certificate SHA-256 `08e09b07b3e9e052535d6e34219b4d50f3e320e41da40dcd764f60982d226bc7`. |
+| ONNX in the APK | `b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b`, same bytes as the source asset |
 
-Open the APK on the phone and allow that source to install it. An existing OFFIRST install with the same debug signature keeps its local records. Do not clear application data.
+Open the APK on an ARM64 phone and allow that source to install it. An existing OFFIRST install with this debug signature keeps its local records. Do not clear application data. An ARMv7-only phone cannot install this split.
 
-The previous public download remains [OFFIRST 1.0.3](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk) (version code 2003, universal APK). That file is an earlier model.
+The previous universal download is [OFFIRST 1.0.3](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk) on [offirst-v2.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1). That file is version code 2003 and an earlier model. Keep it as history.
+
+<details>
+<summary>What was verified, and what was not</summary>
+
+Verified in the repository audit on 27 November 2026:
+
+- GitHub asset digest for `OFFIRST-1.0.5-arm64-v8a.apk` is `sha256:62f319ef5978a13fa645a619cdc05802b6020ebfa085ac882fd9647c0e125a2d`.
+- The same bytes report `versionName=1.0.5`, `versionCode=4005`, `native-code=arm64-v8a`, `minSdk=24`, and the Android debug certificate above.
+- The ONNX file and both JSON probes inside that APK match the files in the current application tree.
+- `pubspec.yaml` on `main` is `1.0.5+2005`.
+- The application directory has not changed since commit [`212cf1f`](https://github.com/Mayank-gitspace/OFFIRST/commit/212cf1f012ba862cc05315b353960a9549205e4c). Later commits change documentation only.
+- Release tag `offirst-1.0.5` points at [`a491bb2`](https://github.com/Mayank-gitspace/OFFIRST/commit/a491bb258c8b207f35ccd13e73fa197d80d51781). That commit contains the same application tree.
+
+Not verified by rebuilding or by a new device test in that audit:
+
+- A clean rebuild was not repeated, so the APK is asset-matched to the source rather than reproduced byte for byte from a commit.
+- Install, screening, and PDF viewing were not repeated on a phone during the audit.
+- No ARMv7 1.0.5 APK is published. An older 1.0.5 ARMv7 file exists only as a local build from before the current retinal-field check.
+
+</details>
 
 ## Contents
 
-- [Download OFFIRST 1.0.5](#download-offirst-105)
-- [What this build does](#what-this-build-does)
+- [Overview](#overview)
+- [Features](#features)
+- [Install](#install)
+- [Screenshots](#screenshots)
+- [Architecture](#architecture)
 - [Screening modes](#screening-modes)
-- [Model in this build](#model-in-this-build)
-- [Image check and preprocessing](#image-check-and-preprocessing)
-- [Visit PDF](#visit-pdf)
-- [Build 1.0.5](#build-105)
+- [Research](#research)
+- [Stack](#stack)
+- [Repository map](#repository-map)
+- [Build from source](#build-from-source)
+- [Privacy and responsible use](#privacy-and-responsible-use)
 - [Releases](#releases)
-- [Recorded results](#recorded-results)
-- [Repository](#repository)
+- [Team](#team)
 
-## What this build does
+## Overview
 
-The app has five tabs: Home, Patients, Screening, Experts, and About. The first launch walks through those areas, adding a patient, choosing a screening mode, adding right-eye (OD) and left-eye (OS) images, saving a visit, opening the PDF actions, and the associated expert. Skip and Done both mark the tour complete.
+The research question is whether a compact mobile model can learn useful retinal representations from limited disease labels. OFFIRST studies that with self-supervised pretraining, knowledge distillation into MobileNetV3-Large, and small probes on a frozen 768-dimensional embedding.
 
-A screening visit can hold several images for each eye. Each image is scored on its own. The app keeps patient records, visit images, and reports in app-private storage. There is no account system, no cloud inference, and no application-level encryption.
+Application version **1.0.5** is the Android prototype. Model-lineage name **v2.1** is the KD768 encoder export used by that prototype. Those names refer to different layers: 1.0.5 is the app build, and v2.1 is the encoder family. The current binary head is a folded linear map. It is not the earlier 16-unit network.
 
-The on-screen notice is: “Experimental AI screening only. A result below threshold does not rule out diabetic retinopathy. This output is not a diagnosis or a basis for treatment. Get a qualified eye-care assessment, regardless of the score.”
+## Features
 
-## Screening modes
+- Home, Patients, Screening, Experts, and About. A first launch walks through the main path.
+- Gallery or camera JPEG/PNG, up to 24 megapixels, for the right eye (OD) and the left eye (OS).
+- A retinal-field check before the encoder. Gray borders, one labeled corner, a tighter crop, a mild offset, and a darker retina can pass. A normal photo, a blank page, and a tiny speck fail. The message is: “This image does not look like a fundus photograph. Choose a retinal image.”
+- **DR severity**, the default mode: Healthy, Mild, Moderate, or Severe.
+- **Multi-disease**, an exploratory second mode on the same embedding. Switching mode does not run the encoder again.
+- A stored binary score. Positive means `dr_probability >= 0.524373471736908`.
+- A two-page A4 PDF, `OFFIRST-{visit}-v6.pdf`. Page 1 has the report and colour grades. Page 2 shows the captured photographs. Image quality is marked “Not assessed.”
+- Records stay in app-private storage. There is no cloud inference call.
 
-Both modes use one cached embedding from the ONNX model. Changing mode does not run the encoder again.
+## Install
 
-| Mode | What the screen shows |
-| --- | --- |
-| DR severity | Default. Four-class grade: Healthy, Mild, Moderate, or Severe. Colour badge, confidence, a four-bar breakdown, and Any DR risk = 1 − P(Healthy). |
-| Multi-disease | Summary badge **Any Disease Risk**, then 14 findings sorted by displayed risk. The DR row uses the four-class grade. The other rows use Low, Borderline, Elevated, or High. |
+1. Use an ARM64 phone on Android 7.0 or newer.
+2. Download [OFFIRST-1.0.5-arm64-v8a.apk](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.apk).
+3. Compare its SHA-256 with `62f319ef5978a13fa645a619cdc05802b6020ebfa085ac882fd9647c0e125a2d`.
+4. Open the file and allow installation from that source.
+5. Launch **OFFIRST**. Use a synthetic patient and de-identified images.
+6. Screen one retinal photograph and one ordinary photograph, switch modes, save the visit, and open the PDF.
 
-Severity colours are `#22C55E`, `#EAB308`, `#F97316`, and `#EF4444`.
+Full steps are in [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
-On the multi-disease screen, Hypertension uses its prevalence-matched cutoff. Every other finding uses the greater of its Youden cutoff and 0.35. Low is below that cutoff. Borderline runs up to the greater of cutoff + 0.15 and 0.70. Elevated runs up to 0.88. High is at or above 0.88.
+## Screenshots
 
-**MH is Media Haze.** The fifteen labels are Any Disease Risk, Diabetic Retinopathy, Age-Related Macular Degeneration, Pathological Myopia, Glaucoma, Cataract, Hypertensive Retinopathy, Media Haze, Drusen, Branch Retinal Vein Occlusion, Tessellation (Tigroid Fundus), Laser Scars, Optic Disc Cupping, Optic Disc Pallor, and Optic Disc Edema. These labels are exploratory probe outputs.
+The repository does not contain screenshots of application 1.0.5. Launcher icons and research plots are not the current screening UI. An untracked `screen.jpeg` shows an older dialog and is not part of this release. The capture list for a device pass is in [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md).
 
-The binary `dr_probability` is still stored for each image. With the current model, positive means `dr_probability >= 0.524373471736908`. When an embedding is present, the tile shows the grade view.
-
-## Model in this build
-
-| Piece | Value in 1.0.5 |
-| --- | --- |
-| Encoder | MobileNetV3-Large KD Run 2 student. 960-d pooled features, bias-free linear map to 768, then L2 normalization. |
-| ONNX asset | [offirst_v2_1_experimental.onnx](deployment/offline_dr_screening/assets/offirst_v2_1_experimental.onnx) |
-| SHA-256 | `b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b` |
-| Model id | `offirst-v2.1-experimental-b6bcb118` |
-| Input | `fundus_image`, float32, `[1, 3, 512, 512]`, RGB, NCHW |
-| Outputs | `dr_probability`, float32 `[1, 1]`; `embedding`, float32 `[1, 768]`, already L2-normalized |
-| Binary head | Folded linear map 768 → 1, then sigmoid. The scaler is inside those weights. |
-| Binary threshold | `0.524373471736908` |
-| Severity probe | [kd768_lp_dr_severity4_aptos.json](deployment/offline_dr_screening/assets/heads/kd768_lp_dr_severity4_aptos.json), SHA-256 `b7f64ce49be8a11e2e9abebbdf8ea2b73fe3760b12b413c16df85b80afa2e388` |
-| Severity rule | Softmax, then argmax. Severe covers ICDR grade 3 severe NPDR and grade 4 proliferative DR. The asset records 2,929 APTOS training examples. |
-| Disease probes | [kd768_lp_multidisease_rfmid_odir.json](deployment/offline_dr_screening/assets/heads/kd768_lp_multidisease_rfmid_odir.json), SHA-256 `2eaf44e6b3343a5821c6f4988d149766e9c18be10d69a00a609424c66157a0cc` |
-| Rollback asset | [offirst_dr_model.onnx](deployment/offline_dr_screening/assets/offirst_dr_model.onnx), SHA-256 `b8fc10191f69faef16f1dc92d08bf9542ee7e26f885767942e28292c5201dd90`, historical cutoff `0.48`. Selected only with `OFFIRST_EXPERIMENTAL_V21=false`. |
-
-The KD checkpoint digest recorded in the model manifest is `8bc239d22ffc4e786820f2151c99380a754bef930e42edea65022e1246f2096d`. That checkpoint is on the [KD Run 2 release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/kd-run2). The phone loads the ONNX export.
+## Architecture
 
 ```mermaid
 flowchart LR
-    A[JPEG or PNG] --> B[Decode and orientation]
-    B --> C[Retinal-field check]
-    C --> D[Crop, square pad, 512 tensor]
-    D --> E[ONNX encoder and binary head]
-    E --> F[dr_probability]
-    E --> G[L2-normalized 768-d embedding]
-    G --> H[4-class severity]
-    G --> I[15 disease probes]
-    F --> J[Local visit]
-    H --> J
-    I --> J
-    J --> K[Two-page PDF]
+  A[JPEG or PNG] --> B[Decode and orientation]
+  B --> C[Retinal-field check]
+  C --> D[Crop, pad, 512 tensor]
+  D --> E[ONNX Runtime]
+  E --> F[dr_probability]
+  E --> G[L2 768-d embedding]
+  G --> H[4-class severity probe]
+  G --> I[15 disease probes]
+  F --> J[Local visit]
+  H --> J
+  I --> J
+  J --> K[Two-page PDF]
 ```
 
-The encoder lineage is a ConvNeXt-Tiny BYOL teacher, a MobileNetV3-Large student started from direct BYOL, and KD Run 2 distillation into the mobile student. Masked InfoNCE experiments in this repository are separate research. They are absent from this app’s inference path.
-
-## Image check and preprocessing
-
-Before the encoder runs, the app rejects an image that does not look like a retinal photograph. The message is: “This image does not look like a fundus photograph. Choose a retinal image.”
-
-The check measures the corner surround. A gray camera border, one labeled corner, a tighter crop, a mild offset, and a darker retina can pass. A normal full-frame photo, a blank page, and a tiny speck fail. A retinal photo that fills the frame with no darker surround can also fail. This is a geometry check. No trained fundus detector is packaged. Accepted images keep the same crop and tensor as before the check.
-
-An accepted image is then prepared in OpenCV: max-channel mask above 15, 5×5 opening, crop when the mask is large enough, square padding, resize through 640 and then 512 with `INTER_AREA`, ImageNet normalization, and planar RGB float32. The limits are JPEG or PNG and 24 megapixels. There is no packaged image-quality model. Blur, exposure, and clinical gradability are not scored.
-
-## Visit PDF
-
-Saving a visit can write `OFFIRST-{visit}-v6.pdf`, a two-page A4 report generated on the device.
-
-- Page 1 has the report id, patient details, a colour DR severity index for the captured eyes, and the other screening findings.
-- Page 2 shows the captured fundus photographs.
-- Image quality is marked “Not assessed.”
-- If that v6 file already exists for the visit, the app returns the saved file.
-
-The report is a screening summary for a prototype. It has no role as a medical diagnosis.
-
-## Build 1.0.5
-
-Flutter 3.41.9, Dart 3.11.5, JDK 17, and the Android SDK. Minimum Android API is 24. Release builds are debug-signed prototype APKs.
-
-```powershell
-git clone https://github.com/Mayank-gitspace/OFFIRST.git
-cd OFFIRST/deployment/offline_dr_screening
-flutter pub get
-flutter test
-flutter build apk --release --split-per-abi --tree-shake-icons --build-name=1.0.5 --build-number=2005 --target-platform android-arm,android-arm64
+```mermaid
+flowchart TD
+  T[ConvNeXt-Tiny BYOL teacher] --> K[KD Run 2 distillation]
+  S[MobileNetV3-Large BYOL student] --> K
+  K --> P[960-d pool, bias-free map to 768, L2 norm]
+  P --> B[Folded linear 768 to 1, sigmoid]
+  P --> R[4-class severity probe]
+  P --> M[15 exploratory probes]
 ```
 
-The split APKs are written under `build/app/outputs/flutter-apk/`. Flutter’s split version code is `abiVersion * 1000 + 2005`: armeabi-v7a is **3005**, arm64-v8a is **4005**. A universal APK with version code 2005 does not replace an installed 4005 package.
-
-To compile the v1.1 rollback on purpose:
-
-```powershell
-flutter build apk --release --dart-define=OFFIRST_EXPERIMENTAL_V21=false --build-name=1.0.5 --build-number=2005
-```
-
-`scripts/build_v2_1_final_candidate.ps1` still checks for 1.0.4. Use the Flutter command above for this 1.0.5 source.
-
-## Releases
-
-| Release | What it is |
+| Stage | What 1.0.5 uses |
 | --- | --- |
-| [offirst-1.0.5](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5) | Current reviewer build. App 1.0.5, arm64 version code 4005. [APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.apk), SHA-256 `62f319ef5978a13fa645a619cdc05802b6020ebfa085ac882fd9647c0e125a2d`. ONNX SHA-256 `b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b`. Threshold `0.524373471736908`. |
-| [offirst-v2.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1) | App 1.0.3, version code 2003. [Universal APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk), SHA-256 `c165bc145ce2fdf6115585594aa4048e728abd0422576f485d36be587c6c77e2`. ONNX SHA-256 `43a87f05df7adc6a231a679721e7f0b11b45a3fe6d1582aa4527ed738fa63b3f`. Threshold `0.3675977844516245`. 16-unit MLP with Platt calibration inside the graph. |
-| [offirst-android-prototype-v1.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-android-prototype-v1.1) | Older binary model and APKs. Historical cutoff `0.48`. |
-| [kd-run2](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/kd-run2) | Student checkpoint used by the encoder lineage. The phone does not load this file directly. |
+| Teacher lineage | Frozen ConvNeXt-Tiny BYOL representation. The phone does not load the teacher. |
+| Student | MobileNetV3-Large from KD Run 2. Masked InfoNCE is a separate research strand and is not this deployed distillation. |
+| Embedding | 960 pooled features, bias-free linear map to 768, then L2 normalization. `z = emb / max(norm(emb), 1e-12)`. |
+| ONNX | [offirst_v2_1_experimental.onnx](deployment/offline_dr_screening/assets/offirst_v2_1_experimental.onnx). Input `fundus_image`, float32 `[1, 3, 512, 512]`. Outputs `dr_probability` and `embedding`. |
+| Binary head | Folded weights `768 → 1`, then sigmoid. The scaler is inside those weights. No Platt calibration step in this graph. |
+| Threshold | `0.524373471736908`, from `head_balanced.threshold_youden_cv`. |
+| Severity probe | [kd768_lp_dr_severity4_aptos.json](deployment/offline_dr_screening/assets/heads/kd768_lp_dr_severity4_aptos.json), SHA-256 `b7f64ce49be8a11e2e9abebbdf8ea2b73fe3760b12b413c16df85b80afa2e388`. Softmax, then argmax. Severe covers ICDR 3 and ICDR 4. |
+| Disease probes | [kd768_lp_multidisease_rfmid_odir.json](deployment/offline_dr_screening/assets/heads/kd768_lp_multidisease_rfmid_odir.json), SHA-256 `2eaf44e6b3343a5821c6f4988d149766e9c18be10d69a00a609424c66157a0cc`. |
+| Rollback asset | [offirst_dr_model.onnx](deployment/offline_dr_screening/assets/offirst_dr_model.onnx), SHA-256 `b8fc10191f69faef16f1dc92d08bf9542ee7e26f885767942e28292c5201dd90`. Selected only with `OFFIRST_EXPERIMENTAL_V21=false`. Historical cutoff `0.48`. |
+| Preprocessing | Kotlin and OpenCV. Max-channel mask above 15, 5×5 opening, crop, square pad, resize through 640 then 512, ImageNet normalization. The field check uses its own mask and does not change that crop. |
 
-## Recorded results
+Model id: `offirst-v2.1-experimental-b6bcb118`. The recorded KD checkpoint digest is `8bc239d22ffc4e786820f2151c99380a754bef930e42edea65022e1246f2096d` on the [kd-run2 release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/kd-run2). The phone loads the ONNX export.
 
-The table below is the historical assessment of the earlier binary classifiers. It does not measure the 1.0.5 linear head or the JSON probes. Patient independence was not established. IDRiD and RFMiD use different label protocols.
+## Screening modes
+
+Both modes score one cached embedding.
+
+| Mode | Screen |
+| --- | --- |
+| DR severity | Colour badge, confidence, four bars, and Any DR risk = `1 − P(Healthy)`. Colours `#22C55E`, `#EAB308`, `#F97316`, `#EF4444`. |
+| Multi-disease | Summary badge **Any Disease Risk**, then 14 rows sorted by displayed risk. The DR row uses the four-class grade. |
+
+Multi-disease labels: Any Disease Risk, Diabetic Retinopathy, Age-Related Macular Degeneration, Pathological Myopia, Glaucoma, Cataract, Hypertensive Retinopathy, Media Haze, Drusen, Branch Retinal Vein Occlusion, Tessellation (Tigroid Fundus), Laser Scars, Optic Disc Cupping, Optic Disc Pallor, and Optic Disc Edema. **MH is Media Haze.**
+
+Hypertension uses its prevalence-matched cutoff, `0.8037505256809883`. Every other finding uses the greater of its Youden cutoff and 0.35. Low is below that cutoff. Borderline runs up to the greater of cutoff + 0.15 and 0.70. Elevated runs up to 0.88. High is at or above 0.88.
+
+These disease rows are exploratory probe outputs.
+
+## Research
+
+Self-supervised BYOL trains a representation from image views without disease labels for that stage. Knowledge distillation then trains the MobileNetV3-Large student to match the ConvNeXt-Tiny teacher. Downstream probes freeze that embedding and fit small classifiers. That is the path from limited labels to a phone-sized model. It does not, by itself, establish clinical accuracy.
+
+<details>
+<summary>Historical classifier metrics, not the 1.0.5 head</summary>
+
+These rows are the development assessment of earlier binary classifiers, copied from [docs/RESEARCH_RESULTS.md](docs/RESEARCH_RESULTS.md). They do not measure the current folded linear head or the JSON probes. Patient independence was not established. IDRiD and RFMiD use different label protocols. The earlier v2.1 rows missed the combined gates of 85% accuracy, 85% sensitivity, and 80% specificity.
 
 | Classifier | Dataset | Images | Accuracy | Sensitivity | Specificity | AUROC | Threshold |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -178,9 +180,14 @@ The table below is the historical assessment of the earlier binary classifiers. 
 | v1.1 | RFMiD | 69 | 86.96% | 100.00% | 84.48% | 0.967 | 0.48 |
 | Earlier v2.1 | RFMiD | 69 | 81.16% | 54.55% | 86.21% | 0.875 | 0.3675977844516245 |
 
-Those earlier v2.1 numbers missed the combined working gates of 85% accuracy, 85% sensitivity, and 80% specificity. Accuracy, sensitivity, specificity, and AUROC for the current 1.0.5 head are not established in this repository.
+Accuracy, sensitivity, and specificity of the current 1.0.5 head are not established in this repository.
 
-These rows compare encoder representations. They are separate from the 1.0.5 screening scores:
+</details>
+
+<details>
+<summary>Representation probes, separate from the app score</summary>
+
+Frozen-encoder AUROC from [docs/RESEARCH_RESULTS.md](docs/RESEARCH_RESULTS.md). These are not the deployed classifier’s accuracy.
 
 | Evaluation | Direct BYOL MobileNetV3 | KD Run 2 MobileNetV3 |
 | --- | ---: | ---: |
@@ -188,18 +195,78 @@ These rows compare encoder representations. They are separate from the 1.0.5 scr
 | RFMiD 10-shot AUROC | 0.640 | 0.728 |
 | ARMD 10-shot AUROC | 0.789 | 0.949 |
 
-Details and caveats are in [docs/RESEARCH_RESULTS.md](docs/RESEARCH_RESULTS.md), [OFFIRST_PREDICTION_RECOVERY.md](OFFIRST_PREDICTION_RECOVERY.md), and [OFFIRST_DATA_LINEAGE_AND_EXPOSURE_MATRIX.csv](OFFIRST_DATA_LINEAGE_AND_EXPOSURE_MATRIX.csv).
+</details>
 
-## Repository
+## Stack
 
-| Path | Contents |
+| Layer | Choice |
 | --- | --- |
-| [deployment/offline_dr_screening](deployment/offline_dr_screening) | Flutter app, Kotlin preprocessing, PDF generator, tests, and packaged models |
-| [heads](heads) | Probe JSON used to build the app assets |
-| [docs](docs) | Longer architecture, setup, and evaluation notes. Several of those notes still describe the 1.0.3 model. |
-| [encoder_byol](encoder_byol), [encoder_mnv3_ssl](encoder_mnv3_ssl), [kd_run2](kd_run2) | Representation and distillation research |
-| [encoder_baseline](encoder_baseline), [kd_imaging](kd_imaging), [lesion_segmenter](lesion_segmenter), [tools](tools) | Separate experiments. The 1.0.5 app leaves them out of the installed package. |
+| App | Flutter and Dart |
+| Native image path | Kotlin and OpenCV 4.12 |
+| Inference | ONNX Runtime, FP32 |
+| Probes | JSON linear probes in Dart, on the normalized embedding |
+| Reports | Android `PdfDocument`, offline |
+| Storage | App-private files |
 
-Patient records, visit images, build output, and APKs are ignored. The app stores them on the phone, outside this repository.
+## Repository map
 
-**Team OFFIRST · ZEISS BeyondCode 2026.** Dataset terms remain with each dataset. This prototype does not imply a ZEISS product.
+Start with [docs/README.md](docs/README.md).
+
+| Path | Role |
+| --- | --- |
+| [deployment/offline_dr_screening](deployment/offline_dr_screening) | Android application, tests, packaged ONNX, and probes |
+| [heads](heads) | Probe JSON used to prepare the app assets |
+| [docs](docs) | Installation, architecture notes, and the documentation index |
+| [encoder_byol](encoder_byol) | ConvNeXt BYOL research |
+| [encoder_mnv3_ssl](encoder_mnv3_ssl) | MobileNetV3 self-supervised research |
+| [kd_run2](kd_run2) | Knowledge-distillation experiments and the student lineage |
+| [encoder_baseline](encoder_baseline) | Supervised encoder baselines |
+| [kd_imaging](kd_imaging) | Imaging and representation studies |
+| [lesion_segmenter](lesion_segmenter) | Separate segmentation research. It is not in the APK. |
+| [tools](tools) | Evaluation utilities |
+| Root `OFFIRST_*.md` | Audit notes. Several still describe the earlier ONNX contract. |
+
+Directories were left in place so existing scripts and paths keep working.
+
+## Build from source
+
+The published APK was produced with Flutter split builds, `--build-name=1.0.5`, and `--build-number=2005`. The documented toolchain is Flutter 3.41.9 and JDK 17 in [docs/DEVELOPMENT_SETUP.md](docs/DEVELOPMENT_SETUP.md). This audit did not rebuild the APK.
+
+```powershell
+git clone https://github.com/Mayank-gitspace/OFFIRST.git
+cd OFFIRST/deployment/offline_dr_screening
+flutter pub get
+flutter test
+flutter build apk --release --split-per-abi --tree-shake-icons --build-name=1.0.5 --build-number=2005 --target-platform android-arm64
+```
+
+The ARM64 output is `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` with version code 4005. A universal APK numbered 2005 does not replace an installed 4005 package. Release builds of this prototype are debug-signed.
+
+The v1.1 rollback build is:
+
+```powershell
+flutter build apk --release --dart-define=OFFIRST_EXPERIMENTAL_V21=false --build-name=1.0.5 --build-number=2005
+```
+
+`scripts/build_v2_1_final_candidate.ps1` still checks for 1.0.4. Use the Flutter command above for this source.
+
+## Privacy and responsible use
+
+- Use synthetic patients and de-identified images.
+- The app has no accounts and no cloud model call.
+- Records sit in app-private storage without application-level encryption. An exported PDF can leave the phone.
+- The repository has no root `LICENSE` file. Dataset terms stay with each dataset. Model and weight redistribution is not granted by this page.
+- ZEISS BeyondCode 2026 is the hackathon context. This prototype is not a ZEISS product.
+
+## Releases
+
+| Release | Role |
+| --- | --- |
+| [offirst-1.0.5](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5) | Current reviewer APK. Version name 1.0.5, version code 4005, ARM64. |
+| [offirst-v2.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1) | Historical app 1.0.3, version code 2003, universal APK. |
+| [offirst-android-prototype-v1.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-android-prototype-v1.1) | Older binary model. |
+| [kd-run2](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/kd-run2) | Student checkpoint. The phone does not load this file directly. |
+
+## Team
+
+**Team OFFIRST · ZEISS BeyondCode 2026.** The app uses Flutter, Kotlin, ONNX Runtime, and OpenCV. Research folders use PyTorch-based experiments that are not packaged in the APK.

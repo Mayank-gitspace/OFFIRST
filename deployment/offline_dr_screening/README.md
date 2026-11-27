@@ -1,5 +1,7 @@
 # OFFIRST Android application
 
+> **Historical directory note.** The contract below quotes ONNX `43a87f05…`, a 16-unit head, and threshold `0.3675977844516245`. The current reviewer APK matches the source assets now in this tree and is documented on the [front page](../../README.md).
+
 This directory contains the Flutter Android application and its two frozen ONNX assets. A normal Android release build selects the experimental v2.1 DR classifier by default. The earlier v1.1 model remains as a rollback and for interpreting legacy records.
 
 ## Offline workflow

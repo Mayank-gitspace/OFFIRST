@@ -1,5 +1,7 @@
 # OFFIRST live demonstration guide
 
+> **Historical script.** Use the [1.0.5 APK](../README.md) for a current demonstration. That build shows DR severity and multi-disease grades, not only a binary probability.
+
 Use a test profile, a synthetic patient, and de-identified retinal images already stored on the Android device. Do not use real patient records or upload medical images to external services.
 
 1. Launch **OFFIRST** and open the patient directory.

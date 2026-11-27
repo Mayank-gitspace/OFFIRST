@@ -1,5 +1,7 @@
 # Development setup
 
+> **Toolchain notes.** The release script described below targets the earlier 1.0.3 package. Build the current reviewer APK with the Flutter command on the [front page](../README.md).
+
 ## Requirements
 
 - Flutter 3.41.9 and its Dart SDK (Dart constraint: `>=3.0.0 <4.0.0`)

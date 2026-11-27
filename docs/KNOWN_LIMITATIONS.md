@@ -1,5 +1,7 @@
 # Known limitations
 
+> **Scope.** The numeric rows below are the earlier binary classifier’s development assessment. They are not measurements of the current 1.0.5 folded linear head. The current contract and its open evidence gaps are on the [front page](../README.md).
+
 ## Model and intended use
 
 - OFFIRST is an experimental academic prototype, not a certified medical device or diagnosis system.

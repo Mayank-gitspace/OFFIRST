@@ -1,5 +1,7 @@
 # OFFIRST application architecture
 
+> **Historical flow.** The diagram below matches an earlier single-output classifier and a universal APK. The current build is [OFFIRST 1.0.5](../README.md): an ARM64 split, a folded linear head, severity and multi-disease probes, and a retinal-field check before the encoder.
+
 ## On-device workflow
 
 ```mermaid

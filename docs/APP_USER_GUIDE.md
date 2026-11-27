@@ -1,5 +1,7 @@
 # App user guide
 
+> **Historical guide.** The install target below is the older universal APK. Reviewers of the current build should follow [Installation](INSTALLATION.md) and the [1.0.5 front page](../README.md).
+
 ## Run a synthetic demonstration
 
 Install the v2.1 universal APK on an ARM64 or ARMv7 Android device running Android 7.0 or newer. Use a test profile, fictitious patient data, and de-identified fundus images already available on the device. The model runs locally; image availability through Android's picker depends on the chosen provider.
