@@ -16,29 +16,42 @@ The current source is version **1.0.5+2005**, package `org.offirst.offline_dr_sc
 
 > **Research use only.** OFFIRST is not a certified medical device and has not been clinically validated. Do not use it to diagnose or rule out disease, determine referrals, or guide treatment. A score below a threshold does not rule out diabetic retinopathy.
 
-## Download OFFIRST for Android
+## Download OFFIRST 1.0.5
+
+Reviewers can install the published build from [OFFIRST 1.0.5](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5).
 
 | Phone | Download |
 | --- | --- |
-| ARM64 (`arm64-v8a`) | [Download universal APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk) |
-| ARMv7 (`armeabi-v7a`) | [Download the same universal APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk) |
+| ARM64 (`arm64-v8a`) | [OFFIRST-1.0.5-arm64-v8a.apk](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.apk) |
 
-[Release notes](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1) · [SHA-256 manifest](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.sha256) · [Installation guide](docs/INSTALLATION.md)
+[Release notes](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5) · [SHA-256 manifest](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.sha256) · [Installation guide](docs/INSTALLATION.md)
 
-The file is one universal APK for both ARM64 and ARMv7 phones. It needs Android 7.0 or newer and is debug-signed. APK SHA-256: `c165bc145ce2fdf6115585594aa4048e728abd0422576f485d36be587c6c77e2`.
+| Item | Published APK |
+| --- | --- |
+| Version | **1.0.5**, version code **4005** |
+| Package | `org.offirst.offline_dr_screening`, label **OFFIRST** |
+| Android | 7.0 / API 24 or newer |
+| ABI | `arm64-v8a` only. An ARMv7-only phone cannot install this file. |
+| Size | 48,185,982 bytes |
+| APK SHA-256 | `62f319ef5978a13fa645a619cdc05802b6020ebfa085ac882fd9647c0e125a2d` |
+| ONNX SHA-256 | `b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b` |
+| Binary threshold | `0.524373471736908` |
+| Signing | Debug-signed research prototype |
 
-That download is app version **1.0.3** (version code 2003), from the [offirst-v2.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1) release. The source described below is **1.0.5+2005**. A 1.0.5 APK is not attached to Releases yet.
+Open the APK on the phone and allow that source to install it. An existing OFFIRST install with the same debug signature keeps its local records. Do not clear application data.
+
+The previous public download remains [OFFIRST 1.0.3](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk) (version code 2003, universal APK). That file is an earlier model.
 
 ## Contents
 
-- [Download OFFIRST for Android](#download-offirst-for-android)
+- [Download OFFIRST 1.0.5](#download-offirst-105)
 - [What this build does](#what-this-build-does)
 - [Screening modes](#screening-modes)
 - [Model in this build](#model-in-this-build)
 - [Image check and preprocessing](#image-check-and-preprocessing)
 - [Visit PDF](#visit-pdf)
 - [Build 1.0.5](#build-105)
-- [Older releases](#older-releases)
+- [Releases](#releases)
 - [Recorded results](#recorded-results)
 - [Repository](#repository)
 
@@ -145,10 +158,11 @@ flutter build apk --release --dart-define=OFFIRST_EXPERIMENTAL_V21=false --build
 
 `scripts/build_v2_1_final_candidate.ps1` still checks for 1.0.4. Use the Flutter command above for this 1.0.5 source.
 
-## Older releases
+## Releases
 
 | Release | What it is |
 | --- | --- |
+| [offirst-1.0.5](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-1.0.5) | Current reviewer build. App 1.0.5, arm64 version code 4005. [APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-1.0.5/OFFIRST-1.0.5-arm64-v8a.apk), SHA-256 `62f319ef5978a13fa645a619cdc05802b6020ebfa085ac882fd9647c0e125a2d`. ONNX SHA-256 `b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b`. Threshold `0.524373471736908`. |
 | [offirst-v2.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1) | App 1.0.3, version code 2003. [Universal APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk), SHA-256 `c165bc145ce2fdf6115585594aa4048e728abd0422576f485d36be587c6c77e2`. ONNX SHA-256 `43a87f05df7adc6a231a679721e7f0b11b45a3fe6d1582aa4527ed738fa63b3f`. Threshold `0.3675977844516245`. 16-unit MLP with Platt calibration inside the graph. |
 | [offirst-android-prototype-v1.1](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-android-prototype-v1.1) | Older binary model and APKs. Historical cutoff `0.48`. |
 | [kd-run2](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/kd-run2) | Student checkpoint used by the encoder lineage. The phone does not load this file directly. |
