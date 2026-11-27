@@ -1,186 +1,237 @@
-<div align="center">
-
 # OFFIRST
 
-### Offline AI-Powered Diabetic Retinopathy Screening
+## Offline-first Retinal Screening Research Prototype
 
-**Learn More From Less Data**
+**Team OFFIRST · ZEISS BeyondCode 2026 · Source version 1.0.5**
 
-Team OFFIRST · ZEISS BeyondCode 2026
+**Project focus:** Explore whether self-supervised visual representations can support learning from fewer labeled retinal images, with inference and patient records kept on an Android phone.
 
-An experimental Android research prototype for local retinal image screening. OFFIRST combines an on-device DR classifier with local patient and visit management and PDF reports. It is not a clinically validated diagnostic application.
+OFFIRST is an experimental Android research prototype for exploring diabetic-retinopathy screening from retinal photographs. The Flutter app runs an ONNX model on-device, stores patient and visit records locally, and can create a PDF visit report. The project demonstrates a mobile workflow; it does not establish clinical effectiveness.
 
-[![Android](https://img.shields.io/badge/Android-ARM64%20%7C%20ARMv7-3C7A57)](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1)
-[![Flutter](https://img.shields.io/badge/Flutter-3.41.9-02569B?logo=flutter&logoColor=white)](deployment/offline_dr_screening/pubspec.yaml)
-[![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-on--device-005CED)](docs/AI_MODEL.md)
-[![Model](https://img.shields.io/badge/Model-v2.1%20experimental-B45309)](docs/KNOWN_LIMITATIONS.md)
+> **Research prototype only.** This project is not clinically validated or a certified medical device. Do not use its outputs to diagnose, rule out disease, make referrals, or guide treatment.
 
-## Download OFFIRST for Android
+The current source snapshot reviewed here is commit <code>212cf1f012ba862cc05315b353960a9549205e4c</code>. The repository’s published APK releases are older than this source snapshot; see [Current source and archived APKs](#current-source-and-archived-apks).
 
-| Device architecture | Download |
-| --- | --- |
-| ARM64 Android phones | [Download universal APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk) |
-| ARMv7 Android phones | [Download the same universal APK](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.apk) |
+## Problem
 
-[Release notes](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1) · [SHA-256 manifest](https://github.com/Mayank-gitspace/OFFIRST/releases/download/offirst-v2.1/OFFIRST-v2.1-final-candidate.sha256) · [Installation guide](docs/INSTALLATION.md)
+Reliable retinal screening can be difficult where specialist access, connectivity, and labeled training data are limited. OFFIRST explores compact self-supervised representations and a mobile inference workflow that can operate without a cloud inference service.
 
-APK SHA-256: `c165bc145ce2fdf6115585594aa4048e728abd0422576f485d36be587c6c77e2`
+The current implementation demonstrates local image processing, per-eye visit management, and research-model outputs. It does not establish diagnostic accuracy, clinical gradability, or patient-level screening performance.
 
-The single APK contains both `arm64-v8a` and `armeabi-v7a`. It is a debug-signed prototype build (Android 7.0+, API 24 minimum). Device installation and workflow checks remain unverified; see the release notes and [verification record](deployment/offline_dr_screening/FINAL_RELEASE_HANDOFF.md).
+## Implemented capabilities
 
-</div>
+- Register, search, edit, and delete patient records.
+- Create visits and review local visit history.
+- Select a right eye (OD) or left eye (OS), then add images from the camera or gallery.
+- Record one or more images for either eye; each image is evaluated independently.
+- Optionally mark the selected eye unavailable for a visit. This is a user-entered status only; the app does not infer a reason or disability.
+- Run the packaged ONNX model on-device and store its binary DR probability, threshold, model identifier, eye, and normalized embedding.
+- Display a four-class DR severity probe by default, or switch to exploratory multi-disease probe outputs.
+- Save, view, or export a two-page PDF report.
+- Use a first-run guided walkthrough and stage-specific error messages for image access, decoding, preprocessing, model loading, and inference failures.
 
-## Overview
+The app does not combine images into one patient-level prediction. It has no user accounts, cloud synchronization, live appointment booking, or clinician verification.
 
-Retinal screening can depend on specialist access, imaging equipment, and reliable connectivity. OFFIRST explores whether compact learned representations can support a local diabetic retinopathy screening workflow on an Android phone.
+## Architecture and inference flow
 
-The application accepts retinal photographs, preprocesses each image on-device, runs an ONNX classifier without cloud inference, stores visits locally, and can generate a PDF report. Each image receives an independent model output; OFFIRST does not fuse multiple images into a patient-level prediction.
-
-## What the application does
-
-- Registers, searches, edits, and deletes local patient records with stable IDs.
-- Creates screening visits and associates individual images with the right eye (OD) or left eye (OS).
-- Runs offline v2.1 ONNX inference and records a separate DR probability, model ID, and threshold for each image.
-- Saves visit images and metadata in app-private local storage and reopens visit history.
-- Maintains a user-entered expert directory and patient–expert associations. Entries are unverified; recorded schedules are not live availability and an association does not imply clinical review.
-- Generates, opens, and exports a PDF report with the recorded per-image results.
-
-The application does not provide accounts, cloud synchronization, clinician verification, live appointment booking, absent-eye reason codes, a combined patient-level score, or multi-disease classification. The model output is a binary DR screening score, not a diagnosis.
-
-## How OFFIRST works
-
-```mermaid
+~~~mermaid
 flowchart TD
-    A[Open OFFIRST] --> B[Register or select patient]
-    B --> C[Create a screening visit]
-    C --> D[Add OD and/or OS retinal images]
-    D --> E[Preprocess each image locally]
-    E --> F[Run the v2.1 ONNX model on Android]
-    F --> G[Display that image's DR probability and threshold result]
-    G --> H[Save visit and original image locally]
-    H --> I[Generate, open, or export the PDF report]
-```
+    A[Camera or gallery image] --> B[Decode and heuristic retinal-field check]
+    B --> C[OpenCV crop, resize and normalize]
+    C --> D[ONNX Runtime on Android]
+    D --> E[Binary DR probability and 768-D embedding]
+    E --> F[Store per-image result locally]
+    E --> G[Four-class severity probe]
+    E --> H[15 exploratory disease probes]
+    F --> I[Patient visit history and PDF actions]
+    G --> I
+    H --> I
+~~~
 
-Images are processed on the device. The application does not send images or records to a cloud inference service. Android image providers may themselves require connectivity to make a selected file available. Patient records, source images, and reports remain in app-private storage unless the user explicitly exports or shares a report. Exported PDFs can contain sensitive information.
+### Android inference
 
-## Deployed AI model
+The current v2.1 experimental path uses Kotlin/OpenCV preprocessing and the Flutter ONNX Runtime package. The expected model input is RGB float32 NCHW, <code>[batch, 3, 512, 512]</code>. The app checks the model input/output names and tensor dimensions before inference.
 
-The primary application model is OFFIRST v2.1, an experimental DR-only classifier:
+The preprocessing path applies EXIF-aware decode, a heuristic retinal-field crop/pad, OpenCV area resizing through 640 × 640 and 512 × 512, and ImageNet channel normalization. Inputs over 32 MiB or 24 megapixels are rejected.
 
-| Component | Deployed v2.1 configuration |
+### Fundus input gate and image quality
+
+The input gate is a hand-coded geometric and intensity heuristic. It uses image corners, foreground area, brightness/contrast, centering, and connected-component shape to reject some likely non-retinal inputs before inference. It is **not a trained or clinically validated fundus detector**. It can accept a non-fundus image or reject a retinal image.
+
+The app does **not** assess blur, exposure, focus, or clinical gradability. An accepted image must not be described as gradable or suitable for diagnosis. The separate quality-guard scripts in <code>tools/quality_guard_poc/</code> are not an integrated, validated quality model.
+
+## Model outputs
+
+### Current binary DR model
+
+The default v2.1 experimental ONNX asset is:
+
+- File: [<code>offirst_v2_1_experimental.onnx</code>](deployment/offline_dr_screening/assets/offirst_v2_1_experimental.onnx)
+- Manifest: [<code>model_manifest.json</code>](deployment/offline_dr_screening/assets/model_v2_1_evidence/model_manifest.json)
+- Manifest-declared SHA-256: <code>b6bcb1182db7717c01ef24181d79a44be7d1a75ddefe8567cfec2fffb9e5c59b</code>
+- Size recorded in the manifest: 14,836,101 bytes
+- ONNX outputs: binary <code>dr_probability</code> and a normalized 768-dimensional <code>embedding</code>
+- Binary operating threshold: <code>0.524373471736908</code>, positive at <code>probability &gt;= threshold</code>
+- Binary head: linear 768-to-1 layer followed by sigmoid; the manifest says the scaler is folded into the weights and calibration is none.
+
+The current model manifest marks this asset as **not eligible for external validation**. The digest above is what the tracked manifest declares; it was not recomputed from the binary ONNX payload during this review.
+
+The Dart app stores the binary probability and its threshold with each current image record. In the current v2.1 interface, the default visible result is produced by the separate four-class severity probe below; the multi-disease option uses separate exploratory probes. Do not present either probe as the ONNX binary head’s validated performance.
+
+### Four-class DR severity probe
+
+[<code>kd768_lp_dr_severity4_aptos.json</code>](deployment/offline_dr_screening/assets/heads/kd768_lp_dr_severity4_aptos.json) contains a separate softmax linear probe over the ONNX embedding. It displays **Healthy**, **Mild**, **Moderate**, or **Severe** using argmax. Its metadata records an APTOS-only training set of 2,929 examples. The displayed class confidence is the probe’s softmax output; it is not evidence of calibrated clinical risk.
+
+### Exploratory multi-disease probes
+
+[<code>kd768_lp_multidisease_rfmid_odir.json</code>](deployment/offline_dr_screening/assets/heads/kd768_lp_multidisease_rfmid_odir.json) contains 15 separate probe heads evaluated in Dart from the same embedding. The app lists:
+
+<code>Disease_Risk</code>, <code>DR</code>, <code>ARMD</code>, <code>MYA</code>, <code>Glaucoma</code>, <code>Cataract</code>, <code>Hypertension</code>, <code>MH</code>, <code>DN</code>, <code>BRVO</code>, <code>TSLN</code>, <code>LS</code>, <code>ODC</code>, <code>ODP</code>, and <code>ODE</code>.
+
+These are exploratory RFMiD/ODIR-derived label probes. Their outputs are not diagnoses, and the repository does not provide independent clinical validation for them. ODIR-derived labels and access conditions require particular care; see [data and licensing](#data-attribution-and-licensing).
+
+## Self-supervised learning, distillation, and contrastive research
+
+The current deployed encoder is the KD Run 2 MobileNetV3-Large student with a 960-to-768 projection. Project research records describe the student as initialized from MobileNetV3 BYOL pretraining and distilled from a frozen ConvNeXt-Tiny BYOL teacher. KD Run 2 is a representation-learning stage; the current binary DR head and the JSON probe heads are downstream tasks.
+
+BYOL is non-contrastive self-supervised learning: it learns from related augmented views without explicit negative examples. Knowledge distillation transfers representations from the teacher to the mobile student. The current KD Run 2 lineage is **not** an explicit Masked InfoNCE model.
+
+Explicit Masked InfoNCE is a separate, incomplete research direction. The current <code>kd_run2/final_contrastive_distilled/</code> notebook is a preflight/input-discovery outline with no executed cells, training outputs, resulting checkpoint, DR head, or ONNX export. It is not part of the deployed model. Earlier v1.1 materials mention BYOL/InfoNCE, but the current repository does not provide a complete reproducible training record that would justify attributing that objective to the current app model.
+
+See [KD Run 2](kd_run2/README.md), [research results](docs/RESEARCH_RESULTS.md), and the [contrastive notebook](kd_run2/final_contrastive_distilled/OFFIRST_final_contrastive_distilled.ipynb) for the separation between application inference and research experiments.
+
+## Patient, eye, visit, and report workflow
+
+A visit can contain multiple OD and OS images. The app shows each eye separately and retains each image’s own probability, model metadata, threshold, and embedding. A visit can be unilateral or bilateral; the app does not average images or produce a patient-level score.
+
+If an eye is marked unavailable, the record stores that selection without a supplied image or model result. If image access, decoding, preprocessing, model loading, or inference fails, that image is left without a score; the UI requires failed images to be retried or removed before saving the visit.
+
+Patient metadata, visits, expert contacts, original selected images, and generated reports are stored on the device. Expert entries are user-entered and unverified; an association does not mean that the expert reviewed the case.
+
+### PDF report behavior and limits
+
+The Android Kotlin report code creates a two-page report that can be saved in the app, opened with a PDF viewer, or exported through Android sharing. It includes patient fields, per-eye severity-probe output where available, exploratory findings, and image panels. Some fields display placeholders when no value was entered.
+
+The current PDF does **not** report the stored binary ONNX probability, binary threshold, or model version. It also does not explicitly report the visit scope or an unavailable-eye status. Image quality is labeled **“Not assessed.”** Existing version-6 PDFs can be reused instead of regenerated, so a previously saved report may not reflect later changes to the visit or patient record.
+
+## Offline operation and privacy
+
+Inference and preprocessing run locally; the release app’s main Android manifest does not request the INTERNET permission. Debug and profile manifests include that permission for Flutter development tooling. Selecting a file through an Android provider may still depend on that provider’s availability.
+
+Patient data are stored in app-private files as ordinary local records, and Android backup is disabled. The app does not add application-level encryption or a login screen. Deleting a patient attempts to remove linked local visit images and known report files, but this is not a secure-erasure guarantee. Exported or shared PDFs may contain personal information.
+
+Use synthetic patient details and de-identified retinal images for demonstrations. Review the root-level <code>offirst_sample_report_mockup.zip</code> before redistributing this repository; its contents have not been cleared here as synthetic.
+
+## Current source and archived APKs
+
+The Flutter package in the current source declares version <code>1.0.5+2005</code> and application ID <code>org.offirst.offline_dr_screening</code>. The current source snapshot and model are not represented by a verified public APK release.
+
+| Artifact | What it represents |
 | --- | --- |
-| Student encoder | MobileNetV3-Large, KD Run 2 epoch 40 |
-| Teacher lineage | ConvNeXt-Tiny BYOL epoch 20; frozen 768-dimensional teacher features |
-| Student initialization | Direct BYOL MobileNetV3-Large epoch 40 |
-| Projection | Original 960 → 768 feature projection |
-| Classifier | Supervised 16-unit MLP binary DR head |
-| Calibration | Platt calibration integrated in the FP32 ONNX graph; applied once |
-| Decision threshold | `0.3675977844516245`, positive at `>=` |
-| Model SHA-256 | `43a87f05df7adc6a231a679721e7f0b11b45a3fe6d1582aa4527ed738fa63b3f` |
+| Current GitHub source, <code>main</code> at <code>212cf1f</code> | App source version 1.0.5+2005 and the changed v2.1 experimental model described above. |
+| [Archived <code>offirst-v2.1</code> release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-v2.1) | Older published candidate: package version 1.0.3, version code 2003, APK SHA-256 <code>c165bc145ce2fdf6115585594aa4048e728abd0422576f485d36be587c6c77e2</code>. Its release notes identify the previous ONNX hash <code>43a87f05df7adc6a231a679721e7f0b11b45a3fe6d1582aa4527ed738fa63b3f</code>, 16-unit MLP head, Platt calibration, and threshold <code>0.3675977844516245</code>. It does **not** match the current source model. |
+| [Archived v1.1 prototype release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-android-prototype-v1.1) | Older rollback artifact, separate from the current v2.1 source. The app retains a build-time v1.1 selection for compatibility with older records. |
 
-The v2.1 deployed lineage is BYOL plus knowledge distillation. KD Run 2 is not an explicit Masked InfoNCE experiment, and Masked InfoNCE is not part of the shipped v2.1 classifier. BYOL is non-contrastive self-supervised learning. Separate self-supervised and contrastive research material is preserved in the repository; it should not be read as the v2.1 application model. See [AI model details](docs/AI_MODEL.md) and [research results](docs/RESEARCH_RESULTS.md).
+A local inspection report lists APKs built from a working directory, but their reproducible relationship to this exact commit has not been established. They are not linked here as verified release downloads. The current code contains a deliberate v1.1 rollback define: <code>OFFIRST_EXPERIMENTAL_V21=false</code>. The normal source default selects v2.1.
 
-### Offline inference pipeline
+## Performance and research evidence
 
-```mermaid
-flowchart LR
-    A[Retinal image] --> B[OpenCV color decode]
-    B --> C[RGB conversion and fundus crop/pad]
-    C --> D[640 then 512 resize]
-    D --> E[ImageNet normalization, NCHW float32]
-    E --> F[MobileNetV3-Large encoder]
-    F --> G[960 → 768 projection]
-    G --> H[16-unit DR head and embedded Platt calibration]
-    H --> I[ONNX probability]
-    I --> J[Compare once with 0.3675977844516245]
-    J --> K[Per-image result stored with model metadata]
-```
+The following table reports historical assessments of the earlier v1.1 and v2.1 binary models. These small development assessments are not independent clinical validation and do **not** evaluate the current changed binary head.
 
-The ONNX input is `fundus_image`, float32 `[batch, 3, 512, 512]`, RGB/NCHW. Its output is `dr_probability`, float32 `[batch, 1]`. The app consumes the calibrated probability directly and does not apply Platt calibration a second time. The v1.1 ONNX remains in the app assets and its published [release](https://github.com/Mayank-gitspace/OFFIRST/releases/tag/offirst-android-prototype-v1.1) is preserved as a rollback artifact. Saved images retain their model ID and cutoff so older v1.1 results keep their original interpretation.
-
-## Experimental evaluation
-
-The following application-level DR classifier results are development assessments, not independent clinical validation. Patient independence is unverified for both datasets, historical exposure exists, and IDRiD and RFMiD use different label protocols.
-
-| Model | Dataset | Images | Accuracy | Sensitivity | Specificity | AUROC |
+| Historical model | Dataset | Images | Accuracy | Sensitivity | Specificity | AUROC |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| v2.1 | IDRiD | 72 | 79.17% | 87.23% | 64.00% | 0.874 |
 | v1.1 | IDRiD | 72 | 70.83% | 57.45% | 96.00% | 0.846 |
-| v2.1 | RFMiD | 69 | 81.16% | 54.55% | 86.21% | 0.875 |
+| Earlier v2.1 | IDRiD | 72 | 79.17% | 87.23% | 64.00% | 0.874 |
 | v1.1 | RFMiD | 69 | 86.96% | 100.00% | 84.48% | 0.967 |
+| Earlier v2.1 | RFMiD | 69 | 81.16% | 54.55% | 86.21% | 0.875 |
 
-v2.1 does not meet the combined working gates of 85% accuracy, 85% sensitivity, and 80% specificity on either dataset. RFMiD sensitivity of 54.55% is a substantial false-negative limitation. The v1.1 RFMiD scores are also development-only and do not establish independent performance.
+Dataset protocols differ; patient independence and prior model exposure are unresolved in these historical assessments. The earlier v2.1 assessment did not meet the combined working gates of 85% accuracy, 85% sensitivity, and 80% specificity on either dataset. **There is no valid evaluation in this repository establishing that the current changed model meets those gates.**
 
-### Representation-learning results (separate from application metrics)
-
-These frozen-encoder evaluation results are AUROC probes, not the accuracy or sensitivity of the deployed app classifier.
-
-| Evaluation | Direct BYOL MobileNetV3 | KD Run 2 MobileNetV3 |
-| --- | ---: | ---: |
-| RFMiD linear-probe AUROC | 0.917 | 0.932 |
-| RFMiD 10-shot AUROC | 0.640 | 0.728 |
-| ARMD 10-shot AUROC | 0.789 | 0.949 |
-
-The sets are development research evaluations with exposure and split limitations described in the [research documentation](docs/RESEARCH_RESULTS.md) and [KD Run 2 report](kd_run2/README.md). They do not establish clinical generalization.
+Separate representation-learning reports give RFMiD linear-probe AUROC of 0.917 for direct BYOL MobileNetV3 and 0.932 for KD Run 2 MobileNetV3; reported 10-shot AUROC was 0.640 versus 0.728, and ARMD 10-shot AUROC 0.789 versus 0.949. These are research probes with dataset exposure and split limitations—not application-classifier metrics or clinical results. See [research results](docs/RESEARCH_RESULTS.md) and [data exposure notes](OFFIRST_DATA_LINEAGE_AND_EXPOSURE_MATRIX.csv).
 
 ## Technology stack
 
-| Technology | Use |
+| Layer | Technology |
 | --- | --- |
-| Flutter 3.41.9 / Dart 3.11.5 | Android application and local workflow |
-| Kotlin / Android SDK | Android OpenCV preprocessing and native PDF actions |
-| ONNX Runtime | Local FP32 model inference |
-| OpenCV 4.12 | v2.1 image decode and preprocessing |
-| Python / PyTorch | Model development and research experiments |
-| Pillow / NumPy / scikit-learn | Research preprocessing and evaluation |
-| JSON and app-private files | Local patient, expert, visit, image, and report storage |
-| Kaggle | Documented model-development environment |
+| Android UI and workflow | Flutter, Dart |
+| Image acquisition | Flutter <code>image_picker</code> camera/gallery integration |
+| Current v2.1 preprocessing | Kotlin, OpenCV 4.12 |
+| Local model inference | ONNX Runtime Flutter package |
+| Current v2.1 image tensor | RGB, 512 × 512, ImageNet-normalized float32 NCHW |
+| Local persistence | App-private files via <code>path_provider</code> |
+| Research | Python, PyTorch, timm, NumPy, scikit-learn, Kaggle |
 
-## Installation and usage
+## Repository map
 
-1. Download the universal ARM64/ARMv7 APK above and verify its SHA-256.
-2. On Android 7.0 or newer, open the downloaded APK and allow installation from that browser or file manager if prompted.
-3. Open **OFFIRST**, register or select a synthetic demonstration patient, and create a visit.
-4. Select OD and/or OS, choose locally available de-identified retinal images, and run screening.
-5. Review each image's result, save the visit, then open or export its PDF report.
+| Path | Contents |
+| --- | --- |
+| [<code>deployment/offline_dr_screening/</code>](deployment/offline_dr_screening/) | Flutter Android app, frozen ONNX assets, JSON probes, Kotlin preprocessing/reporting, and tests |
+| [<code>docs/</code>](docs/) | Setup, architecture, model, installation, research, and limitation notes |
+| [<code>encoder_baseline/</code>](encoder_baseline/) | Supervised encoder baselines and representation probes |
+| [<code>encoder_byol/</code>](encoder_byol/) | BYOL self-supervised research |
+| [<code>encoder_mnv3_ssl/</code>](encoder_mnv3_ssl/) | MobileNetV3 self-supervised research |
+| [<code>kd_run2/</code>](kd_run2/) | Mobile student/teacher distillation experiments and evaluations |
+| [<code>kd_imaging/</code>](kd_imaging/) | Imaging and representation analyses |
+| [<code>lesion_segmenter/</code>](lesion_segmenter/) | Separate lesion-segmentation research; not part of the app inference pipeline |
+| [<code>tools/</code>](tools/) | Research and evaluation utilities |
 
-The APK is debug-signed and intended for prototype testing. No Android phone or emulator was connected for this publication verification, so installation, physical-device preprocessing parity, offline runtime, upgrade data retention, and PDF opening/export have not been device-verified. See the [installation guide](docs/INSTALLATION.md) and [final release handoff](deployment/offline_dr_screening/FINAL_RELEASE_HANDOFF.md).
+## Setup and run on Android
 
-### Build from source
+Documented development toolchain: Flutter 3.41.9, Dart 3.11.5, JDK 17, and an Android SDK. Install Flutter and Android tooling using their official installation instructions.
 
-The normal Android release configuration selects v2.1 by default. From the repository root:
-
-```powershell
-cd deployment/offline_dr_screening
+~~~bash
+git clone https://github.com/Mayank-gitspace/OFFIRST.git
+cd OFFIRST/deployment/offline_dr_screening
 flutter pub get
-dart format --output=none --set-exit-if-changed lib test
-flutter analyze
-flutter test
-./scripts/build_v2_1_final_candidate.ps1
-```
+flutter run -d <android-device> --dart-define=OFFIRST_EXPERIMENTAL_V21=true
+~~~
 
-To build the v1.1 rollback variant deliberately, pass `--dart-define=OFFIRST_EXPERIMENTAL_V21=false` to Flutter build/test commands. The frozen v1.1 and v2.1 ONNX files and their thresholds are unchanged. See the [developer setup guide](docs/DEVELOPMENT_SETUP.md).
+To build a release APK from source:
 
-## Repository structure
+~~~bash
+flutter build apk --release --dart-define=OFFIRST_EXPERIMENTAL_V21=true
+~~~
 
-```text
-deployment/offline_dr_screening/  Flutter Android app, v2.1 and rollback v1.1 assets
-docs/                             Reviewer, application, model, setup, evaluation guides
-encoder_baseline/                 Supervised encoder baselines
-encoder_byol/                     BYOL self-supervised research
-encoder_mnv3_ssl/                 MobileNetV3 representation experiments
-kd_run2/                          Teacher/student knowledge-distillation research
-kd_imaging/                       Image and representation analyses
-lesion_segmenter/                 Separate lesion-segmentation research
-tools/                            Research utilities
-```
+On Windows, the repository also includes <code>scripts/build_v2_1_final_candidate.ps1</code>, which performs additional asset and package checks. The build uses the project’s debug signing configuration and is not production signing.
 
-The Android application packages the specific v2.1 DR classifier described above. Research folders preserve separate experiments, negative findings, and reproducibility material; their outputs are not automatically application features.
+To build the legacy v1.1 rollback deliberately, use <code>--dart-define=OFFIRST_EXPERIMENTAL_V21=false</code>. Do not use the older published APK as a substitute for a build from this source snapshot.
+
+The app includes Flutter tests and an Android preprocessing instrumentation test. GitHub reports no Actions workflow runs or commit status checks for the current commit; this review did not run tests, build the app, or verify behavior on a physical Android device. Test files are not evidence that the current build passes.
+
+## Data attribution and licensing
+
+The upstream references reviewed for this README are:
+
+- [RFMiD dataset paper](https://www.mdpi.com/2306-5729/6/2/14), which identifies the dataset license as CC BY 4.0.
+- [IDRiD data page](https://idrid.grand-challenge.org/Data/), which identifies a CC BY 4.0 license.
+- [APTOS 2019 competition rules](https://www.kaggle.com/c/aptos2019-blindness-detection/rules), which limit competition-data use to competition participation, non-commercial purposes, and academic research/education.
+- [ODIR-2019 dataset page](https://odir2019.grand-challenge.org/dataset/), which describes the dataset and registration/download route. The repository review did not establish a dataset-specific redistribution license or the exact accepted access terms.
+
+These upstream terms do not authenticate the exact source versions used to produce repository derivatives or establish that every cached feature, head, sample, or model can be redistributed.
+
+Research and evaluation records refer to RFMiD, IDRiD, APTOS, and ODIR-5K. Follow the original source’s citation, access, and redistribution terms for every dataset and derivative. Project records cite CC BY 4.0 for some RFMiD and IDRiD materials, but do not authenticate the exact local source versions or clear every derived asset. ODIR access is registration-controlled and the reviewed repository records do not establish a dataset-specific redistribution license; APTOS use remains subject to its source/Kaggle terms.
+
+The repository contains dataset-derived sample images, cached features, and model assets. Permissions for distributing those samples, cached outputs, and the current model weights have not been fully established. The repository has no root <code>LICENSE</code> file. Do not infer that dataset or model assets are unrestricted for reuse.
+
+## Screenshots
+
+No verified screenshots of the current Android app are included in this README. Add screenshots only after capturing them from the current source build and checking that they contain no patient-identifiable information.
 
 ## Team and acknowledgements
 
-**Team OFFIRST · ZEISS BeyondCode 2026.** The project uses Flutter, PyTorch, ONNX Runtime, OpenCV, and the other components documented in the app and research directories. Dataset use and redistribution remain subject to each dataset's own terms. ZEISS BeyondCode is the hackathon context; this project does not imply ZEISS product endorsement.
+**Team OFFIRST** · ZEISS BeyondCode 2026.
+
+The project draws on work and tools from the BYOL authors, the knowledge-distillation research community, Flutter, ONNX Runtime, OpenCV, and the dataset creators cited in the research records. This project is a hackathon research prototype and does not imply ZEISS product endorsement.
 
 ## Limitations and responsible use
 
-OFFIRST is an experimental academic research prototype, not a certified medical device. Its output must not be used alone for diagnosis, referral, treatment, or other clinical decisions. The development assessments do not establish patient-independent performance. False negatives remain a serious limitation, and a score below threshold does not rule out disease. Records are stored locally without application-level encryption; exported PDFs may contain sensitive information. See [known limitations](docs/KNOWN_LIMITATIONS.md).
+- Current model performance is unverified; the 85% accuracy, 85% sensitivity, and 80% specificity working targets are not established for this model.
+- The geometric/intensity input gate is not a trained detector, and image gradability is not assessed.
+- Severity and multi-disease outputs are exploratory probes and are not clinical diagnoses.
+- A result below the binary threshold does not rule out DR.
+- The PDF omits the stored binary score, threshold, model version, visit scope, and unavailable-eye status, and can reuse a previously generated version-6 report.
+- PDF triage text contains follow-up/referral language derived from the unvalidated severity probe; those timeframes are not clinically established.
+- Patient data and images are stored locally without application-level encryption; exported reports may contain sensitive information.
+- Dataset, sample-image, and model redistribution rights still need review.
+
+For additional details, see [architecture](docs/ARCHITECTURE.md), [installation](docs/INSTALLATION.md), [known limitations](docs/KNOWN_LIMITATIONS.md), [research results](docs/RESEARCH_RESULTS.md), and the [data lineage and exposure matrix](OFFIRST_DATA_LINEAGE_AND_EXPOSURE_MATRIX.csv).
